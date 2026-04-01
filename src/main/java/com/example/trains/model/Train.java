@@ -16,4 +16,7 @@ public class Train {
 
     @Column(nullable = false, unique = true)
     private String number;
+
+    @Column
+    private String type;
 }

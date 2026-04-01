@@ -16,4 +16,10 @@ public class Station {
 
     @Column(nullable = false)
     private String name;
+
+    @Column
+    private String city;
+
+    @Column
+    private String code;
 }

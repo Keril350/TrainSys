@@ -1,4 +1,5 @@
 package com.example.trains.model;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -24,4 +25,10 @@ public class Schedule {
 
     @Column
     private String route;
+
+    @Column
+    private LocalDateTime arrivalTime;
+
+    @Column
+    private LocalDateTime departureTime;
 }

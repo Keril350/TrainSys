@@ -1,4 +1,5 @@
 package com.example.trains.model;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -25,4 +26,10 @@ public class Ticket {
 
     @Column(nullable = false)
     private BigDecimal price;
+
+    @Column
+    private LocalDateTime purchaseDate;
+
+    @Column
+    private String seatNumber;
 }
