@@ -1,11 +1,12 @@
 package com.example.trains.service;
 
+import com.example.trains.dto.TrainDTO;
 import com.example.trains.model.Train;
 import com.example.trains.repository.TrainRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TrainService {
@@ -16,19 +17,47 @@ public class TrainService {
         this.trainRepository = trainRepository;
     }
 
-    public Train createTrain(Train train) {
-        return trainRepository.save(train);
+    // CREATE
+    public TrainDTO createTrain(TrainDTO dto) {
+        Train train = new Train();
+
+        train.setNumber(dto.getNumber());
+        train.setType(dto.getType());
+
+        Train saved = trainRepository.save(train);
+
+        return mapToDTO(saved);
     }
 
-    public List<Train> getAllTrains() {
-        return trainRepository.findAll();
+    // GET ALL
+    public List<TrainDTO> getAllTrains() {
+        return trainRepository.findAll()
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
-    public Optional<Train> getTrainById(Integer id) {
-        return trainRepository.findById(id);
+    // GET BY ID
+    public TrainDTO getTrainById(Integer id) {
+        Train train = trainRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Train not found"));
+
+        return mapToDTO(train);
     }
 
+    // DELETE
     public void deleteTrain(Integer id) {
         trainRepository.deleteById(id);
+    }
+
+    // 🔁 Маппер
+    private TrainDTO mapToDTO(Train train) {
+        TrainDTO dto = new TrainDTO();
+
+        dto.setId(train.getId());
+        dto.setNumber(train.getNumber());
+        dto.setType(train.getType());
+
+        return dto;
     }
 }

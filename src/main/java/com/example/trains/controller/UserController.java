@@ -1,5 +1,6 @@
 package com.example.trains.controller;
 
+import com.example.trains.dto.UserDTO;
 import com.example.trains.model.User;
 import com.example.trains.service.UserService;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +19,8 @@ public class UserController {
 
     // POST
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public User createUser(@RequestBody UserDTO userDTO) {
+        return userService.createUser(userDTO);
     }
 
     // GET
@@ -28,7 +29,7 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    // GETid
+    // GET by id
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Integer id) {
         return userService.getUserById(id)

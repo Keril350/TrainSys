@@ -1,6 +1,6 @@
 package com.example.trains.controller;
 
-import com.example.trains.model.Schedule;
+import com.example.trains.dto.ScheduleDTO;
 import com.example.trains.service.ScheduleService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,19 +18,19 @@ public class ScheduleController {
 
     // POST
     @PostMapping
-    public Schedule createSchedule(@RequestBody Schedule schedule) {
-        return scheduleService.createSchedule(schedule);
+    public ScheduleDTO createSchedule(@RequestBody ScheduleDTO dto) {
+        return scheduleService.createSchedule(dto);
     }
 
     // GET
     @GetMapping
-    public List<Schedule> getAllSchedules() {
+    public List<ScheduleDTO> getAllSchedules() {
         return scheduleService.getAllSchedules();
     }
 
-    // GETid
+    // GET by id
     @GetMapping("/{id}")
-    public Schedule getScheduleById(@PathVariable Integer id) {
+    public ScheduleDTO getScheduleById(@PathVariable Integer id) {
         return scheduleService.getScheduleById(id)
                 .orElseThrow(() -> new RuntimeException("Schedule not found"));
     }

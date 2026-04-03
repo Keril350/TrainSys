@@ -1,6 +1,6 @@
 package com.example.trains.controller;
 
-import com.example.trains.model.Station;
+import com.example.trains.dto.StationDTO;
 import com.example.trains.service.StationService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,19 +18,19 @@ public class StationController {
 
     // POST
     @PostMapping
-    public Station createStation(@RequestBody Station station) {
-        return stationService.createStation(station);
+    public StationDTO createStation(@RequestBody StationDTO dto) {
+        return stationService.createStation(dto);
     }
 
     // GET
     @GetMapping
-    public List<Station> getAllStations() {
+    public List<StationDTO> getAllStations() {
         return stationService.getAllStations();
     }
 
-    // GETid
+    // GET by ID
     @GetMapping("/{id}")
-    public Station getStationById(@PathVariable Integer id) {
+    public StationDTO getStationById(@PathVariable Integer id) {
         return stationService.getStationById(id)
                 .orElseThrow(() -> new RuntimeException("Station not found"));
     }

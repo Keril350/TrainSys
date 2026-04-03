@@ -1,6 +1,6 @@
 package com.example.trains.controller;
 
-import com.example.trains.model.Ticket;
+import com.example.trains.dto.TicketDTO;
 import com.example.trains.service.TicketService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,19 +18,19 @@ public class TicketController {
 
     // POST
     @PostMapping
-    public Ticket createTicket(@RequestBody Ticket ticket) {
-        return ticketService.createTicket(ticket);
+    public TicketDTO createTicket(@RequestBody TicketDTO dto) {
+        return ticketService.createTicket(dto);
     }
 
     // GET
     @GetMapping
-    public List<Ticket> getAllTickets() {
+    public List<TicketDTO> getAllTickets() {
         return ticketService.getAllTickets();
     }
 
-    // GETid
+    // GET by ID
     @GetMapping("/{id}")
-    public Ticket getTicketById(@PathVariable Integer id) {
+    public TicketDTO getTicketById(@PathVariable Integer id) {
         return ticketService.getTicketById(id)
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
     }
