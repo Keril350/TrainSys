@@ -2,6 +2,7 @@ package com.example.trains.controller;
 
 import com.example.trains.dto.TicketDTO;
 import com.example.trains.service.TicketService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class TicketController {
 
     // POST
     @PostMapping
-    public TicketDTO createTicket(@RequestBody TicketDTO dto) {
+    public TicketDTO createTicket(@RequestBody @Valid TicketDTO dto) {
         return ticketService.createTicket(dto);
     }
 
@@ -33,6 +34,11 @@ public class TicketController {
     public TicketDTO getTicketById(@PathVariable Integer id) {
         return ticketService.getTicketById(id)
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
+    }
+
+    @GetMapping("/user/{userId}")
+    public List<TicketDTO> getTicketsByUser(@PathVariable Integer userId) {
+        return ticketService.getTicketsByUserId(userId);
     }
 
     // DELETE

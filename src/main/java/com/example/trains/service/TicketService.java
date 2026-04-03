@@ -63,6 +63,13 @@ public class TicketService {
                 .map(this::mapToDTO);
     }
 
+    public List<TicketDTO> getTicketsByUserId(Integer userId) {
+        return ticketRepository.findByUserId(userId)
+                .stream()
+                .map(this::mapToDTO)
+                .toList();
+    }
+
     // DELETE
     public void deleteTicket(Integer id) {
         ticketRepository.deleteById(id);

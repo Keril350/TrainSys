@@ -2,6 +2,7 @@ package com.example.trains.controller;
 
 import com.example.trains.dto.TrainDTO;
 import com.example.trains.service.TrainService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class TrainController {
 
     // POST
     @PostMapping
-    public TrainDTO createTrain(@RequestBody TrainDTO dto) {
+    public TrainDTO createTrain(@RequestBody @Valid TrainDTO dto) {
         return trainService.createTrain(dto);
     }
 

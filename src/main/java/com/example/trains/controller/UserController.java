@@ -3,6 +3,7 @@ package com.example.trains.controller;
 import com.example.trains.dto.UserDTO;
 import com.example.trains.model.User;
 import com.example.trains.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class UserController {
 
     // POST
     @PostMapping
-    public User createUser(@RequestBody UserDTO userDTO) {
+    public User createUser(@RequestBody @Valid UserDTO userDTO) {
         return userService.createUser(userDTO);
     }
 

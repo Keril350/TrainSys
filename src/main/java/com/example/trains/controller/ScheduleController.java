@@ -2,6 +2,7 @@ package com.example.trains.controller;
 
 import com.example.trains.dto.ScheduleDTO;
 import com.example.trains.service.ScheduleService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class ScheduleController {
 
     // POST
     @PostMapping
-    public ScheduleDTO createSchedule(@RequestBody ScheduleDTO dto) {
+    public ScheduleDTO createSchedule(@RequestBody @Valid ScheduleDTO dto) {
         return scheduleService.createSchedule(dto);
     }
 
