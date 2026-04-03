@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 public class TrainDTO {
 
-    @NotNull(message = "Train ID must not be null")
     private Integer id;
 
     @NotBlank(message = "Number must not be empty")

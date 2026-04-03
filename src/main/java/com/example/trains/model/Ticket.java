@@ -21,8 +21,8 @@ public class Ticket {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "train_id", nullable = false)
-    private Train train;
+    @JoinColumn(name = "schedule_id", nullable = false)
+    private Schedule schedule;
 
     @Column(nullable = false)
     private BigDecimal price;

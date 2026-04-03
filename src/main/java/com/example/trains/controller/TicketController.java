@@ -36,6 +36,7 @@ public class TicketController {
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
     }
 
+    // GET by USER
     @GetMapping("/user/{userId}")
     public List<TicketDTO> getTicketsByUser(@PathVariable Integer userId) {
         return ticketService.getTicketsByUserId(userId);

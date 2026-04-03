@@ -16,8 +16,8 @@ public class TicketDTO {
     @NotNull(message = "User ID must not be null")
     private Integer userId;
 
-    @NotNull(message = "Train ID must not be null")
-    private Integer trainId;
+    @NotNull(message = "Schedule ID must not be null")
+    private Integer scheduleId;
 
     @NotNull(message = "Price must not be null")
     @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")

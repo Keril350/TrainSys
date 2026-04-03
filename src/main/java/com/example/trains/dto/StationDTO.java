@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 public class StationDTO {
 
-    @NotNull(message = "User ID must not be null")
     private Integer id;
 
     @NotBlank(message = "Name must not be empty")

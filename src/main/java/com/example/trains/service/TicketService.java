@@ -1,32 +1,31 @@
 package com.example.trains.service;
 
 import com.example.trains.dto.TicketDTO;
+import com.example.trains.model.Schedule;
 import com.example.trains.model.Ticket;
-import com.example.trains.model.Train;
 import com.example.trains.model.User;
+import com.example.trains.repository.ScheduleRepository;
 import com.example.trains.repository.TicketRepository;
-import com.example.trains.repository.TrainRepository;
 import com.example.trains.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
-    private final TrainRepository trainRepository;
+    private final ScheduleRepository scheduleRepository;
 
     public TicketService(TicketRepository ticketRepository,
                          UserRepository userRepository,
-                         TrainRepository trainRepository) {
+                         ScheduleRepository scheduleRepository) {
         this.ticketRepository = ticketRepository;
         this.userRepository = userRepository;
-        this.trainRepository = trainRepository;
+        this.scheduleRepository = scheduleRepository;
     }
 
     // CREATE
@@ -35,12 +34,20 @@ public class TicketService {
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Train train = trainRepository.findById(dto.getTrainId())
-                .orElseThrow(() -> new RuntimeException("Train not found"));
+        Schedule schedule = scheduleRepository.findById(dto.getScheduleId())
+                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+
+        // 💥 проверка места
+        boolean exists = ticketRepository
+                .existsByScheduleIdAndSeatNumber(dto.getScheduleId(), dto.getSeatNumber());
+
+        if (exists) {
+            throw new RuntimeException("Seat already taken");
+        }
 
         Ticket ticket = new Ticket();
         ticket.setUser(user);
-        ticket.setTrain(train);
+        ticket.setSchedule(schedule);
         ticket.setPrice(dto.getPrice());
         ticket.setSeatNumber(dto.getSeatNumber());
         ticket.setPurchaseDate(LocalDateTime.now());
@@ -54,7 +61,7 @@ public class TicketService {
         return ticketRepository.findAll()
                 .stream()
                 .map(this::mapToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // GET BY ID
@@ -63,6 +70,7 @@ public class TicketService {
                 .map(this::mapToDTO);
     }
 
+    // GET BY USER
     public List<TicketDTO> getTicketsByUserId(Integer userId) {
         return ticketRepository.findByUserId(userId)
                 .stream()
@@ -80,7 +88,7 @@ public class TicketService {
         TicketDTO dto = new TicketDTO();
         dto.setId(ticket.getId());
         dto.setUserId(ticket.getUser().getId());
-        dto.setTrainId(ticket.getTrain().getId());
+        dto.setScheduleId(ticket.getSchedule().getId());
         dto.setPrice(ticket.getPrice());
         dto.setPurchaseDate(ticket.getPurchaseDate());
         dto.setSeatNumber(ticket.getSeatNumber());
