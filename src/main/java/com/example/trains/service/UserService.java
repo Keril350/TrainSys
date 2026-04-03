@@ -1,5 +1,6 @@
 package com.example.trains.service;
 
+import com.example.trains.dto.UserDTO;
 import com.example.trains.model.User;
 import com.example.trains.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,13 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User createUser(User user) {
+    // CREATE через DTO
+    public User createUser(UserDTO userDTO) {
+        User user = new User();
+
+        user.setUsername(userDTO.getUsername());
+        user.setAdmin(userDTO.getAdmin());
+
         return userRepository.save(user);
     }
 
