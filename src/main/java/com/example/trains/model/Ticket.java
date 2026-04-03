@@ -30,6 +30,7 @@ public class Ticket {
     @Column
     private LocalDateTime purchaseDate;
 
-    @Column
-    private String seatNumber;
+    @ManyToOne
+    @JoinColumn(name = "seat_id", nullable = false)
+    private Seat seat;
 }

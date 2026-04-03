@@ -23,8 +23,8 @@ public class TicketDTO {
     @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
     private BigDecimal price;
 
-    @NotBlank(message = "Seat number must not be empty")
-    private String seatNumber;
+    @NotNull
+    private Integer seatId;
 
     private LocalDateTime purchaseDate;
 }

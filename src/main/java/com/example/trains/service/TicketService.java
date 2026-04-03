@@ -2,9 +2,11 @@ package com.example.trains.service;
 
 import com.example.trains.dto.TicketDTO;
 import com.example.trains.model.Schedule;
+import com.example.trains.model.Seat;
 import com.example.trains.model.Ticket;
 import com.example.trains.model.User;
 import com.example.trains.repository.ScheduleRepository;
+import com.example.trains.repository.SeatRepository;
 import com.example.trains.repository.TicketRepository;
 import com.example.trains.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -16,16 +18,19 @@ import java.util.Optional;
 @Service
 public class TicketService {
 
+    private final SeatRepository seatRepository;
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
     private final ScheduleRepository scheduleRepository;
 
     public TicketService(TicketRepository ticketRepository,
                          UserRepository userRepository,
-                         ScheduleRepository scheduleRepository) {
+                         ScheduleRepository scheduleRepository,
+                         SeatRepository seatRepository) {
         this.ticketRepository = ticketRepository;
         this.userRepository = userRepository;
         this.scheduleRepository = scheduleRepository;
+        this.seatRepository = seatRepository;
     }
 
     // CREATE
@@ -37,19 +42,19 @@ public class TicketService {
         Schedule schedule = scheduleRepository.findById(dto.getScheduleId())
                 .orElseThrow(() -> new RuntimeException("Schedule not found"));
 
-        // 💥 проверка места
-        boolean exists = ticketRepository
-                .existsByScheduleIdAndSeatNumber(dto.getScheduleId(), dto.getSeatNumber());
+        Seat seat = seatRepository.findById(dto.getSeatId())
+                .orElseThrow(() -> new RuntimeException("Seat not found"));
 
-        if (exists) {
-            throw new RuntimeException("Seat already taken");
+        // 🔥 важная проверка — место принадлежит поезду
+        if (!seat.getTrain().getId().equals(schedule.getTrain().getId())) {
+            throw new RuntimeException("Seat does not belong to this train");
         }
 
         Ticket ticket = new Ticket();
         ticket.setUser(user);
         ticket.setSchedule(schedule);
+        ticket.setSeat(seat);
         ticket.setPrice(dto.getPrice());
-        ticket.setSeatNumber(dto.getSeatNumber());
         ticket.setPurchaseDate(LocalDateTime.now());
 
         Ticket saved = ticketRepository.save(ticket);
@@ -89,9 +94,9 @@ public class TicketService {
         dto.setId(ticket.getId());
         dto.setUserId(ticket.getUser().getId());
         dto.setScheduleId(ticket.getSchedule().getId());
+        dto.setSeatId(ticket.getSeat().getId());
         dto.setPrice(ticket.getPrice());
         dto.setPurchaseDate(ticket.getPurchaseDate());
-        dto.setSeatNumber(ticket.getSeatNumber());
         return dto;
     }
 }
