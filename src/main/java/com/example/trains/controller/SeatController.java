@@ -35,6 +35,16 @@ public class SeatController {
         return seatService.getSeatsByTrainId(trainId);
     }
 
+    @GetMapping("/taken/{scheduleId}")
+    public List<SeatDTO> getTakenSeats(@PathVariable Integer scheduleId) {
+        return seatService.getTakenSeats(scheduleId);
+    }
+
+    @GetMapping("/available/{scheduleId}")
+    public List<SeatDTO> getAvailableSeats(@PathVariable Integer scheduleId) {
+        return seatService.getAvailableSeats(scheduleId);
+    }
+
     // DELETE
     @DeleteMapping("/{id}")
     public void deleteSeat(@PathVariable Integer id) {
