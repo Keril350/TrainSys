@@ -18,16 +18,35 @@ CREATE TABLE stations (
     code VARCHAR(20)
 );
 
+CREATE TABLE route (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE route_station (
+    id SERIAL PRIMARY KEY,
+    route_id INTEGER NOT NULL,
+    station_id INTEGER NOT NULL,
+    station_order INTEGER NOT NULL,
+
+    FOREIGN KEY (route_id) REFERENCES route(id) ON DELETE CASCADE,
+    FOREIGN KEY (station_id) REFERENCES stations(id) ON DELETE CASCADE,
+
+    CONSTRAINT unique_station_in_route UNIQUE (route_id, station_id),
+    CONSTRAINT unique_order_in_route UNIQUE (route_id, station_order)
+);
+
 CREATE TABLE schedule (
     id SERIAL PRIMARY KEY,
-    station_id INTEGER NOT NULL,
     train_id INTEGER NOT NULL,
-    route VARCHAR(255),
+    route_id INTEGER NOT NULL,
     arrival_time TIMESTAMP,
     departure_time TIMESTAMP,
 
-    FOREIGN KEY (station_id) REFERENCES stations(id) ON DELETE CASCADE,
-    FOREIGN KEY (train_id) REFERENCES train(id) ON DELETE CASCADE
+    FOREIGN KEY (train_id) REFERENCES train(id) ON DELETE CASCADE,
+    FOREIGN KEY (route_id) REFERENCES route(id) ON DELETE CASCADE,
+
+    CONSTRAINT unique_train_departure UNIQUE (train_id, departure_time)
 );
 
 CREATE TABLE seat (

@@ -14,14 +14,11 @@ public class ScheduleDTO {
 
     private Integer id;
 
-    @NotNull(message = "Station ID must not be null")
-    private Integer stationId;
-
     @NotNull(message = "Train ID must not be null")
     private Integer trainId;
 
-    @NotBlank(message = "Route must not be empty")
-    private String route;
+    @NotNull(message = "Route ID must not be null")
+    private Integer routeId;
 
     @NotNull(message = "Arrival time must not be null")
     private LocalDateTime arrivalTime;

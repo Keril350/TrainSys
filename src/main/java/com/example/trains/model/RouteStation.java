@@ -4,29 +4,24 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 @Entity
-@Table(name = "schedule")
+@Table(name = "route_station")
 @Getter
 @Setter
-public class Schedule {
+public class RouteStation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "train_id", nullable = false)
-    private Train train;
-
-    @ManyToOne
     @JoinColumn(name = "route_id", nullable = false)
     private Route route;
 
-    @Column
-    private LocalDateTime arrivalTime;
+    @ManyToOne
+    @JoinColumn(name = "station_id", nullable = false)
+    private Station station;
 
-    @Column
-    private LocalDateTime departureTime;
+    @Column(name = "station_order", nullable = false)
+    private Integer stationOrder;
 }

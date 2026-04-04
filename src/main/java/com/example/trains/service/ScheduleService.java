@@ -1,11 +1,11 @@
 package com.example.trains.service;
 
 import com.example.trains.dto.ScheduleDTO;
+import com.example.trains.model.Route;
 import com.example.trains.model.Schedule;
-import com.example.trains.model.Station;
 import com.example.trains.model.Train;
+import com.example.trains.repository.RouteRepository;
 import com.example.trains.repository.ScheduleRepository;
-import com.example.trains.repository.StationRepository;
 import com.example.trains.repository.TrainRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,30 +16,29 @@ import java.util.stream.Collectors;
 @Service
 public class ScheduleService {
 
+    private final RouteRepository routeRepository;
     private final ScheduleRepository scheduleRepository;
-    private final StationRepository stationRepository;
     private final TrainRepository trainRepository;
 
     public ScheduleService(ScheduleRepository scheduleRepository,
-                           StationRepository stationRepository,
-                           TrainRepository trainRepository) {
+                           TrainRepository trainRepository,
+                           RouteRepository routeRepository) {
         this.scheduleRepository = scheduleRepository;
-        this.stationRepository = stationRepository;
         this.trainRepository = trainRepository;
+        this.routeRepository = routeRepository;
     }
 
     public ScheduleDTO createSchedule(ScheduleDTO dto) {
-        Schedule schedule = new Schedule();
-
-        Station station = stationRepository.findById(dto.getStationId())
-                .orElseThrow(() -> new RuntimeException("Station with id " + dto.getStationId() + " not found"));
 
         Train train = trainRepository.findById(dto.getTrainId())
-                .orElseThrow(() -> new RuntimeException("Train with id " + dto.getTrainId() + " not found"));
+                .orElseThrow(() -> new RuntimeException("Train not found"));
 
-        schedule.setStation(station);
+        Route route = routeRepository.findById(dto.getRouteId())
+                .orElseThrow(() -> new RuntimeException("Route not found"));
+
+        Schedule schedule = new Schedule();
         schedule.setTrain(train);
-        schedule.setRoute(dto.getRoute());
+        schedule.setRoute(route);
         schedule.setArrivalTime(dto.getArrivalTime());
         schedule.setDepartureTime(dto.getDepartureTime());
 
@@ -67,9 +66,8 @@ public class ScheduleService {
     private ScheduleDTO mapToDTO(Schedule schedule) {
         ScheduleDTO dto = new ScheduleDTO();
         dto.setId(schedule.getId());
-        dto.setStationId(schedule.getStation().getId());
         dto.setTrainId(schedule.getTrain().getId());
-        dto.setRoute(schedule.getRoute());
+        dto.setRouteId(schedule.getRoute().getId());
         dto.setArrivalTime(schedule.getArrivalTime());
         dto.setDepartureTime(schedule.getDepartureTime());
         return dto;
