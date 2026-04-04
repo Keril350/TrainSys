@@ -3,6 +3,7 @@ package com.example.trains.service;
 import com.example.trains.dto.UserDTO;
 import com.example.trains.model.User;
 import com.example.trains.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,17 +13,20 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    // CREATE через DTO
-    public User createUser(UserDTO userDTO) {
-        User user = new User();
+    public User createUser(UserDTO dto) {
 
-        user.setUsername(userDTO.getUsername());
-        user.setAdmin(userDTO.getAdmin());
+        User user = new User();
+        user.setUsername(dto.getUsername());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setAdmin(dto.getAdmin());
 
         return userRepository.save(user);
     }

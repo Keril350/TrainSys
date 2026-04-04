@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserDTO {
+public class AuthDTO {
 
     @NotBlank(message = "Username must not be empty")
     private String username;
@@ -14,5 +14,6 @@ public class UserDTO {
     @NotBlank(message = "Password must not be empty")
     private String password;
 
-    private Boolean admin;
+    // используется только в ответе
+    private String token;
 }
