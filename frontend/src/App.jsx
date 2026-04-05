@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 function App() {
   const [trains, setTrains] = useState([]);
   const [stations, setStations] = useState([]);
+  const [routes, setRoutes] = useState([]);
 
   const [number, setNumber] = useState("");
   const [type, setType] = useState("");
@@ -10,6 +11,12 @@ function App() {
   const [stationName, setStationName] = useState("");
   const [city, setCity] = useState("");
   const [code, setCode] = useState("");
+
+  // ROUTE STATE
+  const [routeName, setRouteName] = useState("");
+  const [routeStations, setRouteStations] = useState([]);
+  const [stationId, setStationId] = useState("");
+  const [stationOrder, setStationOrder] = useState("");
 
   // ===== TRAINS =====
 
@@ -23,17 +30,12 @@ function App() {
   const handleCreateTrain = (e) => {
     e.preventDefault();
 
-    const newTrain = {
-      number: number,
-      type: type,
-    };
-
     fetch("http://localhost:8080/trains", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(newTrain),
+      body: JSON.stringify({ number, type }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Ошибка при создании поезда");
@@ -70,18 +72,12 @@ function App() {
   const handleCreateStation = (e) => {
     e.preventDefault();
 
-    const newStation = {
-      name: stationName,
-      city: city,
-      code: code,
-    };
-
     fetch("http://localhost:8080/stations", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(newStation),
+      body: JSON.stringify({ name: stationName, city, code }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Ошибка при создании станции");
@@ -107,11 +103,76 @@ function App() {
       .catch((err) => console.error(err));
   };
 
+  // ===== ROUTES =====
+
+  const fetchRoutes = () => {
+    fetch("http://localhost:8080/routes")
+      .then((res) => res.json())
+      .then((data) => setRoutes(data))
+      .catch((err) => console.error(err));
+  };
+
+  const addStationToRoute = () => {
+    if (!stationId || !stationOrder) return;
+
+    setRouteStations([
+      ...routeStations,
+      {
+        stationId: Number(stationId),
+        stationOrder: Number(stationOrder),
+      },
+    ]);
+
+    setStationId("");
+    setStationOrder("");
+  };
+
+  const handleCreateRoute = (e) => {
+    e.preventDefault();
+
+    fetch("http://localhost:8080/routes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: routeName,
+        stations: routeStations,
+      }),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          console.error("Ошибка:", text);
+          throw new Error("Ошибка при создании маршрута");
+        }
+        return res.json();
+      })
+      .then(() => {
+        setRouteName("");
+        setRouteStations([]);
+        fetchRoutes();
+      })
+      .catch((err) => console.error(err));
+  };
+
+  const handleDeleteRoute = (id) => {
+    fetch(`http://localhost:8080/routes/${id}`, {
+      method: "DELETE",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Ошибка удаления маршрута");
+        fetchRoutes();
+      })
+      .catch((err) => console.error(err));
+  };
+
   // ===== INIT =====
 
   useEffect(() => {
     fetchTrains();
     fetchStations();
+    fetchRoutes();
   }, []);
 
   return (
@@ -123,31 +184,25 @@ function App() {
       <form onSubmit={handleCreateTrain}>
         <input
           type="text"
-          placeholder="Номер поезда"
+          placeholder="Номер"
           value={number}
           onChange={(e) => setNumber(e.target.value)}
         />
         <br /><br />
-
         <input
           type="text"
-          placeholder="Тип поезда"
+          placeholder="Тип"
           value={type}
           onChange={(e) => setType(e.target.value)}
         />
         <br /><br />
-
         <button type="submit">Создать</button>
       </form>
 
       <h2>Список поездов</h2>
-
       {trains.map((train) => (
         <div key={train.id} style={cardStyle}>
-          <p><b>ID:</b> {train.id}</p>
-          <p><b>Номер:</b> {train.number}</p>
-          <p><b>Тип:</b> {train.type}</p>
-
+          <p>{train.number} ({train.type})</p>
           <button onClick={() => handleDeleteTrain(train.id)} style={deleteBtn}>
             Удалить
           </button>
@@ -159,46 +214,77 @@ function App() {
       {/* ===== STATIONS ===== */}
       <h2>Создать станцию</h2>
       <form onSubmit={handleCreateStation}>
-        <input
-          type="text"
-          placeholder="Название"
-          value={stationName}
-          onChange={(e) => setStationName(e.target.value)}
-        />
+        <input placeholder="Название" value={stationName} onChange={(e) => setStationName(e.target.value)} />
         <br /><br />
-
-        <input
-          type="text"
-          placeholder="Город"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-        />
+        <input placeholder="Город" value={city} onChange={(e) => setCity(e.target.value)} />
         <br /><br />
-
-        <input
-          type="text"
-          placeholder="Код"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-        />
+        <input placeholder="Код" value={code} onChange={(e) => setCode(e.target.value)} />
         <br /><br />
-
         <button type="submit">Создать</button>
       </form>
 
       <h2>Список станций</h2>
+      {stations.map((s) => (
+        <div key={s.id} style={cardStyle}>
+          <p>{s.name} ({s.city}) [{s.code}]</p>
+          <button onClick={() => handleDeleteStation(s.id)} style={deleteBtn}>
+            Удалить
+          </button>
+        </div>
+      ))}
 
-      {stations.map((station) => (
-        <div key={station.id} style={cardStyle}>
-          <p><b>ID:</b> {station.id}</p>
-          <p><b>Название:</b> {station.name}</p>
-          <p><b>Город:</b> {station.city}</p>
-          <p><b>Код:</b> {station.code}</p>
+      <hr />
 
-          <button
-            onClick={() => handleDeleteStation(station.id)}
-            style={deleteBtn}
-          >
+      {/* ===== ROUTES ===== */}
+      <h2>Создать маршрут</h2>
+      <form onSubmit={handleCreateRoute}>
+        <input
+          placeholder="Название маршрута"
+          value={routeName}
+          onChange={(e) => setRouteName(e.target.value)}
+        />
+        <br /><br />
+
+        <input
+          placeholder="ID станции"
+          value={stationId}
+          onChange={(e) => setStationId(e.target.value)}
+        />
+
+        <input
+          placeholder="Порядок"
+          value={stationOrder}
+          onChange={(e) => setStationOrder(e.target.value)}
+        />
+
+        <button type="button" onClick={addStationToRoute}>
+          Добавить станцию
+        </button>
+
+        <br /><br />
+
+        {routeStations.map((s, i) => (
+          <div key={i}>
+            {s.stationId} → {s.stationOrder}
+          </div>
+        ))}
+
+        <br />
+        <button type="submit">Создать маршрут</button>
+      </form>
+
+      <h2>Список маршрутов</h2>
+      {routes.map((r) => (
+        <div key={r.id} style={cardStyle}>
+          <p><b>{r.name}</b></p>
+
+          {r.stations?.map((s, i) => (
+            <div key={i}>
+              {s.stationOrder}. {s.stationName}
+            </div>
+          ))}
+
+          <button onClick={() => handleDeleteRoute(r.id)} style={deleteBtn}>
             Удалить
           </button>
         </div>
@@ -207,7 +293,6 @@ function App() {
   );
 }
 
-// немного стилей чтобы не дублировать
 const cardStyle = {
   border: "1px solid #ccc",
   padding: "10px",
