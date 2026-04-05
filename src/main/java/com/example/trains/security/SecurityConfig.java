@@ -36,9 +36,11 @@ public class SecurityConfig {
                         .requestMatchers("/trains/**").permitAll()
                         .requestMatchers("/stations/**").permitAll()
                         .requestMatchers("/schedules/**").permitAll()
+                        .requestMatchers("/routes/**").permitAll()
 
                         // 🗑 удаление — только админ
-                        .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/routes/**").permitAll()
+                        //.requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
 
                         // всё остальное
                         .anyRequest().authenticated()

@@ -80,6 +80,20 @@ public class RouteService {
         return mapToDTO(route);
     }
 
+    public void deleteRoute(Integer id) {
+
+        // 1. проверяем существует ли маршрут
+        Route route = routeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Route not found"));
+
+        // 2. удаляем ВСЕ связи route_station
+        List<RouteStation> stations = routeStationRepository.findByRouteIdOrderByStationOrder(id);
+        routeStationRepository.deleteAll(stations);
+
+        // 3. удаляем сам маршрут
+        routeRepository.delete(route);
+    }
+
     private RouteDTO mapToDTO(Route route) {
 
         RouteDTO dto = new RouteDTO();

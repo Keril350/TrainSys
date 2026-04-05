@@ -32,4 +32,9 @@ public class RouteController {
     public RouteDTO getRouteById(@PathVariable Integer id) {
         return routeService.getRouteById(id);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteRoute(@PathVariable Integer id) {
+        routeService.deleteRoute(id);
+    }
 }
