@@ -43,7 +43,21 @@ function App() {
       .then(() => {
         setNumber("");
         setType("");
-        fetchTrains(); // обновляем список
+        fetchTrains();
+      })
+      .catch((err) => console.error(err));
+  };
+
+  // 🔴 УДАЛЕНИЕ
+  const handleDeleteTrain = (id) => {
+    fetch(`http://localhost:8080/trains/${id}`, {
+      method: "DELETE",
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Ошибка при удалении");
+        }
+        fetchTrains();
       })
       .catch((err) => console.error(err));
   };
@@ -95,6 +109,21 @@ function App() {
             <p><b>ID:</b> {train.id}</p>
             <p><b>Номер:</b> {train.number}</p>
             <p><b>Тип:</b> {train.type}</p>
+
+            {/* 🔴 КНОПКА УДАЛЕНИЯ */}
+            <button
+              onClick={() => handleDeleteTrain(train.id)}
+              style={{
+                backgroundColor: "red",
+                color: "white",
+                border: "none",
+                padding: "5px 10px",
+                cursor: "pointer",
+                borderRadius: "5px"
+              }}
+            >
+              Удалить
+            </button>
           </div>
         ))
       )}
