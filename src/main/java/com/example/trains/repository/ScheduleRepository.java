@@ -12,12 +12,12 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
     @Query("""
     SELECT s FROM Schedule s
     WHERE s.train.id = :trainId
-    AND s.departureTime < :newArrival
-    AND s.arrivalTime > :newDeparture
+    AND s.arrivalTime < :newDeparture
+    AND s.departureTime > :newArrival
 """)
     List<Schedule> findConflictingSchedules(
             @Param("trainId") Integer trainId,
-            @Param("newDeparture") LocalDateTime newDeparture,
-            @Param("newArrival") LocalDateTime newArrival
+            @Param("newArrival") LocalDateTime newArrival,
+            @Param("newDeparture") LocalDateTime newDeparture
     );
 }

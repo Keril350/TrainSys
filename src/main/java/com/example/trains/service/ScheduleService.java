@@ -39,8 +39,8 @@ public class ScheduleService {
         // 🔥 ПРОВЕРКА НА ПЕРЕСЕЧЕНИЕ
         List<Schedule> conflicts = scheduleRepository.findConflictingSchedules(
                 dto.getTrainId(),
-                dto.getDepartureTime(),
-                dto.getArrivalTime()
+                dto.getArrivalTime(),
+                dto.getDepartureTime()
         );
 
         if (!conflicts.isEmpty()) {
