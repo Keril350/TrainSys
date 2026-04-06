@@ -1,32 +1,42 @@
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+
 import Trains from "./components/Trains";
 import Stations from "./components/Stations";
-import Routes from "./components/Routes";
+import RoutesPage from "./components/Routes";
 import Schedule from "./components/Schedule";
 import Seats from "./components/Seats";
 import Tickets from "./components/Tickets";
 
 function App() {
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>🚆 Train System</h1>
+    <BrowserRouter>
+      <div style={{ padding: "20px" }}>
+        <h1>🚆 Train System</h1>
 
-      <Trains />
-      <hr />
+        {/* 🔥 Навигация */}
+        <nav style={{ marginBottom: "20px" }}>
+          <Link to="/trains">Поезда</Link> |{" "}
+          <Link to="/stations">Станции</Link> |{" "}
+          <Link to="/routes">Маршруты</Link> |{" "}
+          <Link to="/schedules">Расписание</Link> |{" "}
+          <Link to="/seats">Места</Link> |{" "}
+          <Link to="/tickets">Билеты</Link>
+        </nav>
 
-      <Seats />
-      <hr />
+        {/* 🔥 Роуты */}
+        <Routes>
+          <Route path="/trains" element={<Trains />} />
+          <Route path="/stations" element={<Stations />} />
+          <Route path="/routes" element={<RoutesPage />} />
+          <Route path="/schedules" element={<Schedule />} />
+          <Route path="/seats" element={<Seats />} />
+          <Route path="/tickets" element={<Tickets />} />
 
-      <Tickets />
-      <hr />
-
-      <Stations />
-      <hr />
-
-      <Schedule />
-      <hr />
-
-      <Routes />
-    </div>
+          {/* дефолт */}
+          <Route path="*" element={<Trains />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 

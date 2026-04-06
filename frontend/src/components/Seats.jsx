@@ -2,38 +2,33 @@ import { useEffect, useState } from "react";
 
 function Seats() {
   const [seats, setSeats] = useState([]);
-
   const [trainId, setTrainId] = useState("");
   const [number, setNumber] = useState("");
 
-  // ===== GET =====
   const fetchSeats = () => {
     fetch("http://localhost:8080/seats")
       .then((res) => res.json())
-      .then((data) => setSeats(data))
-      .catch((err) => console.error(err));
+      .then(setSeats)
+      .catch(console.error);
   };
 
-  // ===== CREATE =====
+  useEffect(() => {
+    fetchSeats();
+  }, []);
+
   const handleCreate = (e) => {
     e.preventDefault();
 
     fetch("http://localhost:8080/seats", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         trainId: Number(trainId),
-        number: number,
+        number,
       }),
     })
-      .then(async (res) => {
-        if (!res.ok) {
-          const text = await res.text();
-          console.error("Ошибка:", text);
-          throw new Error("Ошибка создания места");
-        }
+      .then((res) => {
+        if (!res.ok) throw new Error();
         return res.json();
       })
       .then(() => {
@@ -41,78 +36,71 @@ function Seats() {
         setNumber("");
         fetchSeats();
       })
-      .catch((err) => console.error(err));
+      .catch(console.error);
   };
 
-  // ===== DELETE =====
   const handleDelete = (id) => {
     fetch(`http://localhost:8080/seats/${id}`, {
       method: "DELETE",
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Ошибка удаления");
-        fetchSeats();
-      })
-      .catch((err) => console.error(err));
+      .then(() => fetchSeats())
+      .catch(console.error);
   };
 
-  useEffect(() => {
-    fetchSeats();
-  }, []);
-
   return (
-    <div>
-      <h2>💺 Создать место</h2>
+    <div style={container}>
+      <h2>💺 Места</h2>
 
-      <form onSubmit={handleCreate}>
-        <input
-          placeholder="Train ID"
-          value={trainId}
-          onChange={(e) => setTrainId(e.target.value)}
-        />
-        <br /><br />
+      <form onSubmit={handleCreate} style={form}>
+        <input placeholder="Train ID" value={trainId} onChange={(e) => setTrainId(e.target.value)} />
+        <input placeholder="Номер места" value={number} onChange={(e) => setNumber(e.target.value)} />
 
-        <input
-          placeholder="Номер места"
-          value={number}
-          onChange={(e) => setNumber(e.target.value)}
-        />
-        <br /><br />
-
-        <button type="submit">Создать</button>
+        <button type="submit" style={createBtn}>Создать</button>
       </form>
 
-      <h2>Список мест</h2>
+      <div style={grid}>
+        {seats.map((s) => (
+          <div key={s.id} style={card}>
+            <p><b>ID:</b> {s.id}</p>
+            <p>Train: {s.trainId}</p>
+            <p>Seat: {s.number}</p>
 
-      {seats.map((seat) => (
-        <div key={seat.id} style={cardStyle}>
-          <p>ID: {seat.id}</p>
-          <p>Train: {seat.trainId}</p>
-          <p>Seat: {seat.number}</p>
-
-          <button onClick={() => handleDelete(seat.id)} style={deleteBtn}>
-            Удалить
-          </button>
-        </div>
-      ))}
+            <button onClick={() => handleDelete(s.id)} style={deleteBtn}>
+              Удалить
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
-const cardStyle = {
-  border: "1px solid #ccc",
-  padding: "10px",
-  marginBottom: "10px",
-  borderRadius: "8px"
+const container = { marginBottom: "40px" };
+const form = { display: "flex", gap: "10px", marginBottom: "20px" };
+const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "15px" };
+
+const card = {
+  border: "1px solid #ddd",
+  padding: "15px",
+  borderRadius: "10px",
+  background: "#fafafa",
+};
+
+const createBtn = {
+  background: "green",
+  color: "white",
+  border: "none",
+  padding: "8px",
+  borderRadius: "6px",
 };
 
 const deleteBtn = {
-  backgroundColor: "red",
+  background: "red",
   color: "white",
   border: "none",
-  padding: "5px 10px",
-  cursor: "pointer",
-  borderRadius: "5px"
+  padding: "6px",
+  borderRadius: "6px",
+  marginTop: "10px",
 };
 
 export default Seats;

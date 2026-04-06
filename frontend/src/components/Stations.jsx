@@ -28,7 +28,7 @@ function Stations() {
       body: JSON.stringify({ name: stationName, city, code }),
     })
       .then((res) => {
-        if (!res.ok) throw new Error();
+        if (!res.ok) throw new Error("Ошибка создания");
         return res.json();
       })
       .then(() => {
@@ -44,41 +44,101 @@ function Stations() {
     fetch(`http://localhost:8080/stations/${id}`, {
       method: "DELETE",
     })
-      .then(() => fetchStations())
+      .then((res) => {
+        if (!res.ok) throw new Error("Ошибка удаления");
+        fetchStations();
+      })
       .catch(console.error);
   };
 
   return (
-    <>
-      <h2>Станции</h2>
+    <div>
+      <h2>🏙 Станции</h2>
 
-      <form onSubmit={handleCreateStation}>
-        <input placeholder="Название" value={stationName} onChange={(e) => setStationName(e.target.value)} />
-        <br /><br />
-        <input placeholder="Город" value={city} onChange={(e) => setCity(e.target.value)} />
-        <br /><br />
-        <input placeholder="Код" value={code} onChange={(e) => setCode(e.target.value)} />
-        <br /><br />
-        <button type="submit">Создать</button>
+      {/* ===== ФОРМА ===== */}
+      <form onSubmit={handleCreateStation} style={formStyle}>
+        <input
+          placeholder="Название"
+          value={stationName}
+          onChange={(e) => setStationName(e.target.value)}
+          style={inputStyle}
+        />
+
+        <input
+          placeholder="Город"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          style={inputStyle}
+        />
+
+        <input
+          placeholder="Код"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          style={inputStyle}
+        />
+
+        <button type="submit" style={createBtn}>
+          Создать
+        </button>
       </form>
 
-      {stations.map((s) => (
-        <div key={s.id} style={cardStyle}>
-          <p>{s.name} ({s.city}) [{s.code}]</p>
-          <button onClick={() => handleDeleteStation(s.id)} style={deleteBtn}>
-            Удалить
-          </button>
-        </div>
-      ))}
-    </>
+      {/* ===== ТАБЛИЦА ===== */}
+      <table style={tableStyle}>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Город</th>
+            <th>Код</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {stations.map((s) => (
+            <tr key={s.id}>
+              <td>{s.id}</td>
+              <td>{s.name}</td>
+              <td>{s.city}</td>
+              <td>{s.code}</td>
+              <td>
+                <button
+                  onClick={() => handleDeleteStation(s.id)}
+                  style={deleteBtn}
+                >
+                  Удалить
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
-const cardStyle = {
+// ===== СТИЛИ =====
+
+const formStyle = {
+  display: "flex",
+  gap: "10px",
+  marginBottom: "20px",
+};
+
+const inputStyle = {
+  padding: "8px",
+  borderRadius: "6px",
   border: "1px solid #ccc",
-  padding: "10px",
-  marginBottom: "10px",
-  borderRadius: "8px"
+};
+
+const createBtn = {
+  backgroundColor: "green",
+  color: "white",
+  border: "none",
+  padding: "8px 15px",
+  borderRadius: "6px",
+  cursor: "pointer",
 };
 
 const deleteBtn = {
@@ -86,8 +146,13 @@ const deleteBtn = {
   color: "white",
   border: "none",
   padding: "5px 10px",
+  borderRadius: "6px",
   cursor: "pointer",
-  borderRadius: "5px"
+};
+
+const tableStyle = {
+  width: "100%",
+  borderCollapse: "collapse",
 };
 
 export default Stations;

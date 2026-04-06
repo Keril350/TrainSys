@@ -39,18 +39,12 @@ function Routes() {
 
     fetch("http://localhost:8080/routes", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: routeName,
         stations: routeStations,
       }),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
       .then(() => {
         setRouteName("");
         setRouteStations([]);
@@ -68,78 +62,50 @@ function Routes() {
   };
 
   return (
-    <>
-      <h2>Маршруты</h2>
+    <div style={container}>
+      <h2>🛤 Маршруты</h2>
 
-      <form onSubmit={handleCreateRoute}>
-        <input
-          placeholder="Название маршрута"
-          value={routeName}
-          onChange={(e) => setRouteName(e.target.value)}
-        />
-        <br /><br />
+      <form onSubmit={handleCreateRoute} style={form}>
+        <input placeholder="Название" value={routeName} onChange={(e) => setRouteName(e.target.value)} />
+        <input placeholder="Station ID" value={stationId} onChange={(e) => setStationId(e.target.value)} />
+        <input placeholder="Order" value={stationOrder} onChange={(e) => setStationOrder(e.target.value)} />
 
-        <input
-          placeholder="ID станции"
-          value={stationId}
-          onChange={(e) => setStationId(e.target.value)}
-        />
-
-        <input
-          placeholder="Порядок"
-          value={stationOrder}
-          onChange={(e) => setStationOrder(e.target.value)}
-        />
-
-        <button type="button" onClick={addStationToRoute}>
-          Добавить станцию
-        </button>
-
-        <br /><br />
-
-        {routeStations.map((s, i) => (
-          <div key={i}>
-            {s.stationId} → {s.stationOrder}
-          </div>
-        ))}
-
-        <br />
-        <button type="submit">Создать маршрут</button>
+        <button type="button" onClick={addStationToRoute}>+</button>
+        <button type="submit" style={createBtn}>Создать</button>
       </form>
 
-      {routes.map((r) => (
-        <div key={r.id} style={cardStyle}>
-          <p><b>{r.name}</b></p>
+      <div style={grid}>
+        {routes.map((r) => (
+          <div key={r.id} style={card}>
+            <p><b>{r.name}</b></p>
 
-          {r.stations?.map((s, i) => (
-            <div key={i}>
-              {s.stationOrder}. {s.stationName}
-            </div>
-          ))}
+            {r.stations?.map((s, i) => (
+              <div key={i}>
+                {s.stationOrder}. {s.stationName}
+              </div>
+            ))}
 
-          <button onClick={() => handleDeleteRoute(r.id)} style={deleteBtn}>
-            Удалить
-          </button>
-        </div>
-      ))}
-    </>
+            <button onClick={() => handleDeleteRoute(r.id)} style={deleteBtn}>
+              Удалить
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
-const cardStyle = {
-  border: "1px solid #ccc",
-  padding: "10px",
-  marginBottom: "10px",
-  borderRadius: "8px"
+const container = { marginBottom: "40px" };
+const form = { display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "20px" };
+const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "15px" };
+
+const card = {
+  border: "1px solid #ddd",
+  padding: "15px",
+  borderRadius: "10px",
 };
 
-const deleteBtn = {
-  backgroundColor: "red",
-  color: "white",
-  border: "none",
-  padding: "5px 10px",
-  cursor: "pointer",
-  borderRadius: "5px"
-};
+const createBtn = { background: "green", color: "white", padding: "8px", borderRadius: "6px" };
+const deleteBtn = { background: "red", color: "white", padding: "6px", borderRadius: "6px", marginTop: "10px" };
 
 export default Routes;

@@ -8,15 +8,17 @@ function Tickets() {
   const [seatId, setSeatId] = useState("");
   const [price, setPrice] = useState("");
 
-  // ===== GET =====
   const fetchTickets = () => {
     fetch("http://localhost:8080/tickets")
       .then((res) => res.json())
-      .then((data) => setTickets(data))
-      .catch((err) => console.error(err));
+      .then(setTickets)
+      .catch(console.error);
   };
 
-  // ===== CREATE =====
+  useEffect(() => {
+    fetchTickets();
+  }, []);
+
   const handleCreate = (e) => {
     e.preventDefault();
 
@@ -32,12 +34,8 @@ function Tickets() {
         price: Number(price),
       }),
     })
-      .then(async (res) => {
-        if (!res.ok) {
-          const text = await res.text();
-          console.error("Ошибка:", text);
-          throw new Error("Ошибка создания билета");
-        }
+      .then((res) => {
+        if (!res.ok) throw new Error();
         return res.json();
       })
       .then(() => {
@@ -47,95 +45,88 @@ function Tickets() {
         setPrice("");
         fetchTickets();
       })
-      .catch((err) => console.error(err));
+      .catch(console.error);
   };
 
-  // ===== DELETE =====
   const handleDelete = (id) => {
     fetch(`http://localhost:8080/tickets/${id}`, {
       method: "DELETE",
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Ошибка удаления");
-        fetchTickets();
-      })
-      .catch((err) => console.error(err));
+      .then(() => fetchTickets())
+      .catch(console.error);
   };
 
-  useEffect(() => {
-    fetchTickets();
-  }, []);
-
   return (
-    <div>
-      <h2>🎫 Создать билет</h2>
+    <div style={container}>
+      <h2>🎫 Билеты</h2>
 
-      <form onSubmit={handleCreate}>
-        <input
-          placeholder="User ID"
-          value={userId}
-          onChange={(e) => setUserId(e.target.value)}
-        />
-        <br /><br />
+      <form onSubmit={handleCreate} style={form}>
+        <input placeholder="User ID" value={userId} onChange={(e) => setUserId(e.target.value)} />
+        <input placeholder="Schedule ID" value={scheduleId} onChange={(e) => setScheduleId(e.target.value)} />
+        <input placeholder="Seat ID" value={seatId} onChange={(e) => setSeatId(e.target.value)} />
+        <input placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} />
 
-        <input
-          placeholder="Schedule ID"
-          value={scheduleId}
-          onChange={(e) => setScheduleId(e.target.value)}
-        />
-        <br /><br />
-
-        <input
-          placeholder="Seat ID"
-          value={seatId}
-          onChange={(e) => setSeatId(e.target.value)}
-        />
-        <br /><br />
-
-        <input
-          placeholder="Price"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-        />
-        <br /><br />
-
-        <button type="submit">Создать</button>
+        <button type="submit" style={createBtn}>Создать</button>
       </form>
 
-      <h2>Список билетов</h2>
+      <div style={grid}>
+        {tickets.map((t) => (
+          <div key={t.id} style={card}>
+            <p><b>ID:</b> {t.id}</p>
+            <p>User: {t.userId}</p>
+            <p>Schedule: {t.scheduleId}</p>
+            <p>Seat: {t.seatId}</p>
+            <p>Price: {t.price}</p>
 
-      {tickets.map((t) => (
-        <div key={t.id} style={cardStyle}>
-          <p>ID: {t.id}</p>
-          <p>User: {t.userId}</p>
-          <p>Schedule: {t.scheduleId}</p>
-          <p>Seat: {t.seatId}</p>
-          <p>Price: {t.price}</p>
-          <p>Purchased: {t.purchaseDate}</p>
-
-          <button onClick={() => handleDelete(t.id)} style={deleteBtn}>
-            Удалить
-          </button>
-        </div>
-      ))}
+            <button onClick={() => handleDelete(t.id)} style={deleteBtn}>
+              Удалить
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
-const cardStyle = {
-  border: "1px solid #ccc",
-  padding: "10px",
-  marginBottom: "10px",
-  borderRadius: "8px"
+const container = { marginBottom: "40px" };
+
+const form = {
+  display: "flex",
+  gap: "10px",
+  flexWrap: "wrap",
+  marginBottom: "20px",
+};
+
+const grid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+  gap: "15px",
+};
+
+const card = {
+  border: "1px solid #ddd",
+  padding: "15px",
+  borderRadius: "10px",
+  background: "#fafafa",
+};
+
+const createBtn = {
+  background: "green",
+  color: "white",
+  border: "none",
+  padding: "8px 12px",
+  borderRadius: "6px",
+  cursor: "pointer",
 };
 
 const deleteBtn = {
-  backgroundColor: "red",
+  background: "red",
   color: "white",
   border: "none",
-  padding: "5px 10px",
+  padding: "6px 10px",
+  borderRadius: "6px",
   cursor: "pointer",
-  borderRadius: "5px"
+  marginTop: "10px",
 };
 
 export default Tickets;
