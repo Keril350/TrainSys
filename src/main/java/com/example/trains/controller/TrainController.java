@@ -35,6 +35,12 @@ public class TrainController {
         return trainService.getTrainById(id);
     }
 
+    @PutMapping("/{id}")
+    public TrainDTO updateTrain(@PathVariable Integer id,
+                                @RequestBody @Valid TrainDTO dto) {
+        return trainService.updateTrain(id, dto);
+    }
+
     // DELETE
     @DeleteMapping("/{id}")
     public void deleteTrain(@PathVariable Integer id) {

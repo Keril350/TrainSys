@@ -45,6 +45,26 @@ public class TrainService {
         return mapToDTO(train);
     }
 
+    // UPDATE
+    public TrainDTO updateTrain(Integer id, TrainDTO dto) {
+
+        Train train = trainRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Train not found"));
+
+        // обновляем поля
+        train.setNumber(dto.getNumber());
+        train.setType(dto.getType());
+
+        Train updated = trainRepository.save(train);
+
+        if (!train.getNumber().equals(dto.getNumber()) &&
+                trainRepository.existsByNumber(dto.getNumber())) {
+            throw new RuntimeException("Train number already exists");
+        }
+
+        return mapToDTO(updated);
+    }
+
     // DELETE
     public void deleteTrain(Integer id) {
         trainRepository.deleteById(id);
