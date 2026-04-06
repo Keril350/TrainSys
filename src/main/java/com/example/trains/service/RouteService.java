@@ -80,6 +80,55 @@ public class RouteService {
         return mapToDTO(route);
     }
 
+    public RouteDTO updateRoute(Integer id, RouteDTO dto) {
+
+        // 1. проверяем что маршрут существует
+        Route route = routeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Route not found"));
+
+        // 2. обновляем имя
+        route.setName(dto.getName());
+        routeRepository.save(route);
+
+        // 3. удаляем старые станции
+        List<RouteStation> oldStations =
+                routeStationRepository.findByRouteIdOrderByStationOrder(id);
+
+        routeStationRepository.deleteAll(oldStations);
+
+        // 4. валидация (дубликаты)
+        Set<Integer> stationIds = new HashSet<>();
+        Set<Integer> orders = new HashSet<>();
+
+        for (RouteStationDTO s : dto.getStations()) {
+
+            if (!stationIds.add(s.getStationId())) {
+                throw new RuntimeException("Duplicate station in route");
+            }
+
+            if (!orders.add(s.getStationOrder())) {
+                throw new RuntimeException("Duplicate station order in route");
+            }
+        }
+
+        // 5. создаём новые связи
+        for (RouteStationDTO stationDTO : dto.getStations()) {
+
+            Station station = stationRepository.findById(stationDTO.getStationId())
+                    .orElseThrow(() -> new RuntimeException("Station not found"));
+
+            RouteStation rs = new RouteStation();
+            rs.setRoute(route);
+            rs.setStation(station);
+            rs.setStationOrder(stationDTO.getStationOrder());
+
+            routeStationRepository.save(rs);
+        }
+
+        // 6. вернуть DTO
+        return mapToDTO(route);
+    }
+
     public void deleteRoute(Integer id) {
 
         // 1. проверяем существует ли маршрут
