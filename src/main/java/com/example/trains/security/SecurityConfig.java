@@ -26,7 +26,8 @@ public class SecurityConfig {
 
                         // 🔓 публичные
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                        //.requestMatchers(HttpMethod.POST, "/users").permitAll()
+                        .requestMatchers("/users/**").permitAll()
 
                         // 👤 USER и ADMIN
                         //.requestMatchers(HttpMethod.GET, "/tickets/**").hasAnyRole("USER", "ADMIN")

@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 
 function Seats() {
   const [seats, setSeats] = useState([]);
+  const [trains, setTrains] = useState([]);
+
   const [trainId, setTrainId] = useState("");
   const [number, setNumber] = useState("");
 
+  // ===== FETCH SEATS =====
   const fetchSeats = () => {
     fetch("http://localhost:8080/seats")
       .then((res) => res.json())
@@ -12,16 +15,33 @@ function Seats() {
       .catch(console.error);
   };
 
+  // ===== FETCH TRAINS (для dropdown) =====
+  const fetchTrains = () => {
+    fetch("http://localhost:8080/trains")
+      .then((res) => res.json())
+      .then(setTrains)
+      .catch(console.error);
+  };
+
   useEffect(() => {
     fetchSeats();
+    fetchTrains();
   }, []);
 
+  // ===== CREATE =====
   const handleCreate = (e) => {
     e.preventDefault();
 
+    if (!trainId) {
+      alert("Выбери поезд");
+      return;
+    }
+
     fetch("http://localhost:8080/seats", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         trainId: Number(trainId),
         number,
@@ -39,6 +59,7 @@ function Seats() {
       .catch(console.error);
   };
 
+  // ===== DELETE =====
   const handleDelete = (id) => {
     fetch(`http://localhost:8080/seats/${id}`, {
       method: "DELETE",
@@ -52,10 +73,29 @@ function Seats() {
       <h2>💺 Места</h2>
 
       <form onSubmit={handleCreate} style={form}>
-        <input placeholder="Train ID" value={trainId} onChange={(e) => setTrainId(e.target.value)} />
-        <input placeholder="Номер места" value={number} onChange={(e) => setNumber(e.target.value)} />
 
-        <button type="submit" style={createBtn}>Создать</button>
+        {/* 🔥 DROPDOWN */}
+        <select
+          value={trainId}
+          onChange={(e) => setTrainId(e.target.value)}
+        >
+          <option value="">Выбери поезд</option>
+          {trains.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.number} ({t.type})
+            </option>
+          ))}
+        </select>
+
+        <input
+          placeholder="Номер места"
+          value={number}
+          onChange={(e) => setNumber(e.target.value)}
+        />
+
+        <button type="submit" style={createBtn}>
+          Создать
+        </button>
       </form>
 
       <div style={grid}>
@@ -65,7 +105,10 @@ function Seats() {
             <p>Train: {s.trainId}</p>
             <p>Seat: {s.number}</p>
 
-            <button onClick={() => handleDelete(s.id)} style={deleteBtn}>
+            <button
+              onClick={() => handleDelete(s.id)}
+              style={deleteBtn}
+            >
               Удалить
             </button>
           </div>
@@ -75,9 +118,22 @@ function Seats() {
   );
 }
 
-const container = { marginBottom: "40px" };
-const form = { display: "flex", gap: "10px", marginBottom: "20px" };
-const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "15px" };
+const container = {
+  marginBottom: "40px",
+};
+
+const form = {
+  display: "flex",
+  gap: "10px",
+  marginBottom: "20px",
+  flexWrap: "wrap",
+};
+
+const grid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+  gap: "15px",
+};
 
 const card = {
   border: "1px solid #ddd",
@@ -92,6 +148,7 @@ const createBtn = {
   border: "none",
   padding: "8px",
   borderRadius: "6px",
+  cursor: "pointer",
 };
 
 const deleteBtn = {
@@ -101,6 +158,7 @@ const deleteBtn = {
   padding: "6px",
   borderRadius: "6px",
   marginTop: "10px",
+  cursor: "pointer",
 };
 
 export default Seats;
