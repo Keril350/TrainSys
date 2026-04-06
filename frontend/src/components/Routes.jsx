@@ -10,6 +10,8 @@ function Routes() {
   const [stationId, setStationId] = useState("");
   const [stationOrder, setStationOrder] = useState("");
 
+  const [editId, setEditId] = useState(null);
+
   const fetchRoutes = () => {
     fetch("http://localhost:8080/routes")
       .then((res) => res.json())
@@ -44,21 +46,26 @@ function Routes() {
       },
     ]);
 
-    // 🔥 очистка
     setStationId("");
     setStationOrder("");
   };
 
-  // ❌ удалить станцию из списка
+  // ❌ удалить станцию
   const removeStation = (index) => {
     setRouteStations(routeStations.filter((_, i) => i !== index));
   };
 
-  const handleCreateRoute = (e) => {
+  // ===== CREATE / UPDATE =====
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    fetch("http://localhost:8080/routes", {
-      method: "POST",
+    const method = editId ? "PUT" : "POST";
+    const url = editId
+      ? `http://localhost:8080/routes/${editId}`
+      : "http://localhost:8080/routes";
+
+    fetch(url, {
+      method,
       headers: {
         "Content-Type": "application/json",
       },
@@ -72,21 +79,38 @@ function Routes() {
     }).then(() => {
       setRouteName("");
       setRouteStations([]);
+      setEditId(null);
       fetchRoutes();
     });
   };
 
+  // ===== DELETE =====
   const handleDeleteRoute = (id) => {
     fetch(`http://localhost:8080/routes/${id}`, {
       method: "DELETE",
     }).then(() => fetchRoutes());
   };
 
+  // ===== EDIT =====
+  const handleEdit = (r) => {
+    setEditId(r.id);
+    setRouteName(r.name);
+
+    // 🔥 загружаем станции маршрута в форму
+    setRouteStations(
+      r.stations.map((s) => ({
+        stationId: s.stationId,
+        stationOrder: s.stationOrder,
+        stationName: s.stationName,
+      }))
+    );
+  };
+
   return (
     <div style={container}>
       <h2>🛤 Маршруты</h2>
 
-      <form onSubmit={handleCreateRoute} style={form}>
+      <form onSubmit={handleSubmit} style={form}>
         <input
           placeholder="Название маршрута"
           value={routeName}
@@ -113,11 +137,11 @@ function Routes() {
         </button>
 
         <button type="submit" style={createBtn}>
-          Создать маршрут
+          {editId ? "Сохранить" : "Создать маршрут"}
         </button>
       </form>
 
-      {/* 👇 список добавленных станций */}
+      {/* 👇 список станций в форме */}
       <div style={{ marginBottom: "20px" }}>
         {routeStations.map((s, i) => (
           <div key={i}>
@@ -138,6 +162,10 @@ function Routes() {
               </div>
             ))}
 
+            <button onClick={() => handleEdit(r)}>
+              Редактировать
+            </button>
+
             <button onClick={() => handleDeleteRoute(r.id)} style={deleteBtn}>
               Удалить
             </button>
@@ -148,9 +176,22 @@ function Routes() {
   );
 }
 
+// ===== STYLES =====
+
 const container = { marginBottom: "40px" };
-const form = { display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "20px" };
-const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "15px" };
+
+const form = {
+  display: "flex",
+  gap: "10px",
+  flexWrap: "wrap",
+  marginBottom: "20px",
+};
+
+const grid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+  gap: "15px",
+};
 
 const card = {
   border: "1px solid #ddd",
@@ -163,6 +204,8 @@ const createBtn = {
   color: "white",
   padding: "8px",
   borderRadius: "6px",
+  border: "none",
+  cursor: "pointer",
 };
 
 const deleteBtn = {
@@ -171,6 +214,8 @@ const deleteBtn = {
   padding: "6px",
   borderRadius: "6px",
   marginTop: "10px",
+  border: "none",
+  cursor: "pointer",
 };
 
 export default Routes;

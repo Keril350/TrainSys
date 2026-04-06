@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 
 function Stations() {
   const [stations, setStations] = useState([]);
+
   const [stationName, setStationName] = useState("");
   const [city, setCity] = useState("");
   const [code, setCode] = useState("");
+
+  const [editingId, setEditingId] = useState(null);
 
   const fetchStations = () => {
     fetch("http://localhost:8080/stations")
@@ -17,29 +20,38 @@ function Stations() {
     fetchStations();
   }, []);
 
-  const handleCreateStation = (e) => {
+  // ===== CREATE / UPDATE =====
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    fetch("http://localhost:8080/stations", {
-      method: "POST",
+    const method = editingId ? "PUT" : "POST";
+    const url = editingId
+      ? `http://localhost:8080/stations/${editingId}`
+      : "http://localhost:8080/stations";
+
+    fetch(url, {
+      method,
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name: stationName, city, code }),
+      body: JSON.stringify({
+        name: stationName,
+        city,
+        code,
+      }),
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Ошибка создания");
+        if (!res.ok) throw new Error("Ошибка сохранения");
         return res.json();
       })
       .then(() => {
-        setStationName("");
-        setCity("");
-        setCode("");
+        resetForm();
         fetchStations();
       })
       .catch(console.error);
   };
 
+  // ===== DELETE =====
   const handleDeleteStation = (id) => {
     fetch(`http://localhost:8080/stations/${id}`, {
       method: "DELETE",
@@ -51,12 +63,28 @@ function Stations() {
       .catch(console.error);
   };
 
+  // ===== EDIT =====
+  const handleEdit = (station) => {
+    setEditingId(station.id);
+    setStationName(station.name);
+    setCity(station.city);
+    setCode(station.code);
+  };
+
+  // ===== RESET =====
+  const resetForm = () => {
+    setEditingId(null);
+    setStationName("");
+    setCity("");
+    setCode("");
+  };
+
   return (
     <div>
       <h2>🏙 Станции</h2>
 
       {/* ===== ФОРМА ===== */}
-      <form onSubmit={handleCreateStation} style={formStyle}>
+      <form onSubmit={handleSubmit} style={formStyle}>
         <input
           placeholder="Название"
           value={stationName}
@@ -79,8 +107,14 @@ function Stations() {
         />
 
         <button type="submit" style={createBtn}>
-          Создать
+          {editingId ? "Сохранить" : "Создать"}
         </button>
+
+        {editingId && (
+          <button type="button" onClick={resetForm} style={cancelBtn}>
+            Отмена
+          </button>
+        )}
       </form>
 
       {/* ===== ТАБЛИЦА ===== */}
@@ -102,7 +136,14 @@ function Stations() {
               <td>{s.name}</td>
               <td>{s.city}</td>
               <td>{s.code}</td>
-              <td>
+              <td style={{ display: "flex", gap: "5px" }}>
+                <button
+                  onClick={() => handleEdit(s)}
+                  style={editBtn}
+                >
+                  Редактировать
+                </button>
+
                 <button
                   onClick={() => handleDeleteStation(s.id)}
                   style={deleteBtn}
@@ -137,6 +178,24 @@ const createBtn = {
   color: "white",
   border: "none",
   padding: "8px 15px",
+  borderRadius: "6px",
+  cursor: "pointer",
+};
+
+const cancelBtn = {
+  backgroundColor: "gray",
+  color: "white",
+  border: "none",
+  padding: "8px 15px",
+  borderRadius: "6px",
+  cursor: "pointer",
+};
+
+const editBtn = {
+  backgroundColor: "orange",
+  color: "white",
+  border: "none",
+  padding: "5px 10px",
   borderRadius: "6px",
   cursor: "pointer",
 };

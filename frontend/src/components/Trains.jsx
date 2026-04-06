@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 
 function Trains() {
   const [trains, setTrains] = useState([]);
+
   const [number, setNumber] = useState("");
   const [type, setType] = useState("");
+
+  const [editingId, setEditingId] = useState(null); // 🔥 ключевая штука
 
   const fetchTrains = () => {
     fetch("http://localhost:8080/trains")
@@ -16,28 +19,34 @@ function Trains() {
     fetchTrains();
   }, []);
 
-  const handleCreateTrain = (e) => {
+  // ===== CREATE / UPDATE =====
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    fetch("http://localhost:8080/trains", {
-      method: "POST",
+    const method = editingId ? "PUT" : "POST";
+    const url = editingId
+      ? `http://localhost:8080/trains/${editingId}`
+      : "http://localhost:8080/trains";
+
+    fetch(url, {
+      method,
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ number, type }),
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Ошибка создания");
+        if (!res.ok) throw new Error("Ошибка сохранения");
         return res.json();
       })
       .then(() => {
-        setNumber("");
-        setType("");
+        resetForm();
         fetchTrains();
       })
       .catch(console.error);
   };
 
+  // ===== DELETE =====
   const handleDeleteTrain = (id) => {
     fetch(`http://localhost:8080/trains/${id}`, {
       method: "DELETE",
@@ -49,12 +58,26 @@ function Trains() {
       .catch(console.error);
   };
 
+  // ===== EDIT =====
+  const handleEdit = (train) => {
+    setEditingId(train.id);
+    setNumber(train.number);
+    setType(train.type);
+  };
+
+  // ===== RESET =====
+  const resetForm = () => {
+    setEditingId(null);
+    setNumber("");
+    setType("");
+  };
+
   return (
     <div>
       <h2>🚆 Поезда</h2>
 
       {/* ===== ФОРМА ===== */}
-      <form onSubmit={handleCreateTrain} style={formStyle}>
+      <form onSubmit={handleSubmit} style={formStyle}>
         <input
           value={number}
           onChange={(e) => setNumber(e.target.value)}
@@ -70,8 +93,14 @@ function Trains() {
         />
 
         <button type="submit" style={createBtn}>
-          Создать
+          {editingId ? "Сохранить" : "Создать"}
         </button>
+
+        {editingId && (
+          <button type="button" onClick={resetForm} style={cancelBtn}>
+            Отмена
+          </button>
+        )}
       </form>
 
       {/* ===== ТАБЛИЦА ===== */}
@@ -91,7 +120,14 @@ function Trains() {
               <td>{t.id}</td>
               <td>{t.number}</td>
               <td>{t.type}</td>
-              <td>
+              <td style={{ display: "flex", gap: "5px" }}>
+                <button
+                  onClick={() => handleEdit(t)}
+                  style={editBtn}
+                >
+                  Редактировать
+                </button>
+
                 <button
                   onClick={() => handleDeleteTrain(t.id)}
                   style={deleteBtn}
@@ -126,6 +162,24 @@ const createBtn = {
   color: "white",
   border: "none",
   padding: "8px 15px",
+  borderRadius: "6px",
+  cursor: "pointer",
+};
+
+const cancelBtn = {
+  backgroundColor: "gray",
+  color: "white",
+  border: "none",
+  padding: "8px 15px",
+  borderRadius: "6px",
+  cursor: "pointer",
+};
+
+const editBtn = {
+  backgroundColor: "orange",
+  color: "white",
+  border: "none",
+  padding: "5px 10px",
   borderRadius: "6px",
   cursor: "pointer",
 };

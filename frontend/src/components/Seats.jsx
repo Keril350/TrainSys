@@ -7,6 +7,8 @@ function Seats() {
   const [trainId, setTrainId] = useState("");
   const [number, setNumber] = useState("");
 
+  const [editingId, setEditingId] = useState(null);
+
   // ===== FETCH SEATS =====
   const fetchSeats = () => {
     fetch("http://localhost:8080/seats")
@@ -15,7 +17,7 @@ function Seats() {
       .catch(console.error);
   };
 
-  // ===== FETCH TRAINS (для dropdown) =====
+  // ===== FETCH TRAINS =====
   const fetchTrains = () => {
     fetch("http://localhost:8080/trains")
       .then((res) => res.json())
@@ -28,8 +30,8 @@ function Seats() {
     fetchTrains();
   }, []);
 
-  // ===== CREATE =====
-  const handleCreate = (e) => {
+  // ===== CREATE / UPDATE =====
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!trainId) {
@@ -37,8 +39,13 @@ function Seats() {
       return;
     }
 
-    fetch("http://localhost:8080/seats", {
-      method: "POST",
+    const method = editingId ? "PUT" : "POST";
+    const url = editingId
+      ? `http://localhost:8080/seats/${editingId}`
+      : "http://localhost:8080/seats";
+
+    fetch(url, {
+      method,
       headers: {
         "Content-Type": "application/json",
       },
@@ -48,12 +55,11 @@ function Seats() {
       }),
     })
       .then((res) => {
-        if (!res.ok) throw new Error();
+        if (!res.ok) throw new Error("Ошибка сохранения");
         return res.json();
       })
       .then(() => {
-        setTrainId("");
-        setNumber("");
+        resetForm();
         fetchSeats();
       })
       .catch(console.error);
@@ -68,13 +74,26 @@ function Seats() {
       .catch(console.error);
   };
 
+  // ===== EDIT =====
+  const handleEdit = (seat) => {
+    setEditingId(seat.id);
+    setTrainId(seat.trainId); // 🔥 важно
+    setNumber(seat.number);
+  };
+
+  // ===== RESET =====
+  const resetForm = () => {
+    setEditingId(null);
+    setTrainId("");
+    setNumber("");
+  };
+
   return (
     <div style={container}>
       <h2>💺 Места</h2>
 
-      <form onSubmit={handleCreate} style={form}>
-
-        {/* 🔥 DROPDOWN */}
+      <form onSubmit={handleSubmit} style={form}>
+        {/* DROPDOWN */}
         <select
           value={trainId}
           onChange={(e) => setTrainId(e.target.value)}
@@ -94,8 +113,14 @@ function Seats() {
         />
 
         <button type="submit" style={createBtn}>
-          Создать
+          {editingId ? "Сохранить" : "Создать"}
         </button>
+
+        {editingId && (
+          <button type="button" onClick={resetForm} style={cancelBtn}>
+            Отмена
+          </button>
+        )}
       </form>
 
       <div style={grid}>
@@ -105,12 +130,21 @@ function Seats() {
             <p>Train: {s.trainId}</p>
             <p>Seat: {s.number}</p>
 
-            <button
-              onClick={() => handleDelete(s.id)}
-              style={deleteBtn}
-            >
-              Удалить
-            </button>
+            <div style={{ display: "flex", gap: "5px" }}>
+              <button
+                onClick={() => handleEdit(s)}
+                style={editBtn}
+              >
+                Редактировать
+              </button>
+
+              <button
+                onClick={() => handleDelete(s.id)}
+                style={deleteBtn}
+              >
+                Удалить
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -118,9 +152,9 @@ function Seats() {
   );
 }
 
-const container = {
-  marginBottom: "40px",
-};
+// ===== СТИЛИ =====
+
+const container = { marginBottom: "40px" };
 
 const form = {
   display: "flex",
@@ -151,13 +185,30 @@ const createBtn = {
   cursor: "pointer",
 };
 
+const cancelBtn = {
+  background: "gray",
+  color: "white",
+  border: "none",
+  padding: "8px",
+  borderRadius: "6px",
+  cursor: "pointer",
+};
+
+const editBtn = {
+  background: "orange",
+  color: "white",
+  border: "none",
+  padding: "6px",
+  borderRadius: "6px",
+  cursor: "pointer",
+};
+
 const deleteBtn = {
   background: "red",
   color: "white",
   border: "none",
   padding: "6px",
   borderRadius: "6px",
-  marginTop: "10px",
   cursor: "pointer",
 };
 
