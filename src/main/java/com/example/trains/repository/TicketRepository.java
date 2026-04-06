@@ -9,7 +9,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
     List<Ticket> findByUserId(Integer userId);
 
-    boolean existsByScheduleIdAndSeatNumber(Integer scheduleId, String seatNumber);
+    boolean existsByScheduleIdAndSeatId(Integer scheduleId, Integer seatId);
 
     List<Ticket> findByScheduleId(Integer scheduleId);
 }

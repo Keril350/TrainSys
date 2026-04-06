@@ -83,6 +83,52 @@ public class TicketService {
                 .toList();
     }
 
+    public TicketDTO updateTicket(Integer id, TicketDTO dto) {
+
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ticket not found"));
+
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Schedule schedule = scheduleRepository.findById(dto.getScheduleId())
+                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+
+        Seat seat = seatRepository.findById(dto.getSeatId())
+                .orElseThrow(() -> new RuntimeException("Seat not found"));
+
+        // 🔥 проверка: место принадлежит поезду
+        if (!seat.getTrain().getId().equals(schedule.getTrain().getId())) {
+            throw new RuntimeException("Seat does not belong to this train");
+        }
+
+        // 🔥 проверка: место уже занято (кроме текущего билета)
+        boolean seatTaken = ticketRepository
+                .findByScheduleId(dto.getScheduleId())
+                .stream()
+                .anyMatch(t ->
+                        t.getSeat().getId().equals(dto.getSeatId()) &&
+                                !t.getId().equals(id)
+                );
+
+        if (seatTaken) {
+            throw new RuntimeException("Seat already taken for this schedule");
+        }
+
+        // обновление
+        ticket.setUser(user);
+        ticket.setSchedule(schedule);
+        ticket.setSeat(seat);
+        ticket.setPrice(dto.getPrice());
+
+        // ❗ purchaseDate НЕ меняем (логично)
+        // ticket.setPurchaseDate(...)
+
+        Ticket updated = ticketRepository.save(ticket);
+
+        return mapToDTO(updated);
+    }
+
     // DELETE
     public void deleteTicket(Integer id) {
         ticketRepository.deleteById(id);

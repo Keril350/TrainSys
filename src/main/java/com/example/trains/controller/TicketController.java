@@ -42,6 +42,12 @@ public class TicketController {
         return ticketService.getTicketsByUserId(userId);
     }
 
+    @PutMapping("/{id}")
+    public TicketDTO updateTicket(@PathVariable Integer id,
+                                  @RequestBody @Valid TicketDTO dto) {
+        return ticketService.updateTicket(id, dto);
+    }
+
     // DELETE
     @DeleteMapping("/{id}")
     public void deleteTicket(@PathVariable Integer id) {
