@@ -108,7 +108,7 @@ public class SeatService {
 
         Train train = trainRepository.findById(dto.getTrainId())
                 .orElseThrow(() -> new RuntimeException("Train not found"));
-        
+
         seat.setTrain(train);
         seat.setNumber(dto.getNumber());
 

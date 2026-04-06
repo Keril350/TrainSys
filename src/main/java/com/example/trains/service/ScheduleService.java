@@ -70,6 +70,42 @@ public class ScheduleService {
                 .map(this::mapToDTO);
     }
 
+    public ScheduleDTO updateSchedule(Integer id, ScheduleDTO dto) {
+
+        Schedule schedule = scheduleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+
+        Train train = trainRepository.findById(dto.getTrainId())
+                .orElseThrow(() -> new RuntimeException("Train not found"));
+
+        Route route = routeRepository.findById(dto.getRouteId())
+                .orElseThrow(() -> new RuntimeException("Route not found"));
+
+        // 🔥 ПРОВЕРКА КОНФЛИКТОВ (исключаем себя)
+        List<Schedule> conflicts = scheduleRepository.findConflictingSchedules(
+                dto.getTrainId(),
+                dto.getArrivalTime(),
+                dto.getDepartureTime()
+        );
+
+        boolean hasRealConflict = conflicts.stream()
+                .anyMatch(s -> !s.getId().equals(id));
+
+        if (hasRealConflict) {
+            throw new RuntimeException("Train is busy at this time");
+        }
+
+        // обновление
+        schedule.setTrain(train);
+        schedule.setRoute(route);
+        schedule.setArrivalTime(dto.getArrivalTime());
+        schedule.setDepartureTime(dto.getDepartureTime());
+
+        Schedule updated = scheduleRepository.save(schedule);
+
+        return mapToDTO(updated);
+    }
+
     public void deleteSchedule(Integer id) {
         scheduleRepository.deleteById(id);
     }

@@ -36,6 +36,12 @@ public class ScheduleController {
                 .orElseThrow(() -> new RuntimeException("Schedule not found"));
     }
 
+    @PutMapping("/{id}")
+    public ScheduleDTO updateSchedule(@PathVariable Integer id,
+                                      @RequestBody @Valid ScheduleDTO dto) {
+        return scheduleService.updateSchedule(id, dto);
+    }
+
     // DELETE
     @DeleteMapping("/{id}")
     public void deleteSchedule(@PathVariable Integer id) {
