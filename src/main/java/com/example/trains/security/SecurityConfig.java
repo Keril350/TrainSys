@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/stations/**").permitAll()
                         .requestMatchers("/schedules/**").permitAll()
                         .requestMatchers("/routes/**").permitAll()
+                        .requestMatchers("/seats/**").permitAll()
 
                         // 🗑 удаление — только админ
                         .requestMatchers(HttpMethod.DELETE, "/routes/**").permitAll()

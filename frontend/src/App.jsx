@@ -2,6 +2,7 @@ import Trains from "./components/Trains";
 import Stations from "./components/Stations";
 import Routes from "./components/Routes";
 import Schedule from "./components/Schedule";
+import Seats from "./components/Seats";
 
 function App() {
   return (
@@ -9,6 +10,9 @@ function App() {
       <h1>🚆 Train System</h1>
 
       <Trains />
+      <hr />
+
+      <Seats />
       <hr />
 
       <Stations />
