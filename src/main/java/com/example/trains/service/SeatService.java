@@ -100,6 +100,23 @@ public class SeatService {
                 .toList();
     }
 
+    // UPDATE
+    public SeatDTO updateSeat(Integer id, SeatDTO dto) {
+
+        Seat seat = seatRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Seat not found"));
+
+        Train train = trainRepository.findById(dto.getTrainId())
+                .orElseThrow(() -> new RuntimeException("Train not found"));
+        
+        seat.setTrain(train);
+        seat.setNumber(dto.getNumber());
+
+        Seat updated = seatRepository.save(seat);
+
+        return mapToDTO(updated);
+    }
+
     // DELETE
     public void deleteSeat(Integer id) {
         seatRepository.deleteById(id);

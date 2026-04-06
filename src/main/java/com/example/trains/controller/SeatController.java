@@ -45,6 +45,12 @@ public class SeatController {
         return seatService.getAvailableSeats(scheduleId);
     }
 
+    @PutMapping("/{id}")
+    public SeatDTO updateSeat(@PathVariable Integer id,
+                              @RequestBody @Valid SeatDTO dto) {
+        return seatService.updateSeat(id, dto);
+    }
+
     // DELETE
     @DeleteMapping("/{id}")
     public void deleteSeat(@PathVariable Integer id) {
