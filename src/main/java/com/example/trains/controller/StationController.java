@@ -36,6 +36,12 @@ public class StationController {
                 .orElseThrow(() -> new RuntimeException("Station not found"));
     }
 
+    @PutMapping("/{id}")
+    public StationDTO updateStation(@PathVariable Integer id,
+                                    @RequestBody @Valid StationDTO dto) {
+        return stationService.updateStation(id, dto);
+    }
+
     // DELETE
     @DeleteMapping("/{id}")
     public void deleteStation(@PathVariable Integer id) {

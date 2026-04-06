@@ -43,6 +43,21 @@ public class StationService {
                 .map(this::mapToDTO);
     }
 
+    // UPDATE
+    public StationDTO updateStation(Integer id, StationDTO dto) {
+
+        Station station = stationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Station not found"));
+
+        station.setName(dto.getName());
+        station.setCity(dto.getCity());
+        station.setCode(dto.getCode());
+
+        Station updated = stationRepository.save(station);
+
+        return mapToDTO(updated);
+    }
+
     // DELETE
     public void deleteStation(Integer id) {
         stationRepository.deleteById(id);
