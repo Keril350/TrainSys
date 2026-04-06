@@ -3,6 +3,7 @@ import Stations from "./components/Stations";
 import Routes from "./components/Routes";
 import Schedule from "./components/Schedule";
 import Seats from "./components/Seats";
+import Tickets from "./components/Tickets";
 
 function App() {
   return (
@@ -13,6 +14,9 @@ function App() {
       <hr />
 
       <Seats />
+      <hr />
+
+      <Tickets />
       <hr />
 
       <Stations />

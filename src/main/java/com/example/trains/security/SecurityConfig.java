@@ -29,7 +29,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
 
                         // 👤 USER и ADMIN
-                        .requestMatchers(HttpMethod.GET, "/tickets/**").hasAnyRole("USER", "ADMIN")
+                        //.requestMatchers(HttpMethod.GET, "/tickets/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/tickets/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/tickets").hasAnyRole("USER", "ADMIN")
 
                         // 🚆 ADMIN only
