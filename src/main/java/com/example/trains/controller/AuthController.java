@@ -14,10 +14,26 @@ public class AuthController {
         this.authService = authService;
     }
 
+    // 🔑 LOGIN
     @PostMapping("/login")
     public AuthDTO login(@RequestBody AuthDTO request) {
 
         String token = authService.login(
+                request.getUsername(),
+                request.getPassword()
+        );
+
+        AuthDTO response = new AuthDTO();
+        response.setToken(token);
+
+        return response;
+    }
+
+    // 🆕 REGISTER
+    @PostMapping("/register")
+    public AuthDTO register(@RequestBody AuthDTO request) {
+
+        String token = authService.register(
                 request.getUsername(),
                 request.getPassword()
         );

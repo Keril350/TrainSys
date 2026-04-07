@@ -24,28 +24,26 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
 
-                        // 🔓 публичные
+                        // 🔓 auth
                         .requestMatchers("/auth/**").permitAll()
-                        //.requestMatchers(HttpMethod.POST, "/users").permitAll()
-                        .requestMatchers("/users/**").permitAll()
 
-                        // 👤 USER и ADMIN
-                        //.requestMatchers(HttpMethod.GET, "/tickets/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/tickets/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/tickets").hasAnyRole("USER", "ADMIN")
+                        // 👀 просмотр можно всем (опционально)
+                        .requestMatchers(HttpMethod.GET, "/**").permitAll()
 
-                        // 🚆 ADMIN only
-                        .requestMatchers("/trains/**").permitAll()
-                        .requestMatchers("/stations/**").permitAll()
-                        .requestMatchers("/schedules/**").permitAll()
-                        .requestMatchers("/routes/**").permitAll()
-                        .requestMatchers("/seats/**").permitAll()
+                        // 🎫 покупка билета
+                        .requestMatchers(HttpMethod.POST, "/tickets/**")
+                        .hasRole("USER")
 
-                        // 🗑 удаление — только админ
-                        .requestMatchers(HttpMethod.DELETE, "/routes/**").permitAll()
-                        //.requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
+                        // 🛠 админка
+                        .requestMatchers("/trains/**").hasRole("ADMIN")
+                        .requestMatchers("/stations/**").hasRole("ADMIN")
+                        .requestMatchers("/routes/**").hasRole("ADMIN")
+                        .requestMatchers("/seats/**").hasRole("ADMIN")
+                        .requestMatchers("/schedules/**").hasRole("ADMIN")
 
-                        // всё остальное
+                        // ❌ удаление
+                        .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
