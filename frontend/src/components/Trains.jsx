@@ -6,7 +6,17 @@ function Trains() {
   const [number, setNumber] = useState("");
   const [type, setType] = useState("");
 
-  const [editingId, setEditingId] = useState(null); // 🔥 ключевая штука
+  const [editingId, setEditingId] = useState(null);
+
+  // 🔑 получаем токен
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("token");
+
+    return {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token,
+    };
+  };
 
   const fetchTrains = () => {
     fetch("http://localhost:8080/trains")
@@ -30,32 +40,45 @@ function Trains() {
 
     fetch(url, {
       method,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(), // 🔥 добавили токен
       body: JSON.stringify({ number, type }),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Ошибка сохранения");
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || "Ошибка сохранения");
+        }
         return res.json();
       })
       .then(() => {
         resetForm();
         fetchTrains();
       })
-      .catch(console.error);
+      .catch((err) => {
+        console.error(err);
+        alert("Ошибка сохранения (возможно нет прав ADMIN)");
+      });
   };
 
   // ===== DELETE =====
   const handleDeleteTrain = (id) => {
     fetch(`http://localhost:8080/trains/${id}`, {
       method: "DELETE",
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("token"),
+      }, // 🔥 добавили токен
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Ошибка удаления");
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || "Ошибка удаления");
+        }
         fetchTrains();
       })
-      .catch(console.error);
+      .catch((err) => {
+        console.error(err);
+        alert("Ошибка удаления (возможно нет прав ADMIN)");
+      });
   };
 
   // ===== EDIT =====
@@ -121,10 +144,7 @@ function Trains() {
               <td>{t.number}</td>
               <td>{t.type}</td>
               <td style={{ display: "flex", gap: "5px" }}>
-                <button
-                  onClick={() => handleEdit(t)}
-                  style={editBtn}
-                >
+                <button onClick={() => handleEdit(t)} style={editBtn}>
                   Редактировать
                 </button>
 

@@ -12,16 +12,24 @@ function Routes() {
 
   const [editId, setEditId] = useState(null);
 
+  // 🔑 JWT
+  const getAuthHeaders = () => ({
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + localStorage.getItem("token"),
+  });
+
   const fetchRoutes = () => {
     fetch("http://localhost:8080/routes")
       .then((res) => res.json())
-      .then(setRoutes);
+      .then(setRoutes)
+      .catch(console.error);
   };
 
   const fetchStations = () => {
     fetch("http://localhost:8080/stations")
       .then((res) => res.json())
-      .then(setStations);
+      .then(setStations)
+      .catch(console.error);
   };
 
   useEffect(() => {
@@ -31,7 +39,16 @@ function Routes() {
 
   // ➕ добавить станцию
   const addStationToRoute = () => {
-    if (!stationId || !stationOrder) return;
+    if (!stationId || !stationOrder) {
+      alert("Выбери станцию и порядок");
+      return;
+    }
+
+    // ❗ защита от дубликатов
+    if (routeStations.some((s) => s.stationId === Number(stationId))) {
+      alert("Станция уже добавлена");
+      return;
+    }
 
     const selectedStation = stations.find(
       (s) => s.id === Number(stationId)
@@ -59,6 +76,16 @@ function Routes() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    if (!routeName) {
+      alert("Введите название маршрута");
+      return;
+    }
+
+    if (routeStations.length === 0) {
+      alert("Добавь хотя бы одну станцию");
+      return;
+    }
+
     const method = editId ? "PUT" : "POST";
     const url = editId
       ? `http://localhost:8080/routes/${editId}`
@@ -66,9 +93,7 @@ function Routes() {
 
     fetch(url, {
       method,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({
         name: routeName,
         stations: routeStations.map((s) => ({
@@ -76,19 +101,45 @@ function Routes() {
           stationOrder: s.stationOrder,
         })),
       }),
-    }).then(() => {
-      setRouteName("");
-      setRouteStations([]);
-      setEditId(null);
-      fetchRoutes();
-    });
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || "Ошибка");
+        }
+        return res.json();
+      })
+      .then(() => {
+        setRouteName("");
+        setRouteStations([]);
+        setEditId(null);
+        fetchRoutes();
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("Ошибка (нужна роль ADMIN)");
+      });
   };
 
   // ===== DELETE =====
   const handleDeleteRoute = (id) => {
     fetch(`http://localhost:8080/routes/${id}`, {
       method: "DELETE",
-    }).then(() => fetchRoutes());
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("token"),
+      },
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || "Ошибка удаления");
+        }
+        fetchRoutes();
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("Ошибка удаления (нужна роль ADMIN)");
+      });
   };
 
   // ===== EDIT =====
@@ -96,7 +147,6 @@ function Routes() {
     setEditId(r.id);
     setRouteName(r.name);
 
-    // 🔥 загружаем станции маршрута в форму
     setRouteStations(
       r.stations.map((s) => ({
         stationId: s.stationId,
@@ -176,7 +226,7 @@ function Routes() {
   );
 }
 
-// ===== STYLES =====
+// ===== СТИЛИ =====
 
 const container = { marginBottom: "40px" };
 

@@ -14,23 +14,32 @@ function Tickets() {
 
   const [editId, setEditId] = useState(null);
 
+  // 🔑 JWT headers
+  const getAuthHeaders = () => ({
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + localStorage.getItem("token"),
+  });
+
   // ===== FETCH =====
   const fetchTickets = () => {
     fetch("http://localhost:8080/tickets")
       .then((res) => res.json())
-      .then(setTickets);
+      .then(setTickets)
+      .catch(console.error);
   };
 
   const fetchUsers = () => {
     fetch("http://localhost:8080/users")
       .then((res) => res.json())
-      .then(setUsers);
+      .then(setUsers)
+      .catch(console.error);
   };
 
   const fetchSchedules = () => {
     fetch("http://localhost:8080/schedules")
       .then((res) => res.json())
-      .then(setSchedules);
+      .then(setSchedules)
+      .catch(console.error);
   };
 
   // 🔥 ВАЖНО: места грузим по расписанию
@@ -60,9 +69,7 @@ function Tickets() {
 
     fetch(url, {
       method,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(), // 🔥 добавили токен
       body: JSON.stringify({
         userId: Number(userId),
         scheduleId: Number(scheduleId),
@@ -70,8 +77,11 @@ function Tickets() {
         price: Number(price),
       }),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Ошибка");
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || "Ошибка");
+        }
         return res.json();
       })
       .then(() => {
@@ -83,15 +93,31 @@ function Tickets() {
         setSeats([]);
         fetchTickets();
       })
-      .catch(console.error);
+      .catch((err) => {
+        console.error(err);
+        alert("Ошибка (возможно нет прав USER/ADMIN)");
+      });
   };
 
   // ===== DELETE =====
   const handleDelete = (id) => {
     fetch(`http://localhost:8080/tickets/${id}`, {
       method: "DELETE",
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("token"),
+      }, // 🔥 добавили токен
     })
-      .then(() => fetchTickets());
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || "Ошибка удаления");
+        }
+        fetchTickets();
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("Ошибка удаления");
+      });
   };
 
   // ===== EDIT =====
@@ -102,7 +128,6 @@ function Tickets() {
     setSeatId(t.seatId);
     setPrice(t.price);
 
-    // 🔥 подгружаем места под это расписание
     fetchSeats(t.scheduleId);
   };
 
@@ -116,7 +141,7 @@ function Tickets() {
           <option value="">Пользователь</option>
           {users.map((u) => (
             <option key={u.id} value={u.id}>
-              {u.email}
+              {u.username || u.email}
             </option>
           ))}
         </select>
@@ -128,7 +153,7 @@ function Tickets() {
             const val = e.target.value;
             setScheduleId(val);
             setSeatId("");
-            fetchSeats(val); // 🔥 фильтр мест
+            fetchSeats(val);
           }}
         >
           <option value="">Расписание</option>
@@ -187,7 +212,7 @@ function Tickets() {
   );
 }
 
-// ===== STYLES =====
+// ===== СТИЛИ =====
 
 const container = { marginBottom: "40px" };
 

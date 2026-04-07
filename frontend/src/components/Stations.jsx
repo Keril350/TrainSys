@@ -9,6 +9,12 @@ function Stations() {
 
   const [editingId, setEditingId] = useState(null);
 
+  // 🔑 JWT headers
+  const getAuthHeaders = () => ({
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + localStorage.getItem("token"),
+  });
+
   const fetchStations = () => {
     fetch("http://localhost:8080/stations")
       .then((res) => res.json())
@@ -31,36 +37,49 @@ function Stations() {
 
     fetch(url, {
       method,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(), // 🔥 добавили токен
       body: JSON.stringify({
         name: stationName,
         city,
         code,
       }),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Ошибка сохранения");
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || "Ошибка сохранения");
+        }
         return res.json();
       })
       .then(() => {
         resetForm();
         fetchStations();
       })
-      .catch(console.error);
+      .catch((err) => {
+        console.error(err);
+        alert("Ошибка сохранения (нужна роль ADMIN)");
+      });
   };
 
   // ===== DELETE =====
   const handleDeleteStation = (id) => {
     fetch(`http://localhost:8080/stations/${id}`, {
       method: "DELETE",
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("token"),
+      }, // 🔥 добавили токен
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Ошибка удаления");
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || "Ошибка удаления");
+        }
         fetchStations();
       })
-      .catch(console.error);
+      .catch((err) => {
+        console.error(err);
+        alert("Ошибка удаления (нужна роль ADMIN)");
+      });
   };
 
   // ===== EDIT =====

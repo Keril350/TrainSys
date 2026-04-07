@@ -6,6 +6,8 @@ import RoutesPage from "./components/Routes";
 import Schedule from "./components/Schedule";
 import Seats from "./components/Seats";
 import Tickets from "./components/Tickets";
+import Login from "./components/Login";
+import Register from "./components/Register";
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
 
         {/* 🔥 Навигация */}
         <nav style={{ marginBottom: "20px" }}>
+            <Link to="/login">Вход</Link> |{" "}
+          <Link to="/register">Регистрация</Link> |{" "}
           <Link to="/trains">Поезда</Link> |{" "}
           <Link to="/stations">Станции</Link> |{" "}
           <Link to="/routes">Маршруты</Link> |{" "}
@@ -25,6 +29,8 @@ function App() {
 
         {/* 🔥 Роуты */}
         <Routes>
+            <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/trains" element={<Trains />} />
           <Route path="/stations" element={<Stations />} />
           <Route path="/routes" element={<RoutesPage />} />

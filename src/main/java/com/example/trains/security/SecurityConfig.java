@@ -21,6 +21,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
+                .cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
 
@@ -32,7 +33,7 @@ public class SecurityConfig {
 
                         // 🎫 покупка билета
                         .requestMatchers(HttpMethod.POST, "/tickets/**")
-                        .hasRole("USER")
+                        .hasAnyRole("USER", "ADMIN")
 
                         // 🛠 админка
                         .requestMatchers("/trains/**").hasRole("ADMIN")

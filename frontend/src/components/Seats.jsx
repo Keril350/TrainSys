@@ -9,6 +9,12 @@ function Seats() {
 
   const [editingId, setEditingId] = useState(null);
 
+  // 🔑 JWT headers
+  const getAuthHeaders = () => ({
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + localStorage.getItem("token"),
+  });
+
   // ===== FETCH SEATS =====
   const fetchSeats = () => {
     fetch("http://localhost:8080/seats")
@@ -46,38 +52,54 @@ function Seats() {
 
     fetch(url, {
       method,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(), // 🔥 токен
       body: JSON.stringify({
         trainId: Number(trainId),
         number,
       }),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Ошибка сохранения");
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || "Ошибка сохранения");
+        }
         return res.json();
       })
       .then(() => {
         resetForm();
         fetchSeats();
       })
-      .catch(console.error);
+      .catch((err) => {
+        console.error(err);
+        alert("Ошибка сохранения (нужна роль ADMIN)");
+      });
   };
 
   // ===== DELETE =====
   const handleDelete = (id) => {
     fetch(`http://localhost:8080/seats/${id}`, {
       method: "DELETE",
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("token"),
+      }, // 🔥 токен
     })
-      .then(() => fetchSeats())
-      .catch(console.error);
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || "Ошибка удаления");
+        }
+        fetchSeats();
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("Ошибка удаления (нужна роль ADMIN)");
+      });
   };
 
   // ===== EDIT =====
   const handleEdit = (seat) => {
     setEditingId(seat.id);
-    setTrainId(seat.trainId); // 🔥 важно
+    setTrainId(seat.trainId);
     setNumber(seat.number);
   };
 

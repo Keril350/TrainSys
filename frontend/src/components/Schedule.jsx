@@ -13,6 +13,12 @@ function Schedule() {
 
   const [editId, setEditId] = useState(null);
 
+  // 🔑 JWT
+  const getAuthHeaders = () => ({
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + localStorage.getItem("token"),
+  });
+
   // ===== FETCH =====
   const fetchSchedules = () => {
     fetch("http://localhost:8080/schedules")
@@ -24,13 +30,15 @@ function Schedule() {
   const fetchTrains = () => {
     fetch("http://localhost:8080/trains")
       .then((res) => res.json())
-      .then(setTrains);
+      .then(setTrains)
+      .catch(console.error);
   };
 
   const fetchRoutes = () => {
     fetch("http://localhost:8080/routes")
       .then((res) => res.json())
-      .then(setRoutes);
+      .then(setRoutes)
+      .catch(console.error);
   };
 
   useEffect(() => {
@@ -38,6 +46,12 @@ function Schedule() {
     fetchTrains();
     fetchRoutes();
   }, []);
+
+  // 🔥 фикс даты (очень важно)
+  const formatDateTime = (date) => {
+    if (!date) return null;
+    return date.length === 16 ? date + ":00" : date;
+  };
 
   // ===== CREATE / UPDATE =====
   const handleSubmit = (e) => {
@@ -50,18 +64,19 @@ function Schedule() {
 
     fetch(url, {
       method,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({
         trainId: Number(trainId),
         routeId: Number(routeId),
-        arrivalTime,
-        departureTime,
+        arrivalTime: formatDateTime(arrivalTime),
+        departureTime: formatDateTime(departureTime),
       }),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Ошибка");
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || "Ошибка");
+        }
         return res.json();
       })
       .then(() => {
@@ -72,16 +87,31 @@ function Schedule() {
         setEditId(null);
         fetchSchedules();
       })
-      .catch(console.error);
+      .catch((err) => {
+        console.error(err);
+        alert("Ошибка (нужна роль ADMIN)");
+      });
   };
 
   // ===== DELETE =====
   const handleDelete = (id) => {
     fetch(`http://localhost:8080/schedules/${id}`, {
       method: "DELETE",
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("token"),
+      },
     })
-      .then(() => fetchSchedules())
-      .catch(console.error);
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || "Ошибка удаления");
+        }
+        fetchSchedules();
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("Ошибка удаления (нужна роль ADMIN)");
+      });
   };
 
   // ===== EDIT =====
@@ -89,6 +119,8 @@ function Schedule() {
     setEditId(s.id);
     setTrainId(s.trainId);
     setRouteId(s.routeId);
+
+    // 🔥 обрезаем до формата input datetime-local
     setArrivalTime(s.arrivalTime?.slice(0, 16));
     setDepartureTime(s.departureTime?.slice(0, 16));
   };
@@ -160,7 +192,7 @@ function Schedule() {
   );
 }
 
-// ===== STYLES =====
+// ===== СТИЛИ =====
 
 const container = { marginBottom: "40px" };
 
