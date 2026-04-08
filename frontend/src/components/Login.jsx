@@ -5,7 +5,7 @@ function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const navigate = useNavigate(); // 🔥
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,13 +26,15 @@ function Login() {
         return;
       }
 
+      // 🔥 СОХРАНЯЕМ ВСЁ
       localStorage.setItem("username", username);
       localStorage.setItem("token", data.token);
+      localStorage.setItem("role", data.role); // ✅ ВОТ ЭТОГО НЕ ХВАТАЛО
 
       alert("Успешный вход");
 
-      navigate("/trains"); // ✅ ВАЖНО
-      window.location.reload(); // 🔥 чтобы App обновился
+      navigate("/trains");
+      window.location.reload(); // чтобы App обновился
     } catch (err) {
       console.error(err);
       alert("Ошибка сервера");

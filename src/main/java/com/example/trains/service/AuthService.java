@@ -1,5 +1,6 @@
 package com.example.trains.service;
 
+import com.example.trains.dto.AuthDTO;
 import com.example.trains.model.User;
 import com.example.trains.repository.UserRepository;
 import com.example.trains.security.JwtService;
@@ -21,8 +22,8 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    // 🔑 LOGIN (оставляем как есть)
-    public String login(String username, String password) {
+    // 🔑 LOGIN
+    public AuthDTO login(String username, String password) {
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -31,11 +32,18 @@ public class AuthService {
             throw new RuntimeException("Invalid password");
         }
 
-        return jwtService.generateToken(username);
+        // 🔥 используем getAdmin()
+        String token = jwtService.generateToken(username, user.getAdmin());
+
+        AuthDTO dto = new AuthDTO();
+        dto.setToken(token);
+        dto.setRole(user.getAdmin() ? "ADMIN" : "USER");
+
+        return dto;
     }
 
     // 🆕 REGISTER
-    public String register(String username, String password) {
+    public AuthDTO register(String username, String password) {
 
         if (userRepository.findByUsername(username).isPresent()) {
             throw new RuntimeException("User already exists");
@@ -44,10 +52,17 @@ public class AuthService {
         User user = new User();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
-        user.setAdmin(false); // по умолчанию USER
+        user.setAdmin(false);
 
         userRepository.save(user);
 
-        return jwtService.generateToken(username);
+        // 🔥 тоже исправили здесь
+        String token = jwtService.generateToken(username, user.getAdmin());
+
+        AuthDTO dto = new AuthDTO();
+        dto.setToken(token);
+        dto.setRole("USER");
+
+        return dto;
     }
 }

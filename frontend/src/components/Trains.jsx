@@ -8,13 +8,15 @@ function Trains() {
 
   const [editingId, setEditingId] = useState(null);
 
-  // 🔑 получаем токен
+  // 🔥 РОЛЬ
+  const isAdmin = localStorage.getItem("role") === "ADMIN";
+
   const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
 
     return {
       "Content-Type": "application/json",
-      "Authorization": "Bearer " + token,
+      Authorization: "Bearer " + token,
     };
   };
 
@@ -29,7 +31,6 @@ function Trains() {
     fetchTrains();
   }, []);
 
-  // ===== CREATE / UPDATE =====
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -40,7 +41,7 @@ function Trains() {
 
     fetch(url, {
       method,
-      headers: getAuthHeaders(), // 🔥 добавили токен
+      headers: getAuthHeaders(),
       body: JSON.stringify({ number, type }),
     })
       .then(async (res) => {
@@ -56,17 +57,16 @@ function Trains() {
       })
       .catch((err) => {
         console.error(err);
-        alert("Ошибка сохранения (возможно нет прав ADMIN)");
+        alert("Ошибка (нужны права ADMIN)");
       });
   };
 
-  // ===== DELETE =====
   const handleDeleteTrain = (id) => {
     fetch(`http://localhost:8080/trains/${id}`, {
       method: "DELETE",
       headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token"),
-      }, // 🔥 добавили токен
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
     })
       .then(async (res) => {
         if (!res.ok) {
@@ -77,18 +77,16 @@ function Trains() {
       })
       .catch((err) => {
         console.error(err);
-        alert("Ошибка удаления (возможно нет прав ADMIN)");
+        alert("Ошибка удаления (нужны права ADMIN)");
       });
   };
 
-  // ===== EDIT =====
   const handleEdit = (train) => {
     setEditingId(train.id);
     setNumber(train.number);
     setType(train.type);
   };
 
-  // ===== RESET =====
   const resetForm = () => {
     setEditingId(null);
     setNumber("");
@@ -99,41 +97,43 @@ function Trains() {
     <div>
       <h2>🚆 Поезда</h2>
 
-      {/* ===== ФОРМА ===== */}
-      <form onSubmit={handleSubmit} style={formStyle}>
-        <input
-          value={number}
-          onChange={(e) => setNumber(e.target.value)}
-          placeholder="Номер"
-          style={inputStyle}
-        />
+      {/* ✅ ФОРМА ТОЛЬКО ДЛЯ ADMIN */}
+      {isAdmin && (
+        <form onSubmit={handleSubmit} style={formStyle}>
+          <input
+            value={number}
+            onChange={(e) => setNumber(e.target.value)}
+            placeholder="Номер"
+            style={inputStyle}
+          />
 
-        <input
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          placeholder="Тип"
-          style={inputStyle}
-        />
+          <input
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            placeholder="Тип"
+            style={inputStyle}
+          />
 
-        <button type="submit" style={createBtn}>
-          {editingId ? "Сохранить" : "Создать"}
-        </button>
-
-        {editingId && (
-          <button type="button" onClick={resetForm} style={cancelBtn}>
-            Отмена
+          <button type="submit" style={createBtn}>
+            {editingId ? "Сохранить" : "Создать"}
           </button>
-        )}
-      </form>
 
-      {/* ===== ТАБЛИЦА ===== */}
+          {editingId && (
+            <button type="button" onClick={resetForm} style={cancelBtn}>
+              Отмена
+            </button>
+          )}
+        </form>
+      )}
+
       <table style={tableStyle}>
         <thead>
           <tr>
             <th>ID</th>
             <th>Номер</th>
             <th>Тип</th>
-            <th></th>
+            {/* ✅ колонка только для ADMIN */}
+            {isAdmin && <th></th>}
           </tr>
         </thead>
 
@@ -143,18 +143,22 @@ function Trains() {
               <td>{t.id}</td>
               <td>{t.number}</td>
               <td>{t.type}</td>
-              <td style={{ display: "flex", gap: "5px" }}>
-                <button onClick={() => handleEdit(t)} style={editBtn}>
-                  Редактировать
-                </button>
 
-                <button
-                  onClick={() => handleDeleteTrain(t.id)}
-                  style={deleteBtn}
-                >
-                  Удалить
-                </button>
-              </td>
+              {/* ✅ кнопки только для ADMIN */}
+              {isAdmin && (
+                <td style={{ display: "flex", gap: "5px" }}>
+                  <button onClick={() => handleEdit(t)} style={editBtn}>
+                    Редактировать
+                  </button>
+
+                  <button
+                    onClick={() => handleDeleteTrain(t.id)}
+                    style={deleteBtn}
+                  >
+                    Удалить
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

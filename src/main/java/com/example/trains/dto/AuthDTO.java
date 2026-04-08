@@ -14,6 +14,8 @@ public class AuthDTO {
     @NotBlank(message = "Password must not be empty")
     private String password;
 
+    private String role;
+
     // используется только в ответе
     private String token;
 }

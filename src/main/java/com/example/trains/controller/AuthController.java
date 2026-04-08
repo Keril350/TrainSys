@@ -17,30 +17,17 @@ public class AuthController {
     // 🔑 LOGIN
     @PostMapping("/login")
     public AuthDTO login(@RequestBody AuthDTO request) {
-
-        String token = authService.login(
+        return authService.login(
                 request.getUsername(),
                 request.getPassword()
         );
-
-        AuthDTO response = new AuthDTO();
-        response.setToken(token);
-
-        return response;
     }
 
-    // 🆕 REGISTER
     @PostMapping("/register")
     public AuthDTO register(@RequestBody AuthDTO request) {
-
-        String token = authService.register(
+        return authService.register(
                 request.getUsername(),
                 request.getPassword()
         );
-
-        AuthDTO response = new AuthDTO();
-        response.setToken(token);
-
-        return response;
     }
 }
