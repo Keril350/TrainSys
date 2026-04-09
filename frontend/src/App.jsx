@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
 import Trains from "./components/Trains";
 import Stations from "./components/Stations";
@@ -10,22 +11,15 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 
 function App() {
-  const username = localStorage.getItem("username");
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("username");
-    window.location.reload();
-  };
+  const { user, logout } = useAuth();
 
   return (
     <BrowserRouter>
-      {/* 🔥 USER PANEL (фиксированный угол) */}
       <div style={userPanelStyle}>
-        {username ? (
+        {user ? (
           <>
-            👤 <b>{username}</b>
-            <button onClick={handleLogout} style={logoutBtn}>
+            👤 <b>{user.username}</b>
+            <button onClick={logout} style={logoutBtn}>
               Выйти
             </button>
           </>
@@ -37,7 +31,6 @@ function App() {
       <div style={{ padding: "20px", marginTop: "40px" }}>
         <h1>🚆 Train System</h1>
 
-        {/* 🔥 Навигация */}
         <nav style={{ marginBottom: "20px" }}>
           <Link to="/login">Вход</Link> |{" "}
           <Link to="/register">Регистрация</Link> |{" "}
@@ -49,7 +42,6 @@ function App() {
           <Link to="/tickets">Билеты</Link>
         </nav>
 
-        {/* 🔥 Роуты */}
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -67,8 +59,6 @@ function App() {
   );
 }
 
-// ===== СТИЛИ =====
-
 const userPanelStyle = {
   position: "fixed",
   top: "10px",
@@ -76,11 +66,8 @@ const userPanelStyle = {
   background: "#f5f5f5",
   padding: "8px 12px",
   borderRadius: "8px",
-  boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
   display: "flex",
-  alignItems: "center",
   gap: "10px",
-  zIndex: 1000,
 };
 
 const logoutBtn = {
@@ -89,7 +76,6 @@ const logoutBtn = {
   border: "none",
   padding: "5px 10px",
   borderRadius: "6px",
-  cursor: "pointer",
 };
 
 export default App;

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 function Trains() {
   const [trains, setTrains] = useState([]);
@@ -8,17 +9,13 @@ function Trains() {
 
   const [editingId, setEditingId] = useState(null);
 
-  // 🔥 РОЛЬ
-  const isAdmin = localStorage.getItem("role") === "ADMIN";
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
 
-  const getAuthHeaders = () => {
-    const token = localStorage.getItem("token");
-
-    return {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + token,
-    };
-  };
+  const getAuthHeaders = () => ({
+    "Content-Type": "application/json",
+    Authorization: "Bearer " + user?.token,
+  });
 
   const fetchTrains = () => {
     fetch("http://localhost:8080/trains")
@@ -44,41 +41,24 @@ function Trains() {
       headers: getAuthHeaders(),
       body: JSON.stringify({ number, type }),
     })
-      .then(async (res) => {
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(text || "Ошибка сохранения");
-        }
-        return res.json();
-      })
-      .then(() => {
+      .then((res) => {
+        if (!res.ok) throw new Error();
         resetForm();
         fetchTrains();
       })
-      .catch((err) => {
-        console.error(err);
-        alert("Ошибка (нужны права ADMIN)");
-      });
+      .catch(() => alert("Ошибка (нужны права ADMIN)"));
   };
 
   const handleDeleteTrain = (id) => {
     fetch(`http://localhost:8080/trains/${id}`, {
       method: "DELETE",
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
+      headers: getAuthHeaders(),
     })
-      .then(async (res) => {
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(text || "Ошибка удаления");
-        }
+      .then((res) => {
+        if (!res.ok) throw new Error();
         fetchTrains();
       })
-      .catch((err) => {
-        console.error(err);
-        alert("Ошибка удаления (нужны права ADMIN)");
-      });
+      .catch(() => alert("Ошибка удаления"));
   };
 
   const handleEdit = (train) => {
@@ -97,7 +77,6 @@ function Trains() {
     <div>
       <h2>🚆 Поезда</h2>
 
-      {/* ✅ ФОРМА ТОЛЬКО ДЛЯ ADMIN */}
       {isAdmin && (
         <form onSubmit={handleSubmit} style={formStyle}>
           <input
@@ -132,7 +111,6 @@ function Trains() {
             <th>ID</th>
             <th>Номер</th>
             <th>Тип</th>
-            {/* ✅ колонка только для ADMIN */}
             {isAdmin && <th></th>}
           </tr>
         </thead>
@@ -144,7 +122,6 @@ function Trains() {
               <td>{t.number}</td>
               <td>{t.type}</td>
 
-              {/* ✅ кнопки только для ADMIN */}
               {isAdmin && (
                 <td style={{ display: "flex", gap: "5px" }}>
                   <button onClick={() => handleEdit(t)} style={editBtn}>
@@ -167,8 +144,7 @@ function Trains() {
   );
 }
 
-// ===== СТИЛИ =====
-
+// ✅ ВЕРНУЛИ СТИЛИ
 const formStyle = {
   display: "flex",
   gap: "10px",

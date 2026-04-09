@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 function Seats() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
+
   const [seats, setSeats] = useState([]);
   const [trains, setTrains] = useState([]);
 
@@ -9,10 +13,10 @@ function Seats() {
 
   const [editingId, setEditingId] = useState(null);
 
-  // 🔑 JWT headers
+  // 🔥 JWT из context
   const getAuthHeaders = () => ({
     "Content-Type": "application/json",
-    "Authorization": "Bearer " + localStorage.getItem("token"),
+    Authorization: "Bearer " + user?.token,
   });
 
   // ===== FETCH SEATS =====
@@ -52,7 +56,7 @@ function Seats() {
 
     fetch(url, {
       method,
-      headers: getAuthHeaders(), // 🔥 токен
+      headers: getAuthHeaders(),
       body: JSON.stringify({
         trainId: Number(trainId),
         number,
@@ -71,7 +75,7 @@ function Seats() {
       })
       .catch((err) => {
         console.error(err);
-        alert("Ошибка сохранения (нужна роль ADMIN)");
+        alert("Ошибка (нужна роль ADMIN)");
       });
   };
 
@@ -79,9 +83,7 @@ function Seats() {
   const handleDelete = (id) => {
     fetch(`http://localhost:8080/seats/${id}`, {
       method: "DELETE",
-      headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token"),
-      }, // 🔥 токен
+      headers: getAuthHeaders(),
     })
       .then(async (res) => {
         if (!res.ok) {
@@ -114,37 +116,40 @@ function Seats() {
     <div style={container}>
       <h2>💺 Места</h2>
 
-      <form onSubmit={handleSubmit} style={form}>
-        {/* DROPDOWN */}
-        <select
-          value={trainId}
-          onChange={(e) => setTrainId(e.target.value)}
-        >
-          <option value="">Выбери поезд</option>
-          {trains.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.number} ({t.type})
-            </option>
-          ))}
-        </select>
+      {/* ✅ ТОЛЬКО ADMIN */}
+      {isAdmin && (
+        <form onSubmit={handleSubmit} style={form}>
+          <select
+            value={trainId}
+            onChange={(e) => setTrainId(e.target.value)}
+          >
+            <option value="">Выбери поезд</option>
+            {trains.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.number} ({t.type})
+              </option>
+            ))}
+          </select>
 
-        <input
-          placeholder="Номер места"
-          value={number}
-          onChange={(e) => setNumber(e.target.value)}
-        />
+          <input
+            placeholder="Номер места"
+            value={number}
+            onChange={(e) => setNumber(e.target.value)}
+          />
 
-        <button type="submit" style={createBtn}>
-          {editingId ? "Сохранить" : "Создать"}
-        </button>
-
-        {editingId && (
-          <button type="button" onClick={resetForm} style={cancelBtn}>
-            Отмена
+          <button type="submit" style={createBtn}>
+            {editingId ? "Сохранить" : "Создать"}
           </button>
-        )}
-      </form>
 
+          {editingId && (
+            <button type="button" onClick={resetForm} style={cancelBtn}>
+              Отмена
+            </button>
+          )}
+        </form>
+      )}
+
+      {/* ===== СПИСОК ===== */}
       <div style={grid}>
         {seats.map((s) => (
           <div key={s.id} style={card}>
@@ -152,21 +157,24 @@ function Seats() {
             <p>Train: {s.trainId}</p>
             <p>Seat: {s.number}</p>
 
-            <div style={{ display: "flex", gap: "5px" }}>
-              <button
-                onClick={() => handleEdit(s)}
-                style={editBtn}
-              >
-                Редактировать
-              </button>
+            {/* ✅ кнопки только ADMIN */}
+            {isAdmin && (
+              <div style={{ display: "flex", gap: "5px" }}>
+                <button
+                  onClick={() => handleEdit(s)}
+                  style={editBtn}
+                >
+                  Редактировать
+                </button>
 
-              <button
-                onClick={() => handleDelete(s.id)}
-                style={deleteBtn}
-              >
-                Удалить
-              </button>
-            </div>
+                <button
+                  onClick={() => handleDelete(s.id)}
+                  style={deleteBtn}
+                >
+                  Удалить
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -174,7 +182,7 @@ function Seats() {
   );
 }
 
-// ===== СТИЛИ =====
+// ===== СТИЛИ (НЕ ТРОГАЕМ) =====
 
 const container = { marginBottom: "40px" };
 

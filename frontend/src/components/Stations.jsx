@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 function Stations() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
+
   const [stations, setStations] = useState([]);
 
   const [stationName, setStationName] = useState("");
@@ -9,10 +13,9 @@ function Stations() {
 
   const [editingId, setEditingId] = useState(null);
 
-  // 🔑 JWT headers
   const getAuthHeaders = () => ({
     "Content-Type": "application/json",
-    "Authorization": "Bearer " + localStorage.getItem("token"),
+    Authorization: "Bearer " + user?.token,
   });
 
   const fetchStations = () => {
@@ -37,7 +40,7 @@ function Stations() {
 
     fetch(url, {
       method,
-      headers: getAuthHeaders(), // 🔥 добавили токен
+      headers: getAuthHeaders(),
       body: JSON.stringify({
         name: stationName,
         city,
@@ -45,19 +48,15 @@ function Stations() {
       }),
     })
       .then(async (res) => {
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(text || "Ошибка сохранения");
-        }
+        if (!res.ok) throw new Error();
         return res.json();
       })
       .then(() => {
         resetForm();
         fetchStations();
       })
-      .catch((err) => {
-        console.error(err);
-        alert("Ошибка сохранения (нужна роль ADMIN)");
+      .catch(() => {
+        alert("Ошибка (нужна роль ADMIN)");
       });
   };
 
@@ -65,19 +64,13 @@ function Stations() {
   const handleDeleteStation = (id) => {
     fetch(`http://localhost:8080/stations/${id}`, {
       method: "DELETE",
-      headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token"),
-      }, // 🔥 добавили токен
+      headers: getAuthHeaders(),
     })
       .then(async (res) => {
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(text || "Ошибка удаления");
-        }
+        if (!res.ok) throw new Error();
         fetchStations();
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
         alert("Ошибка удаления (нужна роль ADMIN)");
       });
   };
@@ -90,7 +83,6 @@ function Stations() {
     setCode(station.code);
   };
 
-  // ===== RESET =====
   const resetForm = () => {
     setEditingId(null);
     setStationName("");
@@ -102,41 +94,42 @@ function Stations() {
     <div>
       <h2>🏙 Станции</h2>
 
-      {/* ===== ФОРМА ===== */}
-      <form onSubmit={handleSubmit} style={formStyle}>
-        <input
-          placeholder="Название"
-          value={stationName}
-          onChange={(e) => setStationName(e.target.value)}
-          style={inputStyle}
-        />
+      {/* ✅ ТОЛЬКО ADMIN */}
+      {isAdmin && (
+        <form onSubmit={handleSubmit} style={formStyle}>
+          <input
+            placeholder="Название"
+            value={stationName}
+            onChange={(e) => setStationName(e.target.value)}
+            style={inputStyle}
+          />
 
-        <input
-          placeholder="Город"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          style={inputStyle}
-        />
+          <input
+            placeholder="Город"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            style={inputStyle}
+          />
 
-        <input
-          placeholder="Код"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          style={inputStyle}
-        />
+          <input
+            placeholder="Код"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            style={inputStyle}
+          />
 
-        <button type="submit" style={createBtn}>
-          {editingId ? "Сохранить" : "Создать"}
-        </button>
-
-        {editingId && (
-          <button type="button" onClick={resetForm} style={cancelBtn}>
-            Отмена
+          <button type="submit" style={createBtn}>
+            {editingId ? "Сохранить" : "Создать"}
           </button>
-        )}
-      </form>
 
-      {/* ===== ТАБЛИЦА ===== */}
+          {editingId && (
+            <button type="button" onClick={resetForm} style={cancelBtn}>
+              Отмена
+            </button>
+          )}
+        </form>
+      )}
+
       <table style={tableStyle}>
         <thead>
           <tr>
@@ -144,7 +137,7 @@ function Stations() {
             <th>Название</th>
             <th>Город</th>
             <th>Код</th>
-            <th></th>
+            {isAdmin && <th></th>}
           </tr>
         </thead>
 
@@ -155,21 +148,21 @@ function Stations() {
               <td>{s.name}</td>
               <td>{s.city}</td>
               <td>{s.code}</td>
-              <td style={{ display: "flex", gap: "5px" }}>
-                <button
-                  onClick={() => handleEdit(s)}
-                  style={editBtn}
-                >
-                  Редактировать
-                </button>
 
-                <button
-                  onClick={() => handleDeleteStation(s.id)}
-                  style={deleteBtn}
-                >
-                  Удалить
-                </button>
-              </td>
+              {isAdmin && (
+                <td style={{ display: "flex", gap: "5px" }}>
+                  <button onClick={() => handleEdit(s)} style={editBtn}>
+                    Редактировать
+                  </button>
+
+                  <button
+                    onClick={() => handleDeleteStation(s.id)}
+                    style={deleteBtn}
+                  >
+                    Удалить
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 function Routes() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
+
   const [routes, setRoutes] = useState([]);
   const [stations, setStations] = useState([]);
 
@@ -12,10 +16,10 @@ function Routes() {
 
   const [editId, setEditId] = useState(null);
 
-  // 🔑 JWT
+  // 🔥 JWT из context
   const getAuthHeaders = () => ({
     "Content-Type": "application/json",
-    "Authorization": "Bearer " + localStorage.getItem("token"),
+    Authorization: "Bearer " + user?.token,
   });
 
   const fetchRoutes = () => {
@@ -44,7 +48,6 @@ function Routes() {
       return;
     }
 
-    // ❗ защита от дубликатов
     if (routeStations.some((s) => s.stationId === Number(stationId))) {
       alert("Станция уже добавлена");
       return;
@@ -67,7 +70,6 @@ function Routes() {
     setStationOrder("");
   };
 
-  // ❌ удалить станцию
   const removeStation = (index) => {
     setRouteStations(routeStations.filter((_, i) => i !== index));
   };
@@ -125,9 +127,7 @@ function Routes() {
   const handleDeleteRoute = (id) => {
     fetch(`http://localhost:8080/routes/${id}`, {
       method: "DELETE",
-      headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token"),
-      },
+      headers: getAuthHeaders(),
     })
       .then(async (res) => {
         if (!res.ok) {
@@ -160,46 +160,50 @@ function Routes() {
     <div style={container}>
       <h2>🛤 Маршруты</h2>
 
-      <form onSubmit={handleSubmit} style={form}>
-        <input
-          placeholder="Название маршрута"
-          value={routeName}
-          onChange={(e) => setRouteName(e.target.value)}
-        />
+      {/* ✅ только ADMIN */}
+      {isAdmin && (
+        <>
+          <form onSubmit={handleSubmit} style={form}>
+            <input
+              placeholder="Название маршрута"
+              value={routeName}
+              onChange={(e) => setRouteName(e.target.value)}
+            />
 
-        <select value={stationId} onChange={(e) => setStationId(e.target.value)}>
-          <option value="">Станция</option>
-          {stations.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name} ({s.city})
-            </option>
-          ))}
-        </select>
+            <select value={stationId} onChange={(e) => setStationId(e.target.value)}>
+              <option value="">Станция</option>
+              {stations.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} ({s.city})
+                </option>
+              ))}
+            </select>
 
-        <input
-          placeholder="Порядок"
-          value={stationOrder}
-          onChange={(e) => setStationOrder(e.target.value)}
-        />
+            <input
+              placeholder="Порядок"
+              value={stationOrder}
+              onChange={(e) => setStationOrder(e.target.value)}
+            />
 
-        <button type="button" onClick={addStationToRoute}>
-          Добавить
-        </button>
+            <button type="button" onClick={addStationToRoute}>
+              Добавить
+            </button>
 
-        <button type="submit" style={createBtn}>
-          {editId ? "Сохранить" : "Создать маршрут"}
-        </button>
-      </form>
+            <button type="submit" style={createBtn}>
+              {editId ? "Сохранить" : "Создать маршрут"}
+            </button>
+          </form>
 
-      {/* 👇 список станций в форме */}
-      <div style={{ marginBottom: "20px" }}>
-        {routeStations.map((s, i) => (
-          <div key={i}>
-            {s.stationOrder}. {s.stationName}
-            <button onClick={() => removeStation(i)}>❌</button>
+          <div style={{ marginBottom: "20px" }}>
+            {routeStations.map((s, i) => (
+              <div key={i}>
+                {s.stationOrder}. {s.stationName}
+                <button onClick={() => removeStation(i)}>❌</button>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
 
       <div style={grid}>
         {routes.map((r) => (
@@ -212,13 +216,18 @@ function Routes() {
               </div>
             ))}
 
-            <button onClick={() => handleEdit(r)}>
-              Редактировать
-            </button>
+            {/* ✅ только ADMIN */}
+            {isAdmin && (
+              <>
+                <button onClick={() => handleEdit(r)}>
+                  Редактировать
+                </button>
 
-            <button onClick={() => handleDeleteRoute(r.id)} style={deleteBtn}>
-              Удалить
-            </button>
+                <button onClick={() => handleDeleteRoute(r.id)} style={deleteBtn}>
+                  Удалить
+                </button>
+              </>
+            )}
           </div>
         ))}
       </div>
@@ -226,7 +235,7 @@ function Routes() {
   );
 }
 
-// ===== СТИЛИ =====
+// ===== СТИЛИ (НЕ ТРОГАЕМ) =====
 
 const container = { marginBottom: "40px" };
 

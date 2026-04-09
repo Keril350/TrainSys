@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 function Schedule() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
+
   const [schedules, setSchedules] = useState([]);
 
   const [trains, setTrains] = useState([]);
@@ -13,10 +17,10 @@ function Schedule() {
 
   const [editId, setEditId] = useState(null);
 
-  // 🔑 JWT
+  // 🔥 JWT через context
   const getAuthHeaders = () => ({
     "Content-Type": "application/json",
-    "Authorization": "Bearer " + localStorage.getItem("token"),
+    Authorization: "Bearer " + user?.token,
   });
 
   // ===== FETCH =====
@@ -30,15 +34,13 @@ function Schedule() {
   const fetchTrains = () => {
     fetch("http://localhost:8080/trains")
       .then((res) => res.json())
-      .then(setTrains)
-      .catch(console.error);
+      .then(setTrains);
   };
 
   const fetchRoutes = () => {
     fetch("http://localhost:8080/routes")
       .then((res) => res.json())
-      .then(setRoutes)
-      .catch(console.error);
+      .then(setRoutes);
   };
 
   useEffect(() => {
@@ -47,7 +49,7 @@ function Schedule() {
     fetchRoutes();
   }, []);
 
-  // 🔥 фикс даты (очень важно)
+  // 🔥 фикс даты
   const formatDateTime = (date) => {
     if (!date) return null;
     return date.length === 16 ? date + ":00" : date;
@@ -73,10 +75,7 @@ function Schedule() {
       }),
     })
       .then(async (res) => {
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(text || "Ошибка");
-        }
+        if (!res.ok) throw new Error();
         return res.json();
       })
       .then(() => {
@@ -87,8 +86,7 @@ function Schedule() {
         setEditId(null);
         fetchSchedules();
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
         alert("Ошибка (нужна роль ADMIN)");
       });
   };
@@ -97,19 +95,13 @@ function Schedule() {
   const handleDelete = (id) => {
     fetch(`http://localhost:8080/schedules/${id}`, {
       method: "DELETE",
-      headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token"),
-      },
+      headers: getAuthHeaders(),
     })
       .then(async (res) => {
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(text || "Ошибка удаления");
-        }
+        if (!res.ok) throw new Error();
         fetchSchedules();
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
         alert("Ошибка удаления (нужна роль ADMIN)");
       });
   };
@@ -119,8 +111,6 @@ function Schedule() {
     setEditId(s.id);
     setTrainId(s.trainId);
     setRouteId(s.routeId);
-
-    // 🔥 обрезаем до формата input datetime-local
     setArrivalTime(s.arrivalTime?.slice(0, 16));
     setDepartureTime(s.departureTime?.slice(0, 16));
   };
@@ -129,44 +119,44 @@ function Schedule() {
     <div style={container}>
       <h2>📅 Расписание</h2>
 
-      <form onSubmit={handleSubmit} style={form}>
-        {/* TRAIN */}
-        <select value={trainId} onChange={(e) => setTrainId(e.target.value)}>
-          <option value="">Выбери поезд</option>
-          {trains.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.number} ({t.type})
-            </option>
-          ))}
-        </select>
+      {/* ✅ ТОЛЬКО ADMIN */}
+      {isAdmin && (
+        <form onSubmit={handleSubmit} style={form}>
+          <select value={trainId} onChange={(e) => setTrainId(e.target.value)}>
+            <option value="">Выбери поезд</option>
+            {trains.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.number} ({t.type})
+              </option>
+            ))}
+          </select>
 
-        {/* ROUTE */}
-        <select value={routeId} onChange={(e) => setRouteId(e.target.value)}>
-          <option value="">Выбери маршрут</option>
-          {routes.map((r) => (
-            <option key={r.id} value={r.id}>
-              {r.name}
-            </option>
-          ))}
-        </select>
+          <select value={routeId} onChange={(e) => setRouteId(e.target.value)}>
+            <option value="">Выбери маршрут</option>
+            {routes.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.name}
+              </option>
+            ))}
+          </select>
 
-        {/* TIME */}
-        <input
-          type="datetime-local"
-          value={arrivalTime}
-          onChange={(e) => setArrivalTime(e.target.value)}
-        />
+          <input
+            type="datetime-local"
+            value={arrivalTime}
+            onChange={(e) => setArrivalTime(e.target.value)}
+          />
 
-        <input
-          type="datetime-local"
-          value={departureTime}
-          onChange={(e) => setDepartureTime(e.target.value)}
-        />
+          <input
+            type="datetime-local"
+            value={departureTime}
+            onChange={(e) => setDepartureTime(e.target.value)}
+          />
 
-        <button type="submit" style={createBtn}>
-          {editId ? "Сохранить" : "Создать"}
-        </button>
-      </form>
+          <button type="submit" style={createBtn}>
+            {editId ? "Сохранить" : "Создать"}
+          </button>
+        </form>
+      )}
 
       <div style={grid}>
         {schedules.map((s) => (
@@ -175,16 +165,21 @@ function Schedule() {
             <p>Train: {s.trainId}</p>
             <p>Route: {s.routeId}</p>
 
-            <button onClick={() => handleEdit(s)}>
-              Редактировать
-            </button>
+            {/* ✅ кнопки только для ADMIN */}
+            {isAdmin && (
+              <>
+                <button onClick={() => handleEdit(s)}>
+                  Редактировать
+                </button>
 
-            <button
-              onClick={() => handleDelete(s.id)}
-              style={deleteBtn}
-            >
-              Удалить
-            </button>
+                <button
+                  onClick={() => handleDelete(s.id)}
+                  style={deleteBtn}
+                >
+                  Удалить
+                </button>
+              </>
+            )}
           </div>
         ))}
       </div>
@@ -192,7 +187,7 @@ function Schedule() {
   );
 }
 
-// ===== СТИЛИ =====
+// ===== STYLES =====
 
 const container = { marginBottom: "40px" };
 

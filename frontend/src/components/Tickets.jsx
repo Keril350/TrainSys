@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 function Tickets() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
+
   const [tickets, setTickets] = useState([]);
 
   const [users, setUsers] = useState([]);
@@ -14,121 +18,90 @@ function Tickets() {
 
   const [editId, setEditId] = useState(null);
 
-  // 🔑 JWT headers
   const getAuthHeaders = () => ({
     "Content-Type": "application/json",
-    "Authorization": "Bearer " + localStorage.getItem("token"),
+    Authorization: "Bearer " + user?.token,
   });
 
-  // ===== FETCH =====
+  useEffect(() => {
+    fetchTickets();
+    fetchSchedules();
+    if (isAdmin) fetchUsers();
+  }, [user]);
+
   const fetchTickets = () => {
     fetch("http://localhost:8080/tickets")
       .then((res) => res.json())
-      .then(setTickets)
-      .catch(console.error);
+      .then(setTickets);
   };
 
   const fetchUsers = () => {
     fetch("http://localhost:8080/users")
       .then((res) => res.json())
-      .then(setUsers)
-      .catch(console.error);
+      .then(setUsers);
   };
 
   const fetchSchedules = () => {
     fetch("http://localhost:8080/schedules")
       .then((res) => res.json())
-      .then(setSchedules)
-      .catch(console.error);
+      .then(setSchedules);
   };
 
-  // 🔥 ВАЖНО: места грузим по расписанию
-  const fetchSeats = (scheduleId) => {
-    if (!scheduleId) return;
-
-    fetch(`http://localhost:8080/seats/available/${scheduleId}`)
+  const fetchSeats = (id) => {
+    fetch(`http://localhost:8080/seats/available/${id}`)
       .then((res) => res.json())
-      .then(setSeats)
-      .catch(console.error);
+      .then(setSeats);
   };
 
-  useEffect(() => {
-    fetchTickets();
-    fetchUsers();
-    fetchSchedules();
-  }, []);
-
-  // ===== CREATE / UPDATE =====
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const method = editId ? "PUT" : "POST";
-    const url = editId
-      ? `http://localhost:8080/tickets/${editId}`
-      : "http://localhost:8080/tickets";
-
-    fetch(url, {
-      method,
-      headers: getAuthHeaders(), // 🔥 добавили токен
+    fetch("http://localhost:8080/tickets", {
+      method: "POST",
+      headers: getAuthHeaders(),
       body: JSON.stringify({
-        userId: Number(userId),
+        userId: isAdmin ? Number(userId) : null,
         scheduleId: Number(scheduleId),
         seatId: Number(seatId),
         price: Number(price),
       }),
     })
-      .then(async (res) => {
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(text || "Ошибка");
-        }
-        return res.json();
-      })
-      .then(() => {
-        setUserId("");
-        setScheduleId("");
-        setSeatId("");
-        setPrice("");
-        setEditId(null);
-        setSeats([]);
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        resetForm();
         fetchTickets();
       })
-      .catch((err) => {
-        console.error(err);
-        alert("Ошибка (возможно нет прав USER/ADMIN)");
-      });
+      .catch(() => alert("Ошибка (нет прав)"));
   };
 
-  // ===== DELETE =====
   const handleDelete = (id) => {
     fetch(`http://localhost:8080/tickets/${id}`, {
       method: "DELETE",
-      headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token"),
-      }, // 🔥 добавили токен
+      headers: getAuthHeaders(),
     })
-      .then(async (res) => {
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(text || "Ошибка удаления");
-        }
+      .then((res) => {
+        if (!res.ok) throw new Error();
         fetchTickets();
       })
-      .catch((err) => {
-        console.error(err);
-        alert("Ошибка удаления");
-      });
+      .catch(() => alert("Ошибка удаления"));
   };
 
-  // ===== EDIT =====
   const handleEdit = (t) => {
     setEditId(t.id);
     setUserId(t.userId);
     setScheduleId(t.scheduleId);
     setSeatId(t.seatId);
     setPrice(t.price);
-
     fetchSeats(t.scheduleId);
+  };
+
+  const resetForm = () => {
+    setUserId("");
+    setScheduleId("");
+    setSeatId("");
+    setPrice("");
+    setEditId(null);
+    setSeats([]);
   };
 
   return (
@@ -136,17 +109,17 @@ function Tickets() {
       <h2>🎫 Билеты</h2>
 
       <form onSubmit={handleSubmit} style={form}>
-        {/* USER */}
-        <select value={userId} onChange={(e) => setUserId(e.target.value)}>
-          <option value="">Пользователь</option>
-          {users.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.username || u.email}
-            </option>
-          ))}
-        </select>
+        {isAdmin && (
+          <select value={userId} onChange={(e) => setUserId(e.target.value)}>
+            <option value="">Пользователь</option>
+            {users.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.username}
+              </option>
+            ))}
+          </select>
+        )}
 
-        {/* SCHEDULE */}
         <select
           value={scheduleId}
           onChange={(e) => {
@@ -164,7 +137,6 @@ function Tickets() {
           ))}
         </select>
 
-        {/* SEAT */}
         <select value={seatId} onChange={(e) => setSeatId(e.target.value)}>
           <option value="">Место</option>
           {seats.map((s) => (
@@ -174,7 +146,6 @@ function Tickets() {
           ))}
         </select>
 
-        {/* PRICE */}
         <input
           placeholder="Цена"
           value={price}
@@ -195,16 +166,18 @@ function Tickets() {
             <p>Seat: {t.seatId}</p>
             <p>Price: {t.price}</p>
 
-            <button onClick={() => handleEdit(t)}>
-              Редактировать
-            </button>
+            {isAdmin && (
+              <>
+                <button onClick={() => handleEdit(t)}>Редактировать</button>
 
-            <button
-              onClick={() => handleDelete(t.id)}
-              style={deleteBtn}
-            >
-              Удалить
-            </button>
+                <button
+                  onClick={() => handleDelete(t.id)}
+                  style={deleteBtn}
+                >
+                  Удалить
+                </button>
+              </>
+            )}
           </div>
         ))}
       </div>
@@ -212,8 +185,7 @@ function Tickets() {
   );
 }
 
-// ===== СТИЛИ =====
-
+// ✅ СТИЛИ ВЕРНУЛИ
 const container = { marginBottom: "40px" };
 
 const form = {
