@@ -53,11 +53,17 @@ function Tickets() {
       .then(setSeats);
   };
 
+  // ✅ ИСПРАВЛЕНО
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    fetch("http://localhost:8080/tickets", {
-      method: "POST",
+    const method = editId ? "PUT" : "POST";
+    const url = editId
+      ? `http://localhost:8080/tickets/${editId}`
+      : "http://localhost:8080/tickets";
+
+    fetch(url, {
+      method,
       headers: getAuthHeaders(),
       body: JSON.stringify({
         userId: isAdmin ? Number(userId) : null,
@@ -71,7 +77,7 @@ function Tickets() {
         resetForm();
         fetchTickets();
       })
-      .catch(() => alert("Ошибка (нет прав)"));
+      .catch(() => alert("Ошибка"));
   };
 
   const handleDelete = (id) => {
@@ -185,7 +191,7 @@ function Tickets() {
   );
 }
 
-// ✅ СТИЛИ ВЕРНУЛИ
+// стили не трогал
 const container = { marginBottom: "40px" };
 
 const form = {

@@ -13,7 +13,6 @@ public class TicketDTO {
 
     private Integer id;
 
-    @NotNull(message = "User ID must not be null")
     private Integer userId;
 
     @NotNull(message = "Schedule ID must not be null")

@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Service
 public class TicketService {
@@ -36,7 +38,14 @@ public class TicketService {
     // CREATE
     public TicketDTO createTicket(TicketDTO dto) {
 
-        User user = userRepository.findById(dto.getUserId())
+        // 🔥 получаем текущего пользователя из JWT
+        String username = ((UserDetails) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal())
+                .getUsername();
+
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Schedule schedule = scheduleRepository.findById(dto.getScheduleId())
@@ -45,13 +54,13 @@ public class TicketService {
         Seat seat = seatRepository.findById(dto.getSeatId())
                 .orElseThrow(() -> new RuntimeException("Seat not found"));
 
-        // 🔥 важная проверка — место принадлежит поезду
+        // 🔥 проверка: место принадлежит поезду
         if (!seat.getTrain().getId().equals(schedule.getTrain().getId())) {
             throw new RuntimeException("Seat does not belong to this train");
         }
 
         Ticket ticket = new Ticket();
-        ticket.setUser(user);
+        ticket.setUser(user); // 👈 берём из JWT, а не из dto
         ticket.setSchedule(schedule);
         ticket.setSeat(seat);
         ticket.setPrice(dto.getPrice());
