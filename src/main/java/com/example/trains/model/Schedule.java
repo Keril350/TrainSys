@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Table(name = "schedule")
 @Getter
 @Setter
-public class Schedule {
+public class Schedule extends BaseModel{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

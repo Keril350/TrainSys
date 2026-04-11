@@ -8,7 +8,7 @@ import lombok.Setter;
 @Table(name = "train")
 @Getter
 @Setter
-public class Train {
+public class Train extends BaseModel{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -8,7 +8,7 @@ import lombok.Setter;
 @Table(name = "route")
 @Getter
 @Setter
-public class Route {
+public class Route extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

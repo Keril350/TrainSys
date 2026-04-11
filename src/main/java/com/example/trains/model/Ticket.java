@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Table(name = "ticket")
 @Getter
 @Setter
-public class Ticket {
+public class Ticket extends BaseModel{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
