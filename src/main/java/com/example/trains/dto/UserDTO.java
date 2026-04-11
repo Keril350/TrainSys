@@ -14,5 +14,5 @@ public class UserDTO {
     @NotBlank(message = "Password must not be empty")
     private String password;
 
-    private Boolean admin;
+    private String role; // 🔥 теперь используем role
 }

@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/routes/**").hasRole("ADMIN")
                         .requestMatchers("/seats/**").hasRole("ADMIN")
                         .requestMatchers("/schedules/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/users").hasRole("ADMIN")
 
                         // ❌ удаление
                         .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")

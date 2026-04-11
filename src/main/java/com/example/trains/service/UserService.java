@@ -26,7 +26,13 @@ public class UserService {
         User user = new User();
         user.setUsername(dto.getUsername());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        user.setAdmin(dto.getAdmin());
+
+        // 🔥 role → admin
+        if (dto.getRole() != null && dto.getRole().equalsIgnoreCase("ADMIN")) {
+            user.setAdmin(true);
+        } else {
+            user.setAdmin(false);
+        }
 
         return userRepository.save(user);
     }
