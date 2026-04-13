@@ -35,6 +35,10 @@ public class SeatService {
         Train train = trainRepository.findById(dto.getTrainId())
                 .orElseThrow(() -> new RuntimeException("Train not found"));
 
+        if (train.getType().getName().equalsIgnoreCase("Cargo")) {
+            throw new RuntimeException("Cargo train cannot have seats");
+        }
+
         Seat seat = new Seat();
         seat.setTrain(train);
         seat.setNumber(dto.getNumber());

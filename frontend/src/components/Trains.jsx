@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 
 function Trains() {
   const [trains, setTrains] = useState([]);
+  const [types, setTypes] = useState([]); // 👈 НОВОЕ
 
   const [number, setNumber] = useState("");
   const [type, setType] = useState("");
@@ -24,8 +25,17 @@ function Trains() {
       .catch(console.error);
   };
 
+  // 👇 НОВОЕ
+  const fetchTypes = () => {
+    fetch("http://localhost:8080/train-types")
+      .then((res) => res.json())
+      .then(setTypes)
+      .catch(console.error);
+  };
+
   useEffect(() => {
     fetchTrains();
+    fetchTypes(); // 👈 добавили
   }, []);
 
   const handleSubmit = (e) => {
@@ -46,7 +56,7 @@ function Trains() {
         resetForm();
         fetchTrains();
       })
-      .catch(() => alert("Ошибка (нужны права ADMIN)"));
+      .catch(() => alert("Ошибка (нужны права ADMIN или тип не найден)"));
   };
 
   const handleDeleteTrain = (id) => {
@@ -64,7 +74,7 @@ function Trains() {
   const handleEdit = (train) => {
     setEditingId(train.id);
     setNumber(train.number);
-    setType(train.type);
+    setType(train.type); // 👈 работает, т.к. это строка
   };
 
   const resetForm = () => {
@@ -86,12 +96,19 @@ function Trains() {
             style={inputStyle}
           />
 
-          <input
+          {/* 🔥 ВМЕСТО INPUT */}
+          <select
             value={type}
             onChange={(e) => setType(e.target.value)}
-            placeholder="Тип"
             style={inputStyle}
-          />
+          >
+            <option value="">Тип</option>
+            {types.map((t) => (
+              <option key={t.id} value={t.name}>
+                {t.name}
+              </option>
+            ))}
+          </select>
 
           <button type="submit" style={createBtn}>
             {editingId ? "Сохранить" : "Создать"}
@@ -144,7 +161,7 @@ function Trains() {
   );
 }
 
-// ✅ ВЕРНУЛИ СТИЛИ
+// стили без изменений
 const formStyle = {
   display: "flex",
   gap: "10px",

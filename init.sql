@@ -8,13 +8,23 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE train (
+CREATE TABLE train_type (
     id SERIAL PRIMARY KEY,
-    number VARCHAR(20) NOT NULL UNIQUE,
-    type VARCHAR(50),
+    name VARCHAR(50) NOT NULL UNIQUE,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE train (
+    id SERIAL PRIMARY KEY,
+    number VARCHAR(20) NOT NULL UNIQUE,
+    type_id INTEGER NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (type_id) REFERENCES train_type(id)
 );
 
 CREATE TABLE stations (
@@ -97,3 +107,8 @@ CREATE TABLE ticket (
 
     CONSTRAINT unique_seat_per_schedule UNIQUE (schedule_id, seat_id)
 );
+
+INSERT INTO train_type (name) VALUES
+('PASSENGER'),
+('CARGO'),
+('EXPRESS');

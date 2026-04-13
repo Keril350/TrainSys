@@ -2,27 +2,34 @@ package com.example.trains.service;
 
 import com.example.trains.dto.TrainDTO;
 import com.example.trains.model.Train;
+import com.example.trains.model.TrainType;
 import com.example.trains.repository.TrainRepository;
+import com.example.trains.repository.TrainTypeRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TrainService {
 
     private final TrainRepository trainRepository;
+    private final TrainTypeRepository trainTypeRepository;
 
-    public TrainService(TrainRepository trainRepository) {
+    public TrainService(TrainRepository trainRepository,
+                        TrainTypeRepository trainTypeRepository) {
         this.trainRepository = trainRepository;
+        this.trainTypeRepository = trainTypeRepository;
     }
 
     // CREATE
     public TrainDTO createTrain(TrainDTO dto) {
-        Train train = new Train();
 
+        TrainType type = trainTypeRepository.findByName(dto.getType())
+                .orElseThrow(() -> new RuntimeException("Train type not found"));
+
+        Train train = new Train();
         train.setNumber(dto.getNumber());
-        train.setType(dto.getType());
+        train.setType(type);
 
         Train saved = trainRepository.save(train);
 
@@ -34,7 +41,7 @@ public class TrainService {
         return trainRepository.findAll()
                 .stream()
                 .map(this::mapToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // GET BY ID
@@ -51,16 +58,19 @@ public class TrainService {
         Train train = trainRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Train not found"));
 
-        // обновляем поля
-        train.setNumber(dto.getNumber());
-        train.setType(dto.getType());
+        TrainType type = trainTypeRepository.findByName(dto.getType())
+                .orElseThrow(() -> new RuntimeException("Train type not found"));
 
-        Train updated = trainRepository.save(train);
-
+        // проверка уникальности номера
         if (!train.getNumber().equals(dto.getNumber()) &&
                 trainRepository.existsByNumber(dto.getNumber())) {
             throw new RuntimeException("Train number already exists");
         }
+
+        train.setNumber(dto.getNumber());
+        train.setType(type);
+
+        Train updated = trainRepository.save(train);
 
         return mapToDTO(updated);
     }
@@ -70,13 +80,13 @@ public class TrainService {
         trainRepository.deleteById(id);
     }
 
-    // 🔁 Маппер
+    // MAPPER
     private TrainDTO mapToDTO(Train train) {
         TrainDTO dto = new TrainDTO();
 
         dto.setId(train.getId());
         dto.setNumber(train.getNumber());
-        dto.setType(train.getType());
+        dto.setType(train.getType().getName()); // 👈 ОБРАТНО В СТРОКУ
 
         return dto;
     }

@@ -5,19 +5,15 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "train")
+@Table(name = "train_type")
 @Getter
 @Setter
-public class Train extends BaseModel{
+public class TrainType extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(nullable = false, unique = true)
-    private String number;
-
-    @ManyToOne
-    @JoinColumn(name = "type_id", nullable = false)
-    private TrainType type;
+    private String name;
 }
