@@ -30,9 +30,24 @@ function Tickets() {
   }, [user]);
 
   const fetchTickets = () => {
-    fetch("http://localhost:8080/tickets")
-      .then((res) => res.json())
-      .then(setTickets);
+    fetch("http://localhost:8080/tickets", {
+      headers: getAuthHeaders(),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setTickets(data);
+        } else {
+          setTickets([]);
+        }
+      })
+      .catch(() => {
+        console.error("Ошибка загрузки билетов");
+        setTickets([]);
+      });
   };
 
   const fetchUsers = () => {

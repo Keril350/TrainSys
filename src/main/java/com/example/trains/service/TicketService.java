@@ -9,13 +9,13 @@ import com.example.trains.repository.ScheduleRepository;
 import com.example.trains.repository.SeatRepository;
 import com.example.trains.repository.TicketRepository;
 import com.example.trains.repository.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 
 @Service
 public class TicketService {
@@ -35,18 +35,22 @@ public class TicketService {
         this.seatRepository = seatRepository;
     }
 
-    // CREATE
-    public TicketDTO createTicket(TicketDTO dto) {
-
-        // 🔥 получаем текущего пользователя из JWT
+    // 🔥 текущий пользователь
+    private User getCurrentUser() {
         String username = ((UserDetails) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getPrincipal())
                 .getUsername();
 
-        User user = userRepository.findByUsername(username)
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    // CREATE
+    public TicketDTO createTicket(TicketDTO dto) {
+
+        User user = getCurrentUser();
 
         Schedule schedule = scheduleRepository.findById(dto.getScheduleId())
                 .orElseThrow(() -> new RuntimeException("Schedule not found"));
@@ -54,37 +58,45 @@ public class TicketService {
         Seat seat = seatRepository.findById(dto.getSeatId())
                 .orElseThrow(() -> new RuntimeException("Seat not found"));
 
-        // 🔥 проверка: место принадлежит поезду
         if (!seat.getTrain().getId().equals(schedule.getTrain().getId())) {
             throw new RuntimeException("Seat does not belong to this train");
         }
 
         Ticket ticket = new Ticket();
-        ticket.setUser(user); // 👈 берём из JWT, а не из dto
+        ticket.setUser(user);
         ticket.setSchedule(schedule);
         ticket.setSeat(seat);
         ticket.setPrice(dto.getPrice());
         ticket.setPurchaseDate(LocalDateTime.now());
 
-        Ticket saved = ticketRepository.save(ticket);
-        return mapToDTO(saved);
+        return mapToDTO(ticketRepository.save(ticket));
     }
 
-    // GET ALL
+    // 🔥 ГЛАВНОЕ ИСПРАВЛЕНИЕ
     public List<TicketDTO> getAllTickets() {
-        return ticketRepository.findAll()
+
+        User currentUser = getCurrentUser();
+
+        // ADMIN → все
+        if (currentUser.getAdmin()) {
+            return ticketRepository.findAll()
+                    .stream()
+                    .map(this::mapToDTO)
+                    .toList();
+        }
+
+        // USER → только свои
+        return ticketRepository.findByUserId(currentUser.getId())
                 .stream()
                 .map(this::mapToDTO)
                 .toList();
     }
 
-    // GET BY ID
     public Optional<TicketDTO> getTicketById(Integer id) {
         return ticketRepository.findById(id)
                 .map(this::mapToDTO);
     }
 
-    // GET BY USER
     public List<TicketDTO> getTicketsByUserId(Integer userId) {
         return ticketRepository.findByUserId(userId)
                 .stream()
@@ -106,12 +118,10 @@ public class TicketService {
         Seat seat = seatRepository.findById(dto.getSeatId())
                 .orElseThrow(() -> new RuntimeException("Seat not found"));
 
-        // 🔥 проверка: место принадлежит поезду
         if (!seat.getTrain().getId().equals(schedule.getTrain().getId())) {
             throw new RuntimeException("Seat does not belong to this train");
         }
 
-        // 🔥 проверка: место уже занято (кроме текущего билета)
         boolean seatTaken = ticketRepository
                 .findByScheduleId(dto.getScheduleId())
                 .stream()
@@ -124,26 +134,18 @@ public class TicketService {
             throw new RuntimeException("Seat already taken for this schedule");
         }
 
-        // обновление
         ticket.setUser(user);
         ticket.setSchedule(schedule);
         ticket.setSeat(seat);
         ticket.setPrice(dto.getPrice());
 
-        // ❗ purchaseDate НЕ меняем (логично)
-        // ticket.setPurchaseDate(...)
-
-        Ticket updated = ticketRepository.save(ticket);
-
-        return mapToDTO(updated);
+        return mapToDTO(ticketRepository.save(ticket));
     }
 
-    // DELETE
     public void deleteTicket(Integer id) {
         ticketRepository.deleteById(id);
     }
 
-    // MAPPER
     private TicketDTO mapToDTO(Ticket ticket) {
         TicketDTO dto = new TicketDTO();
         dto.setId(ticket.getId());
