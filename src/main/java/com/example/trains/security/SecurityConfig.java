@@ -45,6 +45,7 @@ public class SecurityConfig {
 
                         // ❌ удаление
                         .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/comments/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 )

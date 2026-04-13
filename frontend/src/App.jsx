@@ -9,6 +9,7 @@ import Seats from "./components/Seats";
 import Tickets from "./components/Tickets";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import Comments from "./components/Comments";
 
 function App() {
   const { user, logout } = useAuth();
@@ -54,6 +55,9 @@ function App() {
 
           <Route path="*" element={<Trains />} />
         </Routes>
+
+        {/* 🔥 ВСЕГДА ВНИЗУ */}
+        <Comments />
       </div>
     </BrowserRouter>
   );

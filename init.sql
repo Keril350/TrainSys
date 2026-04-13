@@ -108,6 +108,17 @@ CREATE TABLE ticket (
     CONSTRAINT unique_seat_per_schedule UNIQUE (schedule_id, seat_id)
 );
 
+CREATE TABLE comment (
+    id SERIAL PRIMARY KEY,
+    content TEXT NOT NULL,
+    user_id INTEGER NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 INSERT INTO train_type (name) VALUES
 ('PASSENGER'),
 ('CARGO'),
