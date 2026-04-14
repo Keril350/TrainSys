@@ -6,6 +6,7 @@ function Comments() {
 
   const [comments, setComments] = useState([]);
   const [text, setText] = useState("");
+  const [hoveredId, setHoveredId] = useState(null);
 
   const getAuthHeaders = () => ({
     "Content-Type": "application/json",
@@ -41,14 +42,53 @@ function Comments() {
       .catch(() => alert("Ошибка отправки"));
   };
 
+  const handleDelete = (id) => {
+    fetch(`http://localhost:8080/comments/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        fetchComments();
+      })
+      .catch(() => alert("Ошибка удаления"));
+  };
+
   return (
     <div style={container}>
       <h3>💬 Комментарии</h3>
 
       <div style={list}>
         {comments.map((c) => (
-          <div key={c.id} style={comment}>
-            <b>{c.username}</b>: {c.content}
+          <div
+            key={c.id}
+            style={{
+              ...comment,
+              background: hoveredId === c.id ? "#f5f5f5" : "transparent",
+            }}
+            onMouseEnter={() => setHoveredId(c.id)}
+            onMouseLeave={() => setHoveredId(null)}
+          >
+            {/* левая часть */}
+            <div style={left}>
+              <b>{c.username}</b>: {c.content}
+            </div>
+
+            {/* правая часть */}
+            <div style={right}>
+              <span style={date}>
+                {new Date(c.createdAt).toLocaleString()}
+              </span>
+
+              {user?.role === "ADMIN" && hoveredId === c.id && (
+                <button
+                  onClick={() => handleDelete(c.id)}
+                  style={deleteBtn}
+                >
+                  ❌
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>
@@ -81,7 +121,37 @@ const list = {
 };
 
 const comment = {
-  padding: "5px 0",
+  padding: "8px 12px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  borderRadius: "6px",
+  transition: "background 0.2s",
+};
+
+const left = {
+  display: "flex",
+  gap: "5px",
+  alignItems: "center",
+};
+
+const right = {
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+};
+
+const date = {
+  fontSize: "12px",
+  color: "#888",
+  whiteSpace: "nowrap",
+};
+
+const deleteBtn = {
+  color: "red",
+  border: "none",
+  background: "transparent",
+  cursor: "pointer",
 };
 
 const form = {

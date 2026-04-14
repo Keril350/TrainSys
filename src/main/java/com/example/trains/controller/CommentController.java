@@ -25,4 +25,10 @@ public class CommentController {
     public CommentDTO create(@RequestBody String content) {
         return service.create(content);
     }
+
+    // 🔥 УДАЛЕНИЕ
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Integer id) {
+        service.delete(id);
+    }
 }
