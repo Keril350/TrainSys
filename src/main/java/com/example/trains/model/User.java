@@ -8,7 +8,7 @@ import lombok.Setter;
 @Table(name = "users")
 @Getter
 @Setter
-public class User extends BaseModel{
+public class User extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,6 +19,15 @@ public class User extends BaseModel{
 
     @Column(nullable = false)
     private String password;
+
+    // 🔥 ФИО
+    @Column(nullable = false)
+    private String lastName;
+
+    @Column(nullable = false)
+    private String firstName;
+
+    private String middleName;
 
     @Column(nullable = false)
     private Boolean admin;

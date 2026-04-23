@@ -20,12 +20,16 @@ public class TrainsApplication {
 								PasswordEncoder passwordEncoder) {
 		return args -> {
 
-			// 🔍 проверяем есть ли уже admin
 			if (userRepository.findByUsername("admin").isEmpty()) {
 
 				User admin = new User();
 				admin.setUsername("admin");
 				admin.setPassword(passwordEncoder.encode("123"));
+
+				admin.setFirstName("Admin");
+				admin.setLastName("Admin");
+				admin.setMiddleName("System");
+
 				admin.setAdmin(true);
 
 				userRepository.save(admin);

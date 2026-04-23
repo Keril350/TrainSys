@@ -23,11 +23,9 @@ public class AuthController {
         );
     }
 
+    // 🆕 REGISTER
     @PostMapping("/register")
     public AuthDTO register(@RequestBody AuthDTO request) {
-        return authService.register(
-                request.getUsername(),
-                request.getPassword()
-        );
+        return authService.register(request);
     }
 }

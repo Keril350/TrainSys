@@ -32,7 +32,6 @@ public class AuthService {
             throw new RuntimeException("Invalid password");
         }
 
-        // 🔥 используем getAdmin()
         String token = jwtService.generateToken(username, user.getAdmin());
 
         AuthDTO dto = new AuthDTO();
@@ -43,21 +42,26 @@ public class AuthService {
     }
 
     // 🆕 REGISTER
-    public AuthDTO register(String username, String password) {
+    public AuthDTO register(AuthDTO request) {
 
-        if (userRepository.findByUsername(username).isPresent()) {
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new RuntimeException("User already exists");
         }
 
         User user = new User();
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        // 🔥 ФИО
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setMiddleName(request.getMiddleName());
+
         user.setAdmin(false);
 
         userRepository.save(user);
 
-        // 🔥 тоже исправили здесь
-        String token = jwtService.generateToken(username, user.getAdmin());
+        String token = jwtService.generateToken(user.getUsername(), user.getAdmin());
 
         AuthDTO dto = new AuthDTO();
         dto.setToken(token);
