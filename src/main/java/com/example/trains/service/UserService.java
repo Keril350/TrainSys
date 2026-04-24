@@ -1,6 +1,7 @@
 package com.example.trains.service;
 
 import com.example.trains.dto.UserDTO;
+import com.example.trains.model.Role;
 import com.example.trains.model.User;
 import com.example.trains.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,11 +28,20 @@ public class UserService {
         user.setUsername(dto.getUsername());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-        // 🔥 role → admin
-        if (dto.getRole() != null && dto.getRole().equalsIgnoreCase("ADMIN")) {
-            user.setAdmin(true);
+        // 🔥 ФИО
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setMiddleName(dto.getMiddleName());
+
+        // 🔥 ROLE
+        if (dto.getRole() != null) {
+            try {
+                user.setRole(Role.valueOf(dto.getRole().toUpperCase()));
+            } catch (Exception e) {
+                user.setRole(Role.USER);
+            }
         } else {
-            user.setAdmin(false);
+            user.setRole(Role.USER);
         }
 
         return userRepository.save(user);

@@ -11,10 +11,11 @@ public class JwtService {
 
     private final String SECRET = "my-secret-key-my-secret-key-my-secret-key";
 
-    public String generateToken(String username, boolean isAdmin) {
+    // 🔥 теперь role строка
+    public String generateToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username)
-                .claim("role", isAdmin ? "ADMIN" : "USER") // 🔥
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
                 .signWith(Keys.hmacShaKeyFor(SECRET.getBytes()))

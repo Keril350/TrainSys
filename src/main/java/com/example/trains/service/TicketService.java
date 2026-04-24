@@ -47,6 +47,16 @@ public class TicketService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
+    // 🔥 текущая роль
+    private String getCurrentRole() {
+        return SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getAuthorities()
+                .iterator()
+                .next()
+                .getAuthority(); // ROLE_ADMIN / ROLE_USER / ROLE_WORKER
+    }
+
     // CREATE
     public TicketDTO createTicket(TicketDTO dto) {
 
@@ -72,13 +82,14 @@ public class TicketService {
         return mapToDTO(ticketRepository.save(ticket));
     }
 
-    // 🔥 ГЛАВНОЕ ИСПРАВЛЕНИЕ
+    // 🔥 ОБНОВЛЕННАЯ ЛОГИКА РОЛЕЙ
     public List<TicketDTO> getAllTickets() {
 
         User currentUser = getCurrentUser();
+        String role = getCurrentRole();
 
-        // ADMIN → все
-        if (currentUser.getAdmin()) {
+        // ADMIN и WORKER → все билеты
+        if (role.equals("ROLE_ADMIN") || role.equals("ROLE_WORKER")) {
             return ticketRepository.findAll()
                     .stream()
                     .map(this::mapToDTO)

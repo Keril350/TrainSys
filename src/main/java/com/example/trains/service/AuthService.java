@@ -1,6 +1,7 @@
 package com.example.trains.service;
 
 import com.example.trains.dto.AuthDTO;
+import com.example.trains.model.Role;
 import com.example.trains.model.User;
 import com.example.trains.repository.UserRepository;
 import com.example.trains.security.JwtService;
@@ -32,11 +33,12 @@ public class AuthService {
             throw new RuntimeException("Invalid password");
         }
 
-        String token = jwtService.generateToken(username, user.getAdmin());
+        // 🔥 теперь передаем роль
+        String token = jwtService.generateToken(username, user.getRole().name());
 
         AuthDTO dto = new AuthDTO();
         dto.setToken(token);
-        dto.setRole(user.getAdmin() ? "ADMIN" : "USER");
+        dto.setRole(user.getRole().name());
 
         return dto;
     }
@@ -57,15 +59,16 @@ public class AuthService {
         user.setLastName(request.getLastName());
         user.setMiddleName(request.getMiddleName());
 
-        user.setAdmin(false);
+        // 🔥 ВСЕГДА USER при регистрации
+        user.setRole(Role.USER);
 
         userRepository.save(user);
 
-        String token = jwtService.generateToken(user.getUsername(), user.getAdmin());
+        String token = jwtService.generateToken(user.getUsername(), user.getRole().name());
 
         AuthDTO dto = new AuthDTO();
         dto.setToken(token);
-        dto.setRole("USER");
+        dto.setRole(user.getRole().name());
 
         return dto;
     }

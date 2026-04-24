@@ -52,21 +52,8 @@ public class CommentService {
         return mapToDTO(saved);
     }
 
-    // 🔥 УДАЛЕНИЕ (только админ)
+    // 🔥 удаление (роль проверяется в SecurityConfig)
     public void delete(Integer id) {
-
-        String username = ((UserDetails) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal())
-                .getUsername();
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (!user.getAdmin()) {
-            throw new RuntimeException("Access denied");
-        }
 
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Comment not found"));

@@ -29,6 +29,8 @@ public class User extends BaseModel {
 
     private String middleName;
 
+    // 🔥 НОВОЕ ПОЛЕ
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Boolean admin;
+    private Role role;
 }

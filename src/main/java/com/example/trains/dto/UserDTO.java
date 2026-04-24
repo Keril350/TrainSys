@@ -14,5 +14,13 @@ public class UserDTO {
     @NotBlank(message = "Password must not be empty")
     private String password;
 
-    private String role; // 🔥 теперь используем role
+    @NotBlank
+    private String firstName;
+
+    @NotBlank
+    private String lastName;
+
+    private String middleName;
+
+    private String role; // USER / WORKER / ADMIN
 }

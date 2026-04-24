@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 
 function Trains() {
   const [trains, setTrains] = useState([]);
-  const [types, setTypes] = useState([]); // 👈 НОВОЕ
+  const [types, setTypes] = useState([]);
 
   const [number, setNumber] = useState("");
   const [type, setType] = useState("");
@@ -11,7 +11,10 @@ function Trains() {
   const [editingId, setEditingId] = useState(null);
 
   const { user } = useAuth();
+
   const isAdmin = user?.role === "ADMIN";
+  const isWorker = user?.role === "WORKER";
+  const canManage = isAdmin || isWorker;
 
   const getAuthHeaders = () => ({
     "Content-Type": "application/json",
@@ -25,7 +28,6 @@ function Trains() {
       .catch(console.error);
   };
 
-  // 👇 НОВОЕ
   const fetchTypes = () => {
     fetch("http://localhost:8080/train-types")
       .then((res) => res.json())
@@ -35,7 +37,7 @@ function Trains() {
 
   useEffect(() => {
     fetchTrains();
-    fetchTypes(); // 👈 добавили
+    fetchTypes();
   }, []);
 
   const handleSubmit = (e) => {
@@ -56,7 +58,9 @@ function Trains() {
         resetForm();
         fetchTrains();
       })
-      .catch(() => alert("Ошибка (нужны права ADMIN или тип не найден)"));
+      .catch(() =>
+        alert("Ошибка (нужны права WORKER/ADMIN или тип не найден)")
+      );
   };
 
   const handleDeleteTrain = (id) => {
@@ -68,13 +72,13 @@ function Trains() {
         if (!res.ok) throw new Error();
         fetchTrains();
       })
-      .catch(() => alert("Ошибка удаления"));
+      .catch(() => alert("Ошибка удаления (только ADMIN)"));
   };
 
   const handleEdit = (train) => {
     setEditingId(train.id);
     setNumber(train.number);
-    setType(train.type); // 👈 работает, т.к. это строка
+    setType(train.type);
   };
 
   const resetForm = () => {
@@ -87,7 +91,7 @@ function Trains() {
     <div>
       <h2>🚆 Поезда</h2>
 
-      {isAdmin && (
+      {canManage && (
         <form onSubmit={handleSubmit} style={formStyle}>
           <input
             value={number}
@@ -96,7 +100,6 @@ function Trains() {
             style={inputStyle}
           />
 
-          {/* 🔥 ВМЕСТО INPUT */}
           <select
             value={type}
             onChange={(e) => setType(e.target.value)}
@@ -128,7 +131,7 @@ function Trains() {
             <th>ID</th>
             <th>Номер</th>
             <th>Тип</th>
-            {isAdmin && <th></th>}
+            {canManage && <th></th>}
           </tr>
         </thead>
 
@@ -139,18 +142,20 @@ function Trains() {
               <td>{t.number}</td>
               <td>{t.type}</td>
 
-              {isAdmin && (
+              {canManage && (
                 <td style={{ display: "flex", gap: "5px" }}>
                   <button onClick={() => handleEdit(t)} style={editBtn}>
                     Редактировать
                   </button>
 
-                  <button
-                    onClick={() => handleDeleteTrain(t.id)}
-                    style={deleteBtn}
-                  >
-                    Удалить
-                  </button>
+                  {isAdmin && (
+                    <button
+                      onClick={() => handleDeleteTrain(t.id)}
+                      style={deleteBtn}
+                    >
+                      Удалить
+                    </button>
+                  )}
                 </td>
               )}
             </tr>
@@ -161,7 +166,7 @@ function Trains() {
   );
 }
 
-// стили без изменений
+// стили
 const formStyle = {
   display: "flex",
   gap: "10px",

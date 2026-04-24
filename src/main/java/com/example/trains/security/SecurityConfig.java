@@ -28,22 +28,24 @@ public class SecurityConfig {
                         // 🔓 auth
                         .requestMatchers("/auth/**").permitAll()
 
-                        // 👀 просмотр можно всем (опционально)
+                        // 👀 просмотр
                         .requestMatchers(HttpMethod.GET, "/**").permitAll()
 
                         // 🎫 покупка билета
                         .requestMatchers(HttpMethod.POST, "/tickets/**")
-                        .hasAnyRole("USER", "ADMIN")
+                        .hasAnyRole("USER", "WORKER", "ADMIN")
 
-                        // 🛠 админка
-                        .requestMatchers("/trains/**").hasRole("ADMIN")
-                        .requestMatchers("/stations/**").hasRole("ADMIN")
-                        .requestMatchers("/routes/**").hasRole("ADMIN")
-                        .requestMatchers("/seats/**").hasRole("ADMIN")
-                        .requestMatchers("/schedules/**").hasRole("ADMIN")
+                        // 🛠 управление (WORKER + ADMIN)
+                        .requestMatchers("/trains/**").hasAnyRole("WORKER", "ADMIN")
+                        .requestMatchers("/stations/**").hasAnyRole("WORKER", "ADMIN")
+                        .requestMatchers("/routes/**").hasAnyRole("WORKER", "ADMIN")
+                        .requestMatchers("/seats/**").hasAnyRole("WORKER", "ADMIN")
+                        .requestMatchers("/schedules/**").hasAnyRole("WORKER", "ADMIN")
+
+                        // 👤 пользователи — только админ
                         .requestMatchers(HttpMethod.POST, "/users").hasRole("ADMIN")
 
-                        // ❌ удаление
+                        // ❌ удаление — только админ
                         .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/comments/**").hasRole("ADMIN")
 

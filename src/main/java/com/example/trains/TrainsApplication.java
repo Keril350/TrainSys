@@ -1,5 +1,6 @@
 package com.example.trains;
 
+import com.example.trains.model.Role;
 import com.example.trains.model.User;
 import com.example.trains.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -30,7 +31,7 @@ public class TrainsApplication {
 				admin.setLastName("Admin");
 				admin.setMiddleName("System");
 
-				admin.setAdmin(true);
+				admin.setRole(Role.ADMIN);
 
 				userRepository.save(admin);
 
