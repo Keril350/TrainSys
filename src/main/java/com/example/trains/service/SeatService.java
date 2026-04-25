@@ -1,18 +1,11 @@
 package com.example.trains.service;
 
 import com.example.trains.dto.SeatDTO;
-import com.example.trains.model.Schedule;
-import com.example.trains.model.Seat;
-import com.example.trains.model.Ticket;
-import com.example.trains.model.Train;
-import com.example.trains.repository.ScheduleRepository;
-import com.example.trains.repository.SeatRepository;
-import com.example.trains.repository.TicketRepository;
-import com.example.trains.repository.TrainRepository;
+import com.example.trains.model.*;
+import com.example.trains.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class SeatService {
@@ -20,27 +13,31 @@ public class SeatService {
     private final ScheduleRepository scheduleRepository;
     private final TicketRepository ticketRepository;
     private final SeatRepository seatRepository;
-    private final TrainRepository trainRepository;
+    private final WagonRepository wagonRepository;
 
-    public SeatService(ScheduleRepository scheduleRepository, TicketRepository ticketRepository, SeatRepository seatRepository, TrainRepository trainRepository) {
+    public SeatService(ScheduleRepository scheduleRepository,
+                       TicketRepository ticketRepository,
+                       SeatRepository seatRepository,
+                       WagonRepository wagonRepository) {
         this.scheduleRepository = scheduleRepository;
         this.ticketRepository = ticketRepository;
         this.seatRepository = seatRepository;
-        this.trainRepository = trainRepository;
+        this.wagonRepository = wagonRepository;
     }
 
     // CREATE
     public SeatDTO createSeat(SeatDTO dto) {
 
-        Train train = trainRepository.findById(dto.getTrainId())
-                .orElseThrow(() -> new RuntimeException("Train not found"));
+        Wagon wagon = wagonRepository.findById(dto.getWagonId())
+                .orElseThrow(() -> new RuntimeException("Wagon not found"));
 
-        if (train.getType().getName().equalsIgnoreCase("Cargo")) {
+        // 🔥 проверка типа поезда
+        if (wagon.getTrain().getType().getName().equalsIgnoreCase("Cargo")) {
             throw new RuntimeException("Cargo train cannot have seats");
         }
 
         Seat seat = new Seat();
-        seat.setTrain(train);
+        seat.setWagon(wagon);
         seat.setNumber(dto.getNumber());
 
         Seat saved = seatRepository.save(seat);
@@ -52,54 +49,56 @@ public class SeatService {
         return seatRepository.findAll()
                 .stream()
                 .map(this::mapToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    // GET BY TRAIN
-    public List<SeatDTO> getSeatsByTrainId(Integer trainId) {
-        return seatRepository.findByTrainId(trainId)
+    // GET BY WAGON
+    public List<SeatDTO> getSeatsByWagonId(Integer wagonId) {
+        return seatRepository.findByWagonId(wagonId)
                 .stream()
+                .map(this::mapToDTO)
+                .toList();
+    }
+
+    // 🔥 ВАЖНО — теперь логика через поезд → вагоны → места
+    public List<SeatDTO> getAvailableSeats(Integer scheduleId) {
+
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+
+        Integer trainId = schedule.getTrain().getId();
+
+        // 1. все вагоны поезда
+        List<Wagon> wagons = wagonRepository.findByTrainId(trainId);
+
+        // 2. все места из всех вагонов
+        List<Seat> allSeats = wagons.stream()
+                .flatMap(w -> seatRepository.findByWagonId(w.getId()).stream())
+                .toList();
+
+        // 3. занятые
+        List<Ticket> tickets = ticketRepository.findByScheduleId(scheduleId);
+
+        List<Integer> takenSeatIds = tickets.stream()
+                .map(t -> t.getSeat().getId())
+                .toList();
+
+        // 4. фильтр
+        return allSeats.stream()
+                .filter(seat -> !takenSeatIds.contains(seat.getId()))
                 .map(this::mapToDTO)
                 .toList();
     }
 
     public List<SeatDTO> getTakenSeats(Integer scheduleId) {
 
-        // 1. проверка schedule
-        Schedule schedule = scheduleRepository.findById(scheduleId)
+        scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new RuntimeException("Schedule not found"));
 
-        // 2. получаем билеты
         List<Ticket> tickets = ticketRepository.findByScheduleId(scheduleId);
 
-        // 3. достаем места
         return tickets.stream()
-                .map(ticket -> ticket.getSeat())
-                .map(this::mapToDTO)
-                .toList();
-    }
-
-    public List<SeatDTO> getAvailableSeats(Integer scheduleId) {
-
-        // 1. получаем schedule
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
-
-        Integer trainId = schedule.getTrain().getId();
-
-        // 2. все места поезда
-        List<Seat> allSeats = seatRepository.findByTrainId(trainId);
-
-        // 3. занятые места
-        List<Ticket> tickets = ticketRepository.findByScheduleId(scheduleId);
-
-        List<Integer> takenSeatIds = tickets.stream()
-                .map(ticket -> ticket.getSeat().getId())
-                .toList();
-
-        // 4. фильтруем
-        return allSeats.stream()
-                .filter(seat -> !takenSeatIds.contains(seat.getId()))
+                .map(Ticket::getSeat)
                 .map(this::mapToDTO)
                 .toList();
     }
@@ -110,10 +109,10 @@ public class SeatService {
         Seat seat = seatRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Seat not found"));
 
-        Train train = trainRepository.findById(dto.getTrainId())
-                .orElseThrow(() -> new RuntimeException("Train not found"));
+        Wagon wagon = wagonRepository.findById(dto.getWagonId())
+                .orElseThrow(() -> new RuntimeException("Wagon not found"));
 
-        seat.setTrain(train);
+        seat.setWagon(wagon);
         seat.setNumber(dto.getNumber());
 
         Seat updated = seatRepository.save(seat);
@@ -130,7 +129,7 @@ public class SeatService {
     private SeatDTO mapToDTO(Seat seat) {
         SeatDTO dto = new SeatDTO();
         dto.setId(seat.getId());
-        dto.setTrainId(seat.getTrain().getId());
+        dto.setWagonId(seat.getWagon().getId());
         dto.setNumber(seat.getNumber());
         return dto;
     }

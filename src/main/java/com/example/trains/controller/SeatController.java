@@ -17,7 +17,7 @@ public class SeatController {
         this.seatService = seatService;
     }
 
-    // POST
+    // CREATE
     @PostMapping
     public SeatDTO createSeat(@RequestBody @Valid SeatDTO dto) {
         return seatService.createSeat(dto);
@@ -29,10 +29,10 @@ public class SeatController {
         return seatService.getAllSeats();
     }
 
-    // GET by train
-    @GetMapping("/train/{trainId}")
-    public List<SeatDTO> getSeatsByTrain(@PathVariable Integer trainId) {
-        return seatService.getSeatsByTrainId(trainId);
+    // 🔥 НОВОЕ: GET by wagon
+    @GetMapping("/wagon/{wagonId}")
+    public List<SeatDTO> getSeatsByWagon(@PathVariable Integer wagonId) {
+        return seatService.getSeatsByWagonId(wagonId);
     }
 
     @GetMapping("/taken/{scheduleId}")
@@ -45,6 +45,7 @@ public class SeatController {
         return seatService.getAvailableSeats(scheduleId);
     }
 
+    // UPDATE
     @PutMapping("/{id}")
     public SeatDTO updateSeat(@PathVariable Integer id,
                               @RequestBody @Valid SeatDTO dto) {

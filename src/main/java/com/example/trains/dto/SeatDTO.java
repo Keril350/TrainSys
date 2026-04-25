@@ -11,8 +11,8 @@ public class SeatDTO {
 
     private Integer id;
 
-    @NotNull(message = "Train ID must not be null")
-    private Integer trainId;
+    @NotNull(message = "Wagon ID must not be null")
+    private Integer wagonId;
 
     @NotBlank(message = "Seat number must not be empty")
     private String number;

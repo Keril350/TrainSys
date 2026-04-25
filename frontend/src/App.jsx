@@ -10,6 +10,7 @@ import Tickets from "./components/Tickets";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Comments from "./components/Comments";
+import Wagons from "./components/Wagons";
 
 function App() {
   const { user, logout } = useAuth();
@@ -39,6 +40,7 @@ function App() {
             <Link to="/login" style={link}>Вход</Link>
             <Link to="/register" style={link}>Регистрация</Link>
             <Link to="/trains" style={link}>Поезда</Link>
+            <Link to="/wagons" style={link}>Вагоны</Link>
             <Link to="/stations" style={link}>Станции</Link>
             <Link to="/routes" style={link}>Маршруты</Link>
             <Link to="/schedules" style={link}>Расписание</Link>
@@ -54,6 +56,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/trains" element={<Trains />} />
+          <Route path="/wagons" element={<Wagons />} />
           <Route path="/stations" element={<Stations />} />
           <Route path="/routes" element={<RoutesPage />} />
           <Route path="/schedules" element={<Schedule />} />

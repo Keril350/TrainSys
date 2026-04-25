@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
-function Seats() {
+function Wagons() {
   const { user } = useAuth();
   const isAdmin = user?.role === "ADMIN" || user?.role === "WORKER";
 
-  const [seats, setSeats] = useState([]);
-  const [trains, setTrains] = useState([]);
   const [wagons, setWagons] = useState([]);
+  const [trains, setTrains] = useState([]);
 
   const [trainId, setTrainId] = useState("");
-  const [wagonId, setWagonId] = useState("");
   const [number, setNumber] = useState("");
 
   const [editingId, setEditingId] = useState(null);
@@ -20,23 +18,11 @@ function Seats() {
     Authorization: "Bearer " + user?.token,
   });
 
-  const fetchSeats = () => {
-    fetch("http://localhost:8080/seats")
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setSeats(data);
-        } else {
-          setSeats([]);
-        }
-      })
-      .catch(() => {
-        console.error("Ошибка загрузки мест");
-        setSeats([]);
-      });
+  const fetchWagons = () => {
+    fetch("http://localhost:8080/wagons")
+      .then((res) => res.json())
+      .then(setWagons)
+      .catch(console.error);
   };
 
   const fetchTrains = () => {
@@ -45,72 +31,71 @@ function Seats() {
       .then(setTrains);
   };
 
-  const fetchWagons = (trainId) => {
-    fetch(`http://localhost:8080/wagons/train/${trainId}`)
-      .then((res) => res.json())
-      .then(setWagons);
-  };
-
   useEffect(() => {
-    fetchSeats();
+    fetchWagons();
     fetchTrains();
   }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!wagonId) {
-      alert("Выбери вагон");
+    if (!trainId) {
+      alert("Выбери поезд");
       return;
     }
 
     const method = editingId ? "PUT" : "POST";
     const url = editingId
-      ? `http://localhost:8080/seats/${editingId}`
-      : "http://localhost:8080/seats";
+      ? `http://localhost:8080/wagons/${editingId}`
+      : "http://localhost:8080/wagons";
 
     fetch(url, {
       method,
       headers: getAuthHeaders(),
       body: JSON.stringify({
-        wagonId: Number(wagonId),
-        number,
+        trainId: Number(trainId),
+        number: Number(number),
       }),
     })
       .then((res) => {
         if (!res.ok) throw new Error();
         resetForm();
-        fetchSeats();
+        fetchWagons();
       })
       .catch(() => alert("Ошибка"));
   };
 
-  const handleEdit = (s) => {
-    setEditingId(s.id);
-    setWagonId(s.wagonId);
-    setNumber(s.number);
+  const handleDelete = (id) => {
+    fetch(`http://localhost:8080/wagons/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        fetchWagons();
+      })
+      .catch(() => alert("Ошибка удаления"));
+  };
+
+  const handleEdit = (w) => {
+    setEditingId(w.id);
+    setTrainId(w.trainId);
+    setNumber(w.number);
   };
 
   const resetForm = () => {
     setEditingId(null);
     setTrainId("");
-    setWagonId("");
     setNumber("");
   };
 
   return (
     <div style={container}>
-      <h2>💺 Места</h2>
+      <h2>🚃 Вагоны</h2>
 
       {isAdmin && (
         <form onSubmit={handleSubmit} style={form}>
-          <select
-            value={trainId}
-            onChange={(e) => {
-              setTrainId(e.target.value);
-              fetchWagons(e.target.value);
-            }}
-          >
+          <select value={trainId} onChange={(e) => setTrainId(e.target.value)}>
             <option value="">Поезд</option>
             {trains.map((t) => (
               <option key={t.id} value={t.id}>
@@ -119,20 +104,8 @@ function Seats() {
             ))}
           </select>
 
-          <select
-            value={wagonId}
-            onChange={(e) => setWagonId(e.target.value)}
-          >
-            <option value="">Вагон</option>
-            {wagons.map((w) => (
-              <option key={w.id} value={w.id}>
-                №{w.number}
-              </option>
-            ))}
-          </select>
-
           <input
-            placeholder="Номер места"
+            placeholder="Номер вагона"
             value={number}
             onChange={(e) => setNumber(e.target.value)}
           />
@@ -144,11 +117,20 @@ function Seats() {
       )}
 
       <div style={grid}>
-        {seats.map((s) => (
-          <div key={s.id} style={card}>
-            <p><b>ID:</b> {s.id}</p>
-            <p>Wagon: {s.wagonId}</p>
-            <p>Seat: {s.number}</p>
+        {wagons.map((w) => (
+          <div key={w.id} style={card}>
+            <p><b>ID:</b> {w.id}</p>
+            <p>Train: {w.trainId}</p>
+            <p>Wagon: {w.number}</p>
+
+            {isAdmin && (
+              <>
+                <button onClick={() => handleEdit(w)}>Редактировать</button>
+                <button onClick={() => handleDelete(w.id)} style={deleteBtn}>
+                  Удалить
+                </button>
+              </>
+            )}
           </div>
         ))}
       </div>
@@ -156,11 +138,12 @@ function Seats() {
   );
 }
 
-// стили те же
+// стили НЕ ТРОГАЕМ (копируй из Seats)
 const container = { marginBottom: "40px" };
 const form = { display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap" };
 const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "15px" };
 const card = { border: "1px solid #ddd", padding: "15px", borderRadius: "10px", background: "#fafafa" };
 const createBtn = { background: "green", color: "white", border: "none", padding: "8px", borderRadius: "6px", cursor: "pointer" };
+const deleteBtn = { background: "red", color: "white", border: "none", padding: "6px", borderRadius: "6px", cursor: "pointer" };
 
-export default Seats;
+export default Wagons;

@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface SeatRepository extends JpaRepository<Seat, Integer> {
 
-    List<Seat> findByTrainId(Integer trainId);
+    List<Seat> findByWagonId(Integer wagonId);
 }

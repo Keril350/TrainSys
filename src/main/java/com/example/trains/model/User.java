@@ -20,7 +20,6 @@ public class User extends BaseModel {
     @Column(nullable = false)
     private String password;
 
-    // 🔥 ФИО
     @Column(nullable = false)
     private String lastName;
 
@@ -29,7 +28,6 @@ public class User extends BaseModel {
 
     private String middleName;
 
-    // 🔥 НОВОЕ ПОЛЕ
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;

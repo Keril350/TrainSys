@@ -35,7 +35,6 @@ public class TicketService {
         this.seatRepository = seatRepository;
     }
 
-    // 🔥 текущий пользователь
     private User getCurrentUser() {
         String username = ((UserDetails) SecurityContextHolder
                 .getContext()
@@ -47,14 +46,13 @@ public class TicketService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    // 🔥 текущая роль
     private String getCurrentRole() {
         return SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getAuthorities()
                 .iterator()
                 .next()
-                .getAuthority(); // ROLE_ADMIN / ROLE_USER / ROLE_WORKER
+                .getAuthority();
     }
 
     // CREATE
@@ -68,7 +66,8 @@ public class TicketService {
         Seat seat = seatRepository.findById(dto.getSeatId())
                 .orElseThrow(() -> new RuntimeException("Seat not found"));
 
-        if (!seat.getTrain().getId().equals(schedule.getTrain().getId())) {
+        // 🔥 ИСПРАВЛЕНО (через вагон)
+        if (!seat.getWagon().getTrain().getId().equals(schedule.getTrain().getId())) {
             throw new RuntimeException("Seat does not belong to this train");
         }
 
@@ -82,13 +81,11 @@ public class TicketService {
         return mapToDTO(ticketRepository.save(ticket));
     }
 
-    // 🔥 ОБНОВЛЕННАЯ ЛОГИКА РОЛЕЙ
     public List<TicketDTO> getAllTickets() {
 
         User currentUser = getCurrentUser();
         String role = getCurrentRole();
 
-        // ADMIN и WORKER → все билеты
         if (role.equals("ROLE_ADMIN") || role.equals("ROLE_WORKER")) {
             return ticketRepository.findAll()
                     .stream()
@@ -96,7 +93,6 @@ public class TicketService {
                     .toList();
         }
 
-        // USER → только свои
         return ticketRepository.findByUserId(currentUser.getId())
                 .stream()
                 .map(this::mapToDTO)
@@ -129,7 +125,8 @@ public class TicketService {
         Seat seat = seatRepository.findById(dto.getSeatId())
                 .orElseThrow(() -> new RuntimeException("Seat not found"));
 
-        if (!seat.getTrain().getId().equals(schedule.getTrain().getId())) {
+        // 🔥 ИСПРАВЛЕНО
+        if (!seat.getWagon().getTrain().getId().equals(schedule.getTrain().getId())) {
             throw new RuntimeException("Seat does not belong to this train");
         }
 

@@ -33,6 +33,19 @@ CREATE TABLE train (
     FOREIGN KEY (type_id) REFERENCES train_type(id)
 );
 
+CREATE TABLE wagon (
+    id SERIAL PRIMARY KEY,
+    train_id INTEGER NOT NULL,
+    number INTEGER NOT NULL, -- номер вагона (1,2,3...)
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (train_id) REFERENCES train(id) ON DELETE CASCADE,
+
+    CONSTRAINT unique_wagon_per_train UNIQUE (train_id, number)
+);
+
 CREATE TABLE stations (
     id SERIAL PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
@@ -85,15 +98,15 @@ CREATE TABLE schedule (
 
 CREATE TABLE seat (
     id SERIAL PRIMARY KEY,
-    train_id INTEGER NOT NULL,
+    wagon_id INTEGER NOT NULL,
     number VARCHAR(10) NOT NULL,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (train_id) REFERENCES train(id) ON DELETE CASCADE,
+    FOREIGN KEY (wagon_id) REFERENCES wagon(id) ON DELETE CASCADE,
 
-    CONSTRAINT unique_seat_per_train UNIQUE (train_id, number)
+    CONSTRAINT unique_seat_per_wagon UNIQUE (wagon_id, number)
 );
 
 CREATE TABLE ticket (
