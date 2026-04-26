@@ -21,7 +21,6 @@ public class WagonService {
         this.trainRepository = trainRepository;
     }
 
-    // CREATE
     public WagonDTO create(WagonDTO dto) {
 
         Train train = trainRepository.findById(dto.getTrainId())
@@ -34,13 +33,11 @@ public class WagonService {
         Wagon wagon = new Wagon();
         wagon.setTrain(train);
         wagon.setNumber(dto.getNumber());
+        wagon.setPrice(dto.getPrice()); // 🔥
 
-        Wagon saved = wagonRepository.save(wagon);
-
-        return mapToDTO(saved);
+        return mapToDTO(wagonRepository.save(wagon));
     }
 
-    // GET ALL
     public List<WagonDTO> getAll() {
         return wagonRepository.findAll()
                 .stream()
@@ -48,7 +45,6 @@ public class WagonService {
                 .toList();
     }
 
-    // GET BY TRAIN
     public List<WagonDTO> getByTrain(Integer trainId) {
         return wagonRepository.findByTrainId(trainId)
                 .stream()
@@ -56,7 +52,6 @@ public class WagonService {
                 .toList();
     }
 
-    // UPDATE
     public WagonDTO update(Integer id, WagonDTO dto) {
 
         Wagon wagon = wagonRepository.findById(id)
@@ -65,30 +60,23 @@ public class WagonService {
         Train train = trainRepository.findById(dto.getTrainId())
                 .orElseThrow(() -> new RuntimeException("Train not found"));
 
-        if (!wagon.getNumber().equals(dto.getNumber()) &&
-                wagonRepository.existsByTrainIdAndNumber(dto.getTrainId(), dto.getNumber())) {
-            throw new RuntimeException("Wagon number already exists");
-        }
-
         wagon.setTrain(train);
         wagon.setNumber(dto.getNumber());
+        wagon.setPrice(dto.getPrice()); // 🔥
 
-        Wagon updated = wagonRepository.save(wagon);
-
-        return mapToDTO(updated);
+        return mapToDTO(wagonRepository.save(wagon));
     }
 
-    // DELETE
     public void delete(Integer id) {
         wagonRepository.deleteById(id);
     }
 
-    // MAPPER
     private WagonDTO mapToDTO(Wagon wagon) {
         WagonDTO dto = new WagonDTO();
         dto.setId(wagon.getId());
         dto.setTrainId(wagon.getTrain().getId());
         dto.setNumber(wagon.getNumber());
+        dto.setPrice(wagon.getPrice()); // 🔥
         return dto;
     }
 }

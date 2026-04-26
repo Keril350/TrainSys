@@ -10,6 +10,7 @@ function Wagons() {
 
   const [trainId, setTrainId] = useState("");
   const [number, setNumber] = useState("");
+  const [price, setPrice] = useState("");
 
   const [editingId, setEditingId] = useState(null);
 
@@ -21,8 +22,7 @@ function Wagons() {
   const fetchWagons = () => {
     fetch("http://localhost:8080/wagons")
       .then((res) => res.json())
-      .then(setWagons)
-      .catch(console.error);
+      .then(setWagons);
   };
 
   const fetchTrains = () => {
@@ -39,11 +39,6 @@ function Wagons() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!trainId) {
-      alert("Выбери поезд");
-      return;
-    }
-
     const method = editingId ? "PUT" : "POST";
     const url = editingId
       ? `http://localhost:8080/wagons/${editingId}`
@@ -55,6 +50,7 @@ function Wagons() {
       body: JSON.stringify({
         trainId: Number(trainId),
         number: Number(number),
+        price: Number(price), // 🔥
       }),
     })
       .then((res) => {
@@ -81,12 +77,14 @@ function Wagons() {
     setEditingId(w.id);
     setTrainId(w.trainId);
     setNumber(w.number);
+    setPrice(w.price);
   };
 
   const resetForm = () => {
     setEditingId(null);
     setTrainId("");
     setNumber("");
+    setPrice("");
   };
 
   return (
@@ -110,6 +108,12 @@ function Wagons() {
             onChange={(e) => setNumber(e.target.value)}
           />
 
+          <input
+            placeholder="Цена"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+          />
+
           <button type="submit" style={createBtn}>
             {editingId ? "Сохранить" : "Создать"}
           </button>
@@ -122,6 +126,7 @@ function Wagons() {
             <p><b>ID:</b> {w.id}</p>
             <p>Train: {w.trainId}</p>
             <p>Wagon: {w.number}</p>
+            <p><b>Price:</b> {w.price}</p>
 
             {isAdmin && (
               <>
@@ -138,7 +143,7 @@ function Wagons() {
   );
 }
 
-// стили НЕ ТРОГАЕМ (копируй из Seats)
+// стили
 const container = { marginBottom: "40px" };
 const form = { display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap" };
 const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "15px" };

@@ -14,7 +14,6 @@ function Tickets() {
   const [userId, setUserId] = useState("");
   const [scheduleId, setScheduleId] = useState("");
   const [seatId, setSeatId] = useState("");
-  const [price, setPrice] = useState("");
 
   const [editId, setEditId] = useState(null);
 
@@ -38,16 +37,9 @@ function Tickets() {
         return res.json();
       })
       .then((data) => {
-        if (Array.isArray(data)) {
-          setTickets(data);
-        } else {
-          setTickets([]);
-        }
+        setTickets(Array.isArray(data) ? data : []);
       })
-      .catch(() => {
-        console.error("Ошибка загрузки билетов");
-        setTickets([]);
-      });
+      .catch(() => setTickets([]));
   };
 
   const fetchUsers = () => {
@@ -68,7 +60,7 @@ function Tickets() {
       .then(setSeats);
   };
 
-  // ✅ ИСПРАВЛЕНО
+  // 🔥 БЕЗ PRICE
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -84,7 +76,6 @@ function Tickets() {
         userId: isAdmin ? Number(userId) : null,
         scheduleId: Number(scheduleId),
         seatId: Number(seatId),
-        price: Number(price),
       }),
     })
       .then((res) => {
@@ -112,7 +103,6 @@ function Tickets() {
     setUserId(t.userId);
     setScheduleId(t.scheduleId);
     setSeatId(t.seatId);
-    setPrice(t.price);
     fetchSeats(t.scheduleId);
   };
 
@@ -120,7 +110,6 @@ function Tickets() {
     setUserId("");
     setScheduleId("");
     setSeatId("");
-    setPrice("");
     setEditId(null);
     setSeats([]);
   };
@@ -167,12 +156,6 @@ function Tickets() {
           ))}
         </select>
 
-        <input
-          placeholder="Цена"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-        />
-
         <button type="submit" style={createBtn}>
           {editId ? "Сохранить" : "Создать"}
         </button>
@@ -185,16 +168,12 @@ function Tickets() {
             <p>User: {t.userId}</p>
             <p>Schedule: {t.scheduleId}</p>
             <p>Seat: {t.seatId}</p>
-            <p>Price: {t.price}</p>
+            <p><b>Price:</b> {t.price}</p>
 
             {isAdmin && (
               <>
                 <button onClick={() => handleEdit(t)}>Редактировать</button>
-
-                <button
-                  onClick={() => handleDelete(t.id)}
-                  style={deleteBtn}
-                >
+                <button onClick={() => handleDelete(t.id)} style={deleteBtn}>
                   Удалить
                 </button>
               </>
@@ -206,45 +185,12 @@ function Tickets() {
   );
 }
 
-// стили не трогал
+// стили
 const container = { marginBottom: "40px" };
-
-const form = {
-  display: "flex",
-  gap: "10px",
-  flexWrap: "wrap",
-  marginBottom: "20px",
-};
-
-const grid = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-  gap: "15px",
-};
-
-const card = {
-  border: "1px solid #ddd",
-  padding: "15px",
-  borderRadius: "10px",
-};
-
-const createBtn = {
-  background: "green",
-  color: "white",
-  padding: "8px",
-  borderRadius: "6px",
-  border: "none",
-  cursor: "pointer",
-};
-
-const deleteBtn = {
-  background: "red",
-  color: "white",
-  padding: "6px",
-  borderRadius: "6px",
-  marginTop: "10px",
-  border: "none",
-  cursor: "pointer",
-};
+const form = { display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "20px" };
+const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "15px" };
+const card = { border: "1px solid #ddd", padding: "15px", borderRadius: "10px" };
+const createBtn = { background: "green", color: "white", padding: "8px", borderRadius: "6px", border: "none", cursor: "pointer" };
+const deleteBtn = { background: "red", color: "white", padding: "6px", borderRadius: "6px", marginTop: "10px", border: "none", cursor: "pointer" };
 
 export default Tickets;

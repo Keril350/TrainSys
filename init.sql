@@ -36,7 +36,8 @@ CREATE TABLE train (
 CREATE TABLE wagon (
     id SERIAL PRIMARY KEY,
     train_id INTEGER NOT NULL,
-    number INTEGER NOT NULL, -- номер вагона (1,2,3...)
+    number INTEGER NOT NULL,
+    price NUMERIC(10,2) NOT NULL DEFAULT 0,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

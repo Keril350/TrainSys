@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,14 +17,15 @@ public class Wagon {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    // 🔗 вагон принадлежит поезду
     @ManyToOne
     @JoinColumn(name = "train_id", nullable = false)
     private Train train;
 
-    // номер вагона (1,2,3...)
     @Column(nullable = false)
     private Integer number;
+
+    @Column(nullable = false)
+    private BigDecimal price; // 🔥 НОВОЕ
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
