@@ -36,7 +36,6 @@ public class ScheduleService {
         Route route = routeRepository.findById(dto.getRouteId())
                 .orElseThrow(() -> new RuntimeException("Route not found"));
 
-        // 🔥 ПРОВЕРКА НА ПЕРЕСЕЧЕНИЕ
         List<Schedule> conflicts = scheduleRepository.findConflictingSchedules(
                 dto.getTrainId(),
                 dto.getArrivalTime(),
@@ -81,7 +80,6 @@ public class ScheduleService {
         Route route = routeRepository.findById(dto.getRouteId())
                 .orElseThrow(() -> new RuntimeException("Route not found"));
 
-        // 🔥 ПРОВЕРКА КОНФЛИКТОВ (исключаем себя)
         List<Schedule> conflicts = scheduleRepository.findConflictingSchedules(
                 dto.getTrainId(),
                 dto.getArrivalTime(),
@@ -95,7 +93,6 @@ public class ScheduleService {
             throw new RuntimeException("Train is busy at this time");
         }
 
-        // обновление
         schedule.setTrain(train);
         schedule.setRoute(route);
         schedule.setArrivalTime(dto.getArrivalTime());

@@ -22,14 +22,12 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(errorMessage, 400);
     }
 
-    // RuntimeException (твои throw new RuntimeException)
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleRuntimeException(RuntimeException ex) {
         return new ErrorResponse(ex.getMessage(), 404);
     }
 
-    // Любые другие ошибки
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleException(Exception ex) {

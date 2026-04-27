@@ -1,5 +1,6 @@
 package com.example.trains.controller;
 
+import com.example.trains.dto.TrainDTO;
 import com.example.trains.dto.WagonDTO;
 import com.example.trains.service.WagonService;
 import org.springframework.web.bind.annotation.*;

@@ -28,12 +28,10 @@ public class UserService {
         user.setUsername(dto.getUsername());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-        // 🔥 ФИО
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
         user.setMiddleName(dto.getMiddleName());
 
-        // 🔥 ROLE
         if (dto.getRole() != null) {
             try {
                 user.setRole(Role.valueOf(dto.getRole().toUpperCase()));

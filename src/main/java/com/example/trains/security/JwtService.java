@@ -11,7 +11,6 @@ public class JwtService {
 
     private final String SECRET = "my-secret-key-my-secret-key-my-secret-key";
 
-    // 🔥 теперь role строка
     public String generateToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username)

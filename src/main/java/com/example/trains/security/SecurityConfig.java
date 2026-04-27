@@ -25,27 +25,27 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
 
-                        // 🔓 auth
+                        //auth
                         .requestMatchers("/auth/**").permitAll()
 
-                        // 👀 просмотр
+                        //просмотр
                         .requestMatchers(HttpMethod.GET, "/**").permitAll()
 
-                        // 🎫 покупка билета
+                        // покупка билета
                         .requestMatchers(HttpMethod.POST, "/tickets/**")
                         .hasAnyRole("USER", "WORKER", "ADMIN")
 
-                        // 🛠 управление (WORKER + ADMIN)
+                        //WORKER, ADMIN
                         .requestMatchers("/trains/**").hasAnyRole("WORKER", "ADMIN")
                         .requestMatchers("/stations/**").hasAnyRole("WORKER", "ADMIN")
                         .requestMatchers("/routes/**").hasAnyRole("WORKER", "ADMIN")
                         .requestMatchers("/seats/**").hasAnyRole("WORKER", "ADMIN")
                         .requestMatchers("/schedules/**").hasAnyRole("WORKER", "ADMIN")
 
-                        // 👤 пользователи — только админ
+                        //пользователи - только админ
                         .requestMatchers(HttpMethod.POST, "/users").hasRole("ADMIN")
 
-                        // ❌ удаление — только админ
+                        //удаление - только админ
                         .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/comments/**").hasRole("ADMIN")
 

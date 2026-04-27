@@ -17,7 +17,6 @@ function Schedule() {
 
   const [editId, setEditId] = useState(null);
 
-  // 🔥 JWT через context
   const getAuthHeaders = () => ({
     "Content-Type": "application/json",
     Authorization: "Bearer " + user?.token,
@@ -49,7 +48,6 @@ function Schedule() {
     fetchRoutes();
   }, []);
 
-  // 🔥 фикс даты
   const formatDateTime = (date) => {
     if (!date) return null;
     return date.length === 16 ? date + ":00" : date;

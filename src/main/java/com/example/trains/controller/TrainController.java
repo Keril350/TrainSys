@@ -35,6 +35,7 @@ public class TrainController {
         return trainService.getTrainById(id);
     }
 
+    //PUT
     @PutMapping("/{id}")
     public TrainDTO updateTrain(@PathVariable Integer id,
                                 @RequestBody @Valid TrainDTO dto) {

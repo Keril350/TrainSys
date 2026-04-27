@@ -4,33 +4,22 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "wagon",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"train_id", "number"}))
+@Table(name = "wagon_type")
 @Getter
 @Setter
-public class Wagon {
+public class WagonType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "train_id", nullable = false)
-    private Train train;
+    @Column(nullable = false, unique = true)
+    private String name;
 
-    @Column(nullable = false)
-    private Integer number;
-
-    @ManyToOne
-    @JoinColumn(name = "type_id")
-    private WagonType type;
-
-    @Column(nullable = false)
-    private BigDecimal price;
+    private String description;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

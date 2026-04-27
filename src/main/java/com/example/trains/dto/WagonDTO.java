@@ -15,5 +15,7 @@ public class WagonDTO {
 
     private Integer number;
 
+    private Integer typeId;
+
     private BigDecimal price;
 }

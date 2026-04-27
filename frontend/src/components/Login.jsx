@@ -7,7 +7,7 @@ function Login() {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
-  const { login } = useAuth(); // 🔥
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,7 +28,6 @@ function Login() {
         return;
       }
 
-      // 🔥 используем context
       login(username, data.role, data.token);
 
       alert("Успешный вход");

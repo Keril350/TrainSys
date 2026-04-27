@@ -16,7 +16,6 @@ function Routes() {
 
   const [editId, setEditId] = useState(null);
 
-  // 🔥 JWT из context
   const getAuthHeaders = () => ({
     "Content-Type": "application/json",
     Authorization: "Bearer " + user?.token,

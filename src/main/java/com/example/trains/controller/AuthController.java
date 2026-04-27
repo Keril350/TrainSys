@@ -14,7 +14,6 @@ public class AuthController {
         this.authService = authService;
     }
 
-    // 🔑 LOGIN
     @PostMapping("/login")
     public AuthDTO login(@RequestBody AuthDTO request) {
         return authService.login(
@@ -23,7 +22,6 @@ public class AuthController {
         );
     }
 
-    // 🆕 REGISTER
     @PostMapping("/register")
     public AuthDTO register(@RequestBody AuthDTO request) {
         return authService.register(request);

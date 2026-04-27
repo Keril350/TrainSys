@@ -15,6 +15,5 @@ public class RouteDTO {
     @NotBlank(message = "Route name must not be empty")
     private String name;
 
-    // список станций в маршруте
     private List<RouteStationDTO> stations;
 }

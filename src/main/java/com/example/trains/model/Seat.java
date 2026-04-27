@@ -15,7 +15,6 @@ public class Seat extends BaseModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    // 🔥 ВМЕСТО train
     @ManyToOne
     @JoinColumn(name = "wagon_id", nullable = false)
     private Wagon wagon;

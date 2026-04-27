@@ -52,7 +52,6 @@ public class CommentService {
         return mapToDTO(saved);
     }
 
-    // 🔥 удаление (роль проверяется в SecurityConfig)
     public void delete(Integer id) {
 
         Comment comment = commentRepository.findById(id)

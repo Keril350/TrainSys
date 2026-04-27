@@ -33,16 +33,27 @@ CREATE TABLE train (
     FOREIGN KEY (type_id) REFERENCES train_type(id)
 );
 
+CREATE TABLE wagon_type (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    description VARCHAR(255),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE wagon (
     id SERIAL PRIMARY KEY,
     train_id INTEGER NOT NULL,
     number INTEGER NOT NULL,
+    type_id INTEGER NOT NULL,
     price NUMERIC(10,2) NOT NULL DEFAULT 0,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (train_id) REFERENCES train(id) ON DELETE CASCADE,
+    FOREIGN KEY (type_id) REFERENCES wagon_type(id),
 
     CONSTRAINT unique_wagon_per_train UNIQUE (train_id, number)
 );
@@ -143,3 +154,9 @@ INSERT INTO train_type (name) VALUES
 ('PASSENGER'),
 ('CARGO'),
 ('EXPRESS');
+
+
+INSERT INTO wagon_type (name, description) VALUES
+('ECONOMY', 'Обычный вагон'),
+('COUPE', 'Купе'),
+('BUSINESS', 'Бизнес');

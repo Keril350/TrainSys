@@ -60,7 +60,6 @@ function Tickets() {
       .then(setSeats);
   };
 
-  // 🔥 БЕЗ PRICE
   const handleSubmit = (e) => {
     e.preventDefault();
 

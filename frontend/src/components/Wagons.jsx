@@ -7,10 +7,12 @@ function Wagons() {
 
   const [wagons, setWagons] = useState([]);
   const [trains, setTrains] = useState([]);
+  const [types, setTypes] = useState([]);
 
   const [trainId, setTrainId] = useState("");
   const [number, setNumber] = useState("");
   const [price, setPrice] = useState("");
+  const [typeId, setTypeId] = useState("");
 
   const [editingId, setEditingId] = useState(null);
 
@@ -27,17 +29,46 @@ function Wagons() {
 
   const fetchTrains = () => {
     fetch("http://localhost:8080/trains")
+      .then((res) => {
+        if (!res.ok) throw new Error("Ошибка загрузки поездов");
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          const filtered = data.filter(
+            (t) => t.type !== "CARGO"
+          );
+          setTrains(filtered);
+        } else {
+          console.error("Ожидался массив поездов:", data);
+          setTrains([]);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        setTrains([]);
+      });
+  };
+
+  const fetchTypes = () => {
+    fetch("http://localhost:8080/wagon-types")
       .then((res) => res.json())
-      .then(setTrains);
+      .then(setTypes);
   };
 
   useEffect(() => {
     fetchWagons();
     fetchTrains();
+    fetchTypes();
   }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!typeId) {
+      alert("Выбери тип вагона");
+      return;
+    }
 
     const method = editingId ? "PUT" : "POST";
     const url = editingId
@@ -50,7 +81,8 @@ function Wagons() {
       body: JSON.stringify({
         trainId: Number(trainId),
         number: Number(number),
-        price: Number(price), // 🔥
+        price: Number(price),
+        typeId: Number(typeId),
       }),
     })
       .then((res) => {
@@ -78,6 +110,7 @@ function Wagons() {
     setTrainId(w.trainId);
     setNumber(w.number);
     setPrice(w.price);
+    setTypeId(w.typeId);
   };
 
   const resetForm = () => {
@@ -85,6 +118,12 @@ function Wagons() {
     setTrainId("");
     setNumber("");
     setPrice("");
+    setTypeId("");
+  };
+
+  const getTypeName = (id) => {
+    const t = types.find((t) => t.id === id);
+    return t ? t.name : "—";
   };
 
   return (
@@ -98,6 +137,16 @@ function Wagons() {
             {trains.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.number}
+              </option>
+            ))}
+          </select>
+
+          {/*тип вагона */}
+          <select value={typeId} onChange={(e) => setTypeId(e.target.value)}>
+            <option value="">Тип вагона</option>
+            {types.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
               </option>
             ))}
           </select>
@@ -126,6 +175,7 @@ function Wagons() {
             <p><b>ID:</b> {w.id}</p>
             <p>Train: {w.trainId}</p>
             <p>Wagon: {w.number}</p>
+            <p>Type: {getTypeName(w.typeId)}</p>
             <p><b>Price:</b> {w.price}</p>
 
             {isAdmin && (

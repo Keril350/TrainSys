@@ -29,7 +29,6 @@ public class SeatController {
         return seatService.getAllSeats();
     }
 
-    // 🔥 НОВОЕ: GET by wagon
     @GetMapping("/wagon/{wagonId}")
     public List<SeatDTO> getSeatsByWagon(@PathVariable Integer wagonId) {
         return seatService.getSeatsByWagonId(wagonId);

@@ -82,21 +82,17 @@ public class RouteService {
 
     public RouteDTO updateRoute(Integer id, RouteDTO dto) {
 
-        // 1. проверяем что маршрут существует
         Route route = routeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Route not found"));
 
-        // 2. обновляем имя
         route.setName(dto.getName());
         routeRepository.save(route);
 
-        // 3. удаляем старые станции
         List<RouteStation> oldStations =
                 routeStationRepository.findByRouteIdOrderByStationOrder(id);
 
         routeStationRepository.deleteAll(oldStations);
 
-        // 4. валидация (дубликаты)
         Set<Integer> stationIds = new HashSet<>();
         Set<Integer> orders = new HashSet<>();
 
@@ -111,7 +107,6 @@ public class RouteService {
             }
         }
 
-        // 5. создаём новые связи
         for (RouteStationDTO stationDTO : dto.getStations()) {
 
             Station station = stationRepository.findById(stationDTO.getStationId())
@@ -125,21 +120,17 @@ public class RouteService {
             routeStationRepository.save(rs);
         }
 
-        // 6. вернуть DTO
         return mapToDTO(route);
     }
 
     public void deleteRoute(Integer id) {
 
-        // 1. проверяем существует ли маршрут
         Route route = routeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Route not found"));
 
-        // 2. удаляем ВСЕ связи route_station
         List<RouteStation> stations = routeStationRepository.findByRouteIdOrderByStationOrder(id);
         routeStationRepository.deleteAll(stations);
 
-        // 3. удаляем сам маршрут
         routeRepository.delete(route);
     }
 

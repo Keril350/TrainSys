@@ -23,7 +23,6 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    // 🔑 LOGIN
     public AuthDTO login(String username, String password) {
 
         User user = userRepository.findByUsername(username)
@@ -33,7 +32,6 @@ public class AuthService {
             throw new RuntimeException("Invalid password");
         }
 
-        // 🔥 теперь передаем роль
         String token = jwtService.generateToken(username, user.getRole().name());
 
         AuthDTO dto = new AuthDTO();
@@ -43,7 +41,6 @@ public class AuthService {
         return dto;
     }
 
-    // 🆕 REGISTER
     public AuthDTO register(AuthDTO request) {
 
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
@@ -54,12 +51,10 @@ public class AuthService {
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        // 🔥 ФИО
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setMiddleName(request.getMiddleName());
 
-        // 🔥 ВСЕГДА USER при регистрации
         user.setRole(Role.USER);
 
         userRepository.save(user);

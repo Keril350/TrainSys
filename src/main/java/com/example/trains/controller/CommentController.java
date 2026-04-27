@@ -26,7 +26,6 @@ public class CommentController {
         return service.create(content);
     }
 
-    // 🔥 УДАЛЕНИЕ
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Integer id) {
         service.delete(id);

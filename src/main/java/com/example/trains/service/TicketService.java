@@ -75,7 +75,6 @@ public class TicketService {
         ticket.setSchedule(schedule);
         ticket.setSeat(seat);
 
-        // 🔥 ВАЖНО: цена берётся из вагона
         ticket.setPrice(seat.getWagon().getPrice());
 
         ticket.setPurchaseDate(LocalDateTime.now());
@@ -127,7 +126,6 @@ public class TicketService {
         Seat seat = seatRepository.findById(dto.getSeatId())
                 .orElseThrow(() -> new RuntimeException("Seat not found"));
 
-        // 🔥 ИСПРАВЛЕНО
         if (!seat.getWagon().getTrain().getId().equals(schedule.getTrain().getId())) {
             throw new RuntimeException("Seat does not belong to this train");
         }

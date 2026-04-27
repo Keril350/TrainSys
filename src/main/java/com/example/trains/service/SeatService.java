@@ -31,7 +31,6 @@ public class SeatService {
         Wagon wagon = wagonRepository.findById(dto.getWagonId())
                 .orElseThrow(() -> new RuntimeException("Wagon not found"));
 
-        // 🔥 проверка типа поезда
         if (wagon.getTrain().getType().getName().equalsIgnoreCase("Cargo")) {
             throw new RuntimeException("Cargo train cannot have seats");
         }
@@ -60,7 +59,6 @@ public class SeatService {
                 .toList();
     }
 
-    // 🔥 ВАЖНО — теперь логика через поезд → вагоны → места
     public List<SeatDTO> getAvailableSeats(Integer scheduleId) {
 
         Schedule schedule = scheduleRepository.findById(scheduleId)

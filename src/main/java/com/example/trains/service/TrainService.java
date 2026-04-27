@@ -61,7 +61,6 @@ public class TrainService {
         TrainType type = trainTypeRepository.findByName(dto.getType())
                 .orElseThrow(() -> new RuntimeException("Train type not found"));
 
-        // проверка уникальности номера
         if (!train.getNumber().equals(dto.getNumber()) &&
                 trainRepository.existsByNumber(dto.getNumber())) {
             throw new RuntimeException("Train number already exists");
@@ -86,7 +85,7 @@ public class TrainService {
 
         dto.setId(train.getId());
         dto.setNumber(train.getNumber());
-        dto.setType(train.getType().getName()); // 👈 ОБРАТНО В СТРОКУ
+        dto.setType(train.getType().getName());
 
         return dto;
     }
