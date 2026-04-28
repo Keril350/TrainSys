@@ -16,9 +16,11 @@ public class ScheduleDTO {
 
     @NotNull(message = "Train ID must not be null")
     private Integer trainId;
+    private String trainNumber;
 
     @NotNull(message = "Route ID must not be null")
     private Integer routeId;
+    private String routeName;
 
     @NotNull(message = "Arrival time must not be null")
     private LocalDateTime arrivalTime;

@@ -126,9 +126,16 @@ public class SeatService {
     // MAPPER
     private SeatDTO mapToDTO(Seat seat) {
         SeatDTO dto = new SeatDTO();
+
         dto.setId(seat.getId());
-        dto.setWagonId(seat.getWagon().getId());
         dto.setNumber(seat.getNumber());
+
+        dto.setWagonId(seat.getWagon().getId());
+        dto.setWagonNumber(seat.getWagon().getNumber());
+
+        dto.setTrainId(seat.getWagon().getTrain().getId());
+        dto.setTrainNumber(seat.getWagon().getTrain().getNumber());
+
         return dto;
     }
 }

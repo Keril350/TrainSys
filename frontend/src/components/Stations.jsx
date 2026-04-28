@@ -47,11 +47,8 @@ function Stations() {
         code,
       }),
     })
-      .then(async (res) => {
+      .then((res) => {
         if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(() => {
         resetForm();
         fetchStations();
       })
@@ -66,7 +63,7 @@ function Stations() {
       method: "DELETE",
       headers: getAuthHeaders(),
     })
-      .then(async (res) => {
+      .then((res) => {
         if (!res.ok) throw new Error();
         fetchStations();
       })
@@ -94,7 +91,7 @@ function Stations() {
     <div>
       <h2>🏙 Станции</h2>
 
-      {/* ✅ ТОЛЬКО ADMIN */}
+      {/* ADMIN ONLY */}
       {isAdmin && (
         <form onSubmit={handleSubmit} style={formStyle}>
           <input
@@ -133,7 +130,8 @@ function Stations() {
       <table style={tableStyle}>
         <thead>
           <tr>
-            <th>ID</th>
+            {/* ❗ ID только для админа */}
+            {isAdmin && <th>ID</th>}
             <th>Название</th>
             <th>Город</th>
             <th>Код</th>
@@ -144,7 +142,9 @@ function Stations() {
         <tbody>
           {stations.map((s) => (
             <tr key={s.id}>
-              <td>{s.id}</td>
+              {/* ❗ ID только для админа */}
+              {isAdmin && <td>{s.id}</td>}
+
               <td>{s.name}</td>
               <td>{s.city}</td>
               <td>{s.code}</td>

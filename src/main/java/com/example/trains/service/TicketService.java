@@ -156,12 +156,25 @@ public class TicketService {
 
     private TicketDTO mapToDTO(Ticket ticket) {
         TicketDTO dto = new TicketDTO();
+
         dto.setId(ticket.getId());
-        dto.setUserId(ticket.getUser().getId());
-        dto.setScheduleId(ticket.getSchedule().getId());
-        dto.setSeatId(ticket.getSeat().getId());
         dto.setPrice(ticket.getPrice());
+
+        dto.setUserId(ticket.getUser().getId());
+        dto.setUsername(ticket.getUser().getUsername());
+
+        dto.setScheduleId(ticket.getSchedule().getId());
+
+        dto.setTrainId(ticket.getSchedule().getTrain().getId());
+        dto.setTrainNumber(ticket.getSchedule().getTrain().getNumber());
+
+        dto.setSeatId(ticket.getSeat().getId());
+        dto.setSeatNumber(ticket.getSeat().getNumber());
+
+        dto.setWagonNumber(ticket.getSeat().getWagon().getNumber());
+
         dto.setPurchaseDate(ticket.getPurchaseDate());
+
         return dto;
     }
 }

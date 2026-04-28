@@ -6,7 +6,6 @@ function Tickets() {
   const isAdmin = user?.role === "ADMIN";
 
   const [tickets, setTickets] = useState([]);
-
   const [users, setUsers] = useState([]);
   const [schedules, setSchedules] = useState([]);
   const [seats, setSeats] = useState([]);
@@ -32,13 +31,8 @@ function Tickets() {
     fetch("http://localhost:8080/tickets", {
       headers: getAuthHeaders(),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then((data) => {
-        setTickets(Array.isArray(data) ? data : []);
-      })
+      .then((res) => res.json())
+      .then((data) => setTickets(Array.isArray(data) ? data : []))
       .catch(() => setTickets([]));
   };
 
@@ -141,7 +135,7 @@ function Tickets() {
           <option value="">Расписание</option>
           {schedules.map((s) => (
             <option key={s.id} value={s.id}>
-              #{s.id}
+              Поезд {s.trainNumber}
             </option>
           ))}
         </select>
@@ -150,7 +144,7 @@ function Tickets() {
           <option value="">Место</option>
           {seats.map((s) => (
             <option key={s.id} value={s.id}>
-              {s.number}
+              Вагон {s.wagonNumber} — место {s.number}
             </option>
           ))}
         </select>
@@ -163,10 +157,13 @@ function Tickets() {
       <div style={grid}>
         {tickets.map((t) => (
           <div key={t.id} style={card}>
-            <p><b>ID:</b> {t.id}</p>
-            <p>User: {t.userId}</p>
-            <p>Schedule: {t.scheduleId}</p>
-            <p>Seat: {t.seatId}</p>
+            {isAdmin && <p><b>ID:</b> {t.id}</p>}
+
+            <p><b>User:</b> {t.username}</p>
+            <p><b>Train:</b> {t.trainNumber}</p>
+            <p><b>Wagon:</b> {t.wagonNumber}</p>
+            <p><b>Seat:</b> {t.seatNumber}</p>
+
             <p><b>Price:</b> {t.price}</p>
 
             {isAdmin && (

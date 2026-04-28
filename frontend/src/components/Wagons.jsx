@@ -3,7 +3,9 @@ import { useAuth } from "../context/AuthContext";
 
 function Wagons() {
   const { user } = useAuth();
+
   const isAdmin = user?.role === "ADMIN" || user?.role === "WORKER";
+  const canSeeId = isAdmin;
 
   const [wagons, setWagons] = useState([]);
   const [trains, setTrains] = useState([]);
@@ -29,24 +31,10 @@ function Wagons() {
 
   const fetchTrains = () => {
     fetch("http://localhost:8080/trains")
-      .then((res) => {
-        if (!res.ok) throw new Error("Ошибка загрузки поездов");
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) {
-          const filtered = data.filter(
-            (t) => t.type !== "CARGO"
-          );
-          setTrains(filtered);
-        } else {
-          console.error("Ожидался массив поездов:", data);
-          setTrains([]);
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        setTrains([]);
+        const filtered = data.filter((t) => t.type !== "CARGO");
+        setTrains(filtered);
       });
   };
 
@@ -64,11 +52,6 @@ function Wagons() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!typeId) {
-      alert("Выбери тип вагона");
-      return;
-    }
 
     const method = editingId ? "PUT" : "POST";
     const url = editingId
@@ -97,12 +80,7 @@ function Wagons() {
     fetch(`http://localhost:8080/wagons/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        fetchWagons();
-      })
-      .catch(() => alert("Ошибка удаления"));
+    }).then(fetchWagons);
   };
 
   const handleEdit = (w) => {
@@ -119,6 +97,11 @@ function Wagons() {
     setNumber("");
     setPrice("");
     setTypeId("");
+  };
+
+  const getTrainName = (id) => {
+    const t = trains.find((t) => t.id === id);
+    return t ? t.number : "—";
   };
 
   const getTypeName = (id) => {
@@ -141,7 +124,6 @@ function Wagons() {
             ))}
           </select>
 
-          {/*тип вагона */}
           <select value={typeId} onChange={(e) => setTypeId(e.target.value)}>
             <option value="">Тип вагона</option>
             {types.map((t) => (
@@ -172,10 +154,10 @@ function Wagons() {
       <div style={grid}>
         {wagons.map((w) => (
           <div key={w.id} style={card}>
-            <p><b>ID:</b> {w.id}</p>
-            <p>Train: {w.trainId}</p>
-            <p>Wagon: {w.number}</p>
-            <p>Type: {getTypeName(w.typeId)}</p>
+            {canSeeId && <p><b>ID:</b> {w.id}</p>}
+            <p><b>Train:</b> {getTrainName(w.trainId)}</p>
+            <p><b>Wagon:</b> {w.number}</p>
+            <p><b>Type:</b> {getTypeName(w.typeId)}</p>
             <p><b>Price:</b> {w.price}</p>
 
             {isAdmin && (

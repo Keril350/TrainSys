@@ -10,10 +10,11 @@ import lombok.Setter;
 public class SeatDTO {
 
     private Integer id;
-
-    @NotNull(message = "Wagon ID must not be null")
-    private Integer wagonId;
-
-    @NotBlank(message = "Seat number must not be empty")
     private String number;
+
+    private Integer wagonId;
+    private Integer wagonNumber;
+
+    private Integer trainId;
+    private String trainNumber;
 }

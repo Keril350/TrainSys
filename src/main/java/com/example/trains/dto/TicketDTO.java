@@ -11,11 +11,20 @@ import java.time.LocalDateTime;
 public class TicketDTO {
 
     private Integer id;
-    private Integer userId;
-    private Integer scheduleId;
-    private Integer seatId;
-
     private BigDecimal price;
+
+    private Integer userId;
+    private String username;
+
+    private Integer scheduleId;
+
+    private Integer trainId;
+    private String trainNumber;
+
+    private Integer seatId;
+    private String seatNumber;
+
+    private Integer wagonNumber;
 
     private LocalDateTime purchaseDate;
 }

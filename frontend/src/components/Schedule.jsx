@@ -33,7 +33,8 @@ function Schedule() {
   const fetchTrains = () => {
     fetch("http://localhost:8080/trains")
       .then((res) => res.json())
-      .then(setTrains);
+      .then((setTrains)
+      });
   };
 
   const fetchRoutes = () => {
@@ -51,6 +52,17 @@ function Schedule() {
   const formatDateTime = (date) => {
     if (!date) return null;
     return date.length === 16 ? date + ":00" : date;
+  };
+
+  // ===== HELPERS =====
+  const getTrainName = (id) => {
+    const t = trains.find((t) => t.id === id);
+    return t ? `${t.number} (${t.type})` : "—";
+  };
+
+  const getRouteName = (id) => {
+    const r = routes.find((r) => r.id === id);
+    return r ? r.name : "—";
   };
 
   // ===== CREATE / UPDATE =====
@@ -72,39 +84,26 @@ function Schedule() {
         departureTime: formatDateTime(departureTime),
       }),
     })
-      .then(async (res) => {
+      .then((res) => {
         if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(() => {
-        setTrainId("");
-        setRouteId("");
-        setArrivalTime("");
-        setDepartureTime("");
-        setEditId(null);
+        resetForm();
         fetchSchedules();
       })
-      .catch(() => {
-        alert("Ошибка (нужна роль ADMIN)");
-      });
+      .catch(() => alert("Ошибка (нужна роль ADMIN)"));
   };
 
-  // ===== DELETE =====
   const handleDelete = (id) => {
     fetch(`http://localhost:8080/schedules/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
     })
-      .then(async (res) => {
+      .then((res) => {
         if (!res.ok) throw new Error();
         fetchSchedules();
       })
-      .catch(() => {
-        alert("Ошибка удаления (нужна роль ADMIN)");
-      });
+      .catch(() => alert("Ошибка удаления"));
   };
 
-  // ===== EDIT =====
   const handleEdit = (s) => {
     setEditId(s.id);
     setTrainId(s.trainId);
@@ -113,15 +112,22 @@ function Schedule() {
     setDepartureTime(s.departureTime?.slice(0, 16));
   };
 
+  const resetForm = () => {
+    setTrainId("");
+    setRouteId("");
+    setArrivalTime("");
+    setDepartureTime("");
+    setEditId(null);
+  };
+
   return (
     <div style={container}>
       <h2>📅 Расписание</h2>
 
-      {/* ✅ ТОЛЬКО ADMIN */}
       {isAdmin && (
         <form onSubmit={handleSubmit} style={form}>
           <select value={trainId} onChange={(e) => setTrainId(e.target.value)}>
-            <option value="">Выбери поезд</option>
+            <option value="">Поезд</option>
             {trains.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.number} ({t.type})
@@ -130,7 +136,7 @@ function Schedule() {
           </select>
 
           <select value={routeId} onChange={(e) => setRouteId(e.target.value)}>
-            <option value="">Выбери маршрут</option>
+            <option value="">Маршрут</option>
             {routes.map((r) => (
               <option key={r.id} value={r.id}>
                 {r.name}
@@ -156,24 +162,25 @@ function Schedule() {
         </form>
       )}
 
+      {/* LIST */}
       <div style={grid}>
         {schedules.map((s) => (
           <div key={s.id} style={card}>
-            <p><b>ID:</b> {s.id}</p>
-            <p>Train: {s.trainId}</p>
-            <p>Route: {s.routeId}</p>
+            {isAdmin && <p><b>ID:</b> {s.id}</p>}
 
-            {/* ✅ кнопки только для ADMIN */}
+            <p><b>Поезд:</b> {getTrainName(s.trainId)}</p>
+            <p><b>Маршрут:</b> {getRouteName(s.routeId)}</p>
+
+            <p><b>Отправление:</b> {s.departureTime}</p>
+            <p><b>Прибытие:</b> {s.arrivalTime}</p>
+
             {isAdmin && (
               <>
                 <button onClick={() => handleEdit(s)}>
                   Редактировать
                 </button>
 
-                <button
-                  onClick={() => handleDelete(s.id)}
-                  style={deleteBtn}
-                >
+                <button onClick={() => handleDelete(s.id)} style={deleteBtn}>
                   Удалить
                 </button>
               </>
@@ -186,7 +193,6 @@ function Schedule() {
 }
 
 // ===== STYLES =====
-
 const container = { marginBottom: "40px" };
 
 const form = {

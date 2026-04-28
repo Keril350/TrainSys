@@ -110,8 +110,13 @@ public class ScheduleService {
     private ScheduleDTO mapToDTO(Schedule schedule) {
         ScheduleDTO dto = new ScheduleDTO();
         dto.setId(schedule.getId());
+
         dto.setTrainId(schedule.getTrain().getId());
+        dto.setTrainNumber(schedule.getTrain().getNumber());
+
         dto.setRouteId(schedule.getRoute().getId());
+        dto.setRouteName(schedule.getRoute().getName());
+
         dto.setArrivalTime(schedule.getArrivalTime());
         dto.setDepartureTime(schedule.getDepartureTime());
         return dto;

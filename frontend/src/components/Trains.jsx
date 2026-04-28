@@ -14,7 +14,9 @@ function Trains() {
 
   const isAdmin = user?.role === "ADMIN";
   const isWorker = user?.role === "WORKER";
+
   const canManage = isAdmin || isWorker;
+  const canSeeId = isAdmin || isWorker;
 
   const getAuthHeaders = () => ({
     "Content-Type": "application/json",
@@ -128,7 +130,7 @@ function Trains() {
       <table style={tableStyle}>
         <thead>
           <tr>
-            <th>ID</th>
+            {canSeeId && <th>ID</th>}
             <th>Номер</th>
             <th>Тип</th>
             {canManage && <th></th>}
@@ -138,7 +140,7 @@ function Trains() {
         <tbody>
           {trains.map((t) => (
             <tr key={t.id}>
-              <td>{t.id}</td>
+              {canSeeId && <td>{t.id}</td>}
               <td>{t.number}</td>
               <td>{t.type}</td>
 
@@ -167,57 +169,12 @@ function Trains() {
 }
 
 // стили
-const formStyle = {
-  display: "flex",
-  gap: "10px",
-  marginBottom: "20px",
-};
-
-const inputStyle = {
-  padding: "8px",
-  borderRadius: "6px",
-  border: "1px solid #ccc",
-};
-
-const createBtn = {
-  backgroundColor: "green",
-  color: "white",
-  border: "none",
-  padding: "8px 15px",
-  borderRadius: "6px",
-  cursor: "pointer",
-};
-
-const cancelBtn = {
-  backgroundColor: "gray",
-  color: "white",
-  border: "none",
-  padding: "8px 15px",
-  borderRadius: "6px",
-  cursor: "pointer",
-};
-
-const editBtn = {
-  backgroundColor: "orange",
-  color: "white",
-  border: "none",
-  padding: "5px 10px",
-  borderRadius: "6px",
-  cursor: "pointer",
-};
-
-const deleteBtn = {
-  backgroundColor: "red",
-  color: "white",
-  border: "none",
-  padding: "5px 10px",
-  borderRadius: "6px",
-  cursor: "pointer",
-};
-
-const tableStyle = {
-  width: "100%",
-  borderCollapse: "collapse",
-};
+const formStyle = { display: "flex", gap: "10px", marginBottom: "20px" };
+const inputStyle = { padding: "8px", borderRadius: "6px", border: "1px solid #ccc" };
+const createBtn = { backgroundColor: "green", color: "white", border: "none", padding: "8px 15px", borderRadius: "6px", cursor: "pointer" };
+const cancelBtn = { backgroundColor: "gray", color: "white", border: "none", padding: "8px 15px", borderRadius: "6px", cursor: "pointer" };
+const editBtn = { backgroundColor: "orange", color: "white", border: "none", padding: "5px 10px", borderRadius: "6px", cursor: "pointer" };
+const deleteBtn = { backgroundColor: "red", color: "white", border: "none", padding: "5px 10px", borderRadius: "6px", cursor: "pointer" };
+const tableStyle = { width: "100%", borderCollapse: "collapse" };
 
 export default Trains;
