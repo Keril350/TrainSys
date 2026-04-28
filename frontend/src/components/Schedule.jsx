@@ -33,8 +33,7 @@ function Schedule() {
   const fetchTrains = () => {
     fetch("http://localhost:8080/trains")
       .then((res) => res.json())
-      .then((setTrains)
-      });
+      .then((setTrains));
   };
 
   const fetchRoutes = () => {
