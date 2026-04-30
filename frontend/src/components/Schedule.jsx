@@ -16,11 +16,17 @@ function Schedule() {
   const [departureTime, setDepartureTime] = useState("");
 
   const [editId, setEditId] = useState(null);
+  const [sortOrder, setSortOrder] = useState("asc");
 
   const getAuthHeaders = () => ({
     "Content-Type": "application/json",
     Authorization: "Bearer " + user?.token,
   });
+
+  const formatDate = (date) => {
+    if (!date) return "—";
+    return new Date(date).toLocaleString();
+  };
 
   // ===== FETCH =====
   const fetchSchedules = () => {
@@ -33,7 +39,7 @@ function Schedule() {
   const fetchTrains = () => {
     fetch("http://localhost:8080/trains")
       .then((res) => res.json())
-      .then((setTrains));
+      .then(setTrains);
   };
 
   const fetchRoutes = () => {
@@ -63,6 +69,16 @@ function Schedule() {
     const r = routes.find((r) => r.id === id);
     return r ? r.name : "—";
   };
+
+  // ===== SORT =====
+  const sortedSchedules = [...schedules].sort((a, b) => {
+    const dateA = new Date(a.departureTime);
+    const dateB = new Date(b.departureTime);
+
+    return sortOrder === "asc"
+      ? dateA - dateB
+      : dateB - dateA;
+  });
 
   // ===== CREATE / UPDATE =====
   const handleSubmit = (e) => {
@@ -123,6 +139,17 @@ function Schedule() {
     <div style={container}>
       <h2>📅 Расписание</h2>
 
+      <div style={{ marginBottom: "15px" }}>
+        <label>Сортировка по отправлению: </label>
+        <select
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value)}
+        >
+          <option value="asc">Сначала ранние</option>
+          <option value="desc">Сначала поздние</option>
+        </select>
+      </div>
+
       {isAdmin && (
         <form onSubmit={handleSubmit} style={form}>
           <select value={trainId} onChange={(e) => setTrainId(e.target.value)}>
@@ -163,15 +190,16 @@ function Schedule() {
 
       {/* LIST */}
       <div style={grid}>
-        {schedules.map((s) => (
+        {sortedSchedules.map((s) => (
           <div key={s.id} style={card}>
             {isAdmin && <p><b>ID:</b> {s.id}</p>}
 
-            <p><b>Поезд:</b> {getTrainName(s.trainId)}</p>
             <p><b>Маршрут:</b> {getRouteName(s.routeId)}</p>
+            <p><b>Поезд:</b> {getTrainName(s.trainId)}</p>
 
-            <p><b>Отправление:</b> {s.departureTime}</p>
-            <p><b>Прибытие:</b> {s.arrivalTime}</p>
+
+            <p><b>Отправление:</b> {formatDate(s.departureTime)}</p>
+            <p><b>Прибытие:</b> {formatDate(s.arrivalTime)}</p>
 
             {isAdmin && (
               <>
