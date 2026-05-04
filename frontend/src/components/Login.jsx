@@ -3,14 +3,34 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState({
+    username: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!form.username || !form.password) {
+      setError("Введите логин и пароль");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
 
     try {
       const res = await fetch("http://localhost:8080/auth/login", {
@@ -18,49 +38,101 @@ function Login() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify(form),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.message || "Ошибка входа");
+        setError(data.message || "Ошибка входа");
         return;
       }
 
-      login(username, data.role, data.token);
-
-      alert("Успешный вход");
+      login(form.username, data.role, data.token);
 
       navigate("/trains");
     } catch (err) {
       console.error(err);
-      alert("Ошибка сервера");
+      setError("Ошибка сервера");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      <h2>Вход</h2>
-      <form onSubmit={handleSubmit}>
+    <div style={styles.wrapper}>
+      <form onSubmit={handleSubmit} style={styles.card}>
+        <h2 style={styles.title}>Вход</h2>
+
+        {error && <div style={styles.error}>{error}</div>}
+
         <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          name="username"
+          placeholder="Логин"
+          value={form.username}
+          onChange={handleChange}
+          style={styles.input}
         />
-        <br />
+
         <input
           type="password"
+          name="password"
           placeholder="Пароль"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={form.password}
+          onChange={handleChange}
+          style={styles.input}
         />
-        <br />
-        <button type="submit">Войти</button>
+
+        <button disabled={loading} style={styles.button}>
+          {loading ? "Вход..." : "Войти"}
+        </button>
       </form>
     </div>
   );
 }
+
+const styles = {
+  wrapper: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "80vh",
+    background: "#f5f7fa",
+  },
+  card: {
+    width: "350px",
+    padding: "30px",
+    borderRadius: "12px",
+    background: "#fff",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+  },
+  title: {
+    textAlign: "center",
+    marginBottom: "10px",
+  },
+  input: {
+    padding: "10px",
+    borderRadius: "6px",
+    border: "1px solid #ccc",
+    fontSize: "14px",
+  },
+  button: {
+    padding: "12px",
+    border: "none",
+    borderRadius: "6px",
+    background: "#2c3e50",
+    color: "#fff",
+    cursor: "pointer",
+    fontSize: "15px",
+  },
+  error: {
+    color: "red",
+    fontSize: "14px",
+    textAlign: "center",
+  },
+};
 
 export default Login;
