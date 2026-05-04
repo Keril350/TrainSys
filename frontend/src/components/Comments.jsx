@@ -1,12 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import styles from "../styles/chat.module.css";
 
 function Comments() {
   const { user } = useAuth();
 
   const [comments, setComments] = useState([]);
   const [text, setText] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
   const [hoveredId, setHoveredId] = useState(null);
+
+  const bottomRef = useRef(null);
 
   const getAuthHeaders = () => ({
     "Content-Type": "application/json",
@@ -16,156 +20,111 @@ function Comments() {
   const fetchComments = () => {
     fetch("http://localhost:8080/comments")
       .then((res) => res.json())
-      .then(setComments)
-      .catch(console.error);
+      .then(setComments);
   };
 
   useEffect(() => {
     fetchComments();
+    const interval = setInterval(fetchComments, 3000);
+    return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [comments]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (!text.trim()) return;
 
     fetch("http://localhost:8080/comments", {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(text),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        setText("");
-        fetchComments();
-      })
-      .catch(() => alert("Ошибка отправки"));
+    }).then(() => {
+      setText("");
+      fetchComments();
+    });
   };
 
   const handleDelete = (id) => {
     fetch(`http://localhost:8080/comments/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        fetchComments();
-      })
-      .catch(() => alert("Ошибка удаления"));
+    }).then(fetchComments);
   };
 
+  if (!isOpen) {
+    return (
+      <div className={styles.chatButton} onClick={() => setIsOpen(true)}>
+        💬
+      </div>
+    );
+  }
+
   return (
-    <div style={container}>
-      <h3>💬 Комментарии</h3>
+    <div className={styles.chat}>
+      <div className={styles.header}>
+        💬 Чат
+        <span
+          className={styles.close}
+          onClick={() => setIsOpen(false)}
+        >
+          ✖
+        </span>
+      </div>
 
-      <div style={list}>
-        {comments.map((c) => (
-          <div
-            key={c.id}
-            style={{
-              ...comment,
-              background: hoveredId === c.id ? "#f5f5f5" : "transparent",
-            }}
-            onMouseEnter={() => setHoveredId(c.id)}
-            onMouseLeave={() => setHoveredId(null)}
-          >
-            {/* левая часть */}
-            <div style={left}>
-              <b>{c.username}</b>: {c.content}
+      <div className={styles.messages}>
+        {comments.map((c) => {
+          const isMine = c.username === user?.username;
+
+          return (
+            <div
+              key={c.id}
+              className={`${styles.messageRow} ${
+                isMine ? styles.myRow : styles.otherRow
+              }`}
+              onMouseEnter={() => setHoveredId(c.id)}
+              onMouseLeave={() => setHoveredId(null)}
+            >
+              <div className={styles.message}>
+                <div className={styles.meta}>
+                  <b>{c.username}</b>
+                  <span>
+                    {new Date(c.createdAt).toLocaleTimeString()}
+                  </span>
+                </div>
+
+                <div>{c.content}</div>
+
+                {user?.role === "ADMIN" &&
+                  hoveredId === c.id && (
+                    <button
+                      className={styles.deleteBtn}
+                      onClick={() => handleDelete(c.id)}
+                    >
+                      ❌
+                    </button>
+                  )}
+              </div>
             </div>
-
-            {/* правая часть */}
-            <div style={right}>
-              <span style={date}>
-                {new Date(c.createdAt).toLocaleString()}
-              </span>
-
-              {user?.role === "ADMIN" && hoveredId === c.id && (
-                <button
-                  onClick={() => handleDelete(c.id)}
-                  style={deleteBtn}
-                >
-                  ❌
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
+          );
+        })}
+        <div ref={bottomRef} />
       </div>
 
       {user && (
-        <form onSubmit={handleSubmit} style={form}>
+        <form onSubmit={handleSubmit} className={styles.inputArea}>
           <input
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Написать комментарий..."
-            style={input}
+            placeholder="Сообщение..."
           />
-          <button type="submit" style={btn}>
-            Отправить
-          </button>
+          <button>➤</button>
         </form>
       )}
     </div>
   );
 }
-
-const container = {
-  marginTop: "40px",
-  borderTop: "1px solid #ccc",
-  paddingTop: "20px",
-};
-
-const list = {
-  marginBottom: "10px",
-};
-
-const comment = {
-  padding: "8px 12px",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  borderRadius: "6px",
-  transition: "background 0.2s",
-};
-
-const left = {
-  display: "flex",
-  gap: "5px",
-  alignItems: "center",
-};
-
-const right = {
-  display: "flex",
-  alignItems: "center",
-  gap: "10px",
-};
-
-const date = {
-  fontSize: "12px",
-  color: "#888",
-  whiteSpace: "nowrap",
-};
-
-const deleteBtn = {
-  color: "red",
-  border: "none",
-  background: "transparent",
-  cursor: "pointer",
-};
-
-const form = {
-  display: "flex",
-  gap: "10px",
-};
-
-const input = {
-  flex: 1,
-  padding: "8px",
-};
-
-const btn = {
-  padding: "8px 15px",
-};
 
 export default Comments;

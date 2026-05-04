@@ -166,7 +166,6 @@ function App() {
         </div>
       </div>
 
-      {/* КОНТЕНТ */}
       <div className={styles.container}>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -183,7 +182,7 @@ function App() {
           <Route path="*" element={<Trains />} />
         </Routes>
 
-        <Comments />
+        {user && <Comments />}
       </div>
     </BrowserRouter>
   );
