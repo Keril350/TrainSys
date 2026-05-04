@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import styles from "../styles/auth.module.css";
 
 function Login() {
   const [form, setForm] = useState({
@@ -49,7 +50,6 @@ function Login() {
       }
 
       login(form.username, data.role, data.token);
-
       navigate("/trains");
     } catch (err) {
       console.error(err);
@@ -60,18 +60,18 @@ function Login() {
   };
 
   return (
-    <div style={styles.wrapper}>
-      <form onSubmit={handleSubmit} style={styles.card}>
-        <h2 style={styles.title}>Вход</h2>
+    <div className={styles.wrapper}>
+      <form onSubmit={handleSubmit} className={styles.card}>
+        <h2 className={styles.title}>Вход</h2>
 
-        {error && <div style={styles.error}>{error}</div>}
+        {error && <div className={styles.error}>{error}</div>}
 
         <input
           name="username"
           placeholder="Логин"
           value={form.username}
           onChange={handleChange}
-          style={styles.input}
+          className={styles.input}
         />
 
         <input
@@ -80,59 +80,15 @@ function Login() {
           placeholder="Пароль"
           value={form.password}
           onChange={handleChange}
-          style={styles.input}
+          className={styles.input}
         />
 
-        <button disabled={loading} style={styles.button}>
+        <button disabled={loading} className={styles.button}>
           {loading ? "Вход..." : "Войти"}
         </button>
       </form>
     </div>
   );
 }
-
-const styles = {
-  wrapper: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "80vh",
-    background: "#f5f7fa",
-  },
-  card: {
-    width: "350px",
-    padding: "30px",
-    borderRadius: "12px",
-    background: "#fff",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: "10px",
-  },
-  input: {
-    padding: "10px",
-    borderRadius: "6px",
-    border: "1px solid #ccc",
-    fontSize: "14px",
-  },
-  button: {
-    padding: "12px",
-    border: "none",
-    borderRadius: "6px",
-    background: "#2c3e50",
-    color: "#fff",
-    cursor: "pointer",
-    fontSize: "15px",
-  },
-  error: {
-    color: "red",
-    fontSize: "14px",
-    textAlign: "center",
-  },
-};
 
 export default Login;

@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import styles from "../styles/common.module.css";
 
 function Schedule() {
   const { user } = useAuth();
+
   const isAdmin = user?.role === "ADMIN";
+  const canEdit = user?.role === "ADMIN" || user?.role === "WORKER";
 
   const [schedules, setSchedules] = useState([]);
-
   const [trains, setTrains] = useState([]);
   const [routes, setRoutes] = useState([]);
 
@@ -16,107 +18,49 @@ function Schedule() {
   const [departureTime, setDepartureTime] = useState("");
 
   const [editId, setEditId] = useState(null);
-  const [sortOrder, setSortOrder] = useState("asc");
 
-  const getAuthHeaders = () => ({
-    "Content-Type": "application/json",
-    Authorization: "Bearer " + user?.token,
-  });
-
-  const formatDate = (date) => {
-    if (!date) return "—";
-    return new Date(date).toLocaleString();
-  };
-
-  // ===== FETCH =====
-  const fetchSchedules = () => {
+  const fetchAll = () => {
     fetch("http://localhost:8080/schedules")
-      .then((res) => res.json())
-      .then(setSchedules)
-      .catch(console.error);
-  };
+      .then((r) => r.json())
+      .then(setSchedules);
 
-  const fetchTrains = () => {
     fetch("http://localhost:8080/trains")
-      .then((res) => res.json())
+      .then((r) => r.json())
       .then(setTrains);
-  };
 
-  const fetchRoutes = () => {
     fetch("http://localhost:8080/routes")
-      .then((res) => res.json())
+      .then((r) => r.json())
       .then(setRoutes);
   };
 
   useEffect(() => {
-    fetchSchedules();
-    fetchTrains();
-    fetchRoutes();
+    fetchAll();
   }, []);
 
-  const formatDateTime = (date) => {
-    if (!date) return null;
-    return date.length === 16 ? date + ":00" : date;
-  };
-
-  // ===== HELPERS =====
-  const getTrainName = (id) => {
-    const t = trains.find((t) => t.id === id);
-    return t ? `${t.number} (${t.type})` : "—";
-  };
-
-  const getRouteName = (id) => {
-    const r = routes.find((r) => r.id === id);
-    return r ? r.name : "—";
-  };
-
-  // ===== SORT =====
-  const sortedSchedules = [...schedules].sort((a, b) => {
-    const dateA = new Date(a.departureTime);
-    const dateB = new Date(b.departureTime);
-
-    return sortOrder === "asc"
-      ? dateA - dateB
-      : dateB - dateA;
-  });
-
-  // ===== CREATE / UPDATE =====
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const method = editId ? "PUT" : "POST";
-    const url = editId
-      ? `http://localhost:8080/schedules/${editId}`
-      : "http://localhost:8080/schedules";
-
-    fetch(url, {
-      method,
-      headers: getAuthHeaders(),
-      body: JSON.stringify({
-        trainId: Number(trainId),
-        routeId: Number(routeId),
-        arrivalTime: formatDateTime(arrivalTime),
-        departureTime: formatDateTime(departureTime),
-      }),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        resetForm();
-        fetchSchedules();
-      })
-      .catch(() => alert("Ошибка (нужна роль ADMIN)"));
-  };
-
-  const handleDelete = (id) => {
-    fetch(`http://localhost:8080/schedules/${id}`, {
-      method: "DELETE",
-      headers: getAuthHeaders(),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        fetchSchedules();
-      })
-      .catch(() => alert("Ошибка удаления"));
+    fetch(
+      editId
+        ? `http://localhost:8080/schedules/${editId}`
+        : "http://localhost:8080/schedules",
+      {
+        method: editId ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + user?.token,
+        },
+        body: JSON.stringify({
+          trainId: Number(trainId),
+          routeId: Number(routeId),
+          arrivalTime,
+          departureTime,
+        }),
+      }
+    ).then(() => {
+      resetForm();
+      fetchAll();
+    });
   };
 
   const handleEdit = (s) => {
@@ -127,41 +71,49 @@ function Schedule() {
     setDepartureTime(s.departureTime?.slice(0, 16));
   };
 
+  const handleDelete = (id) => {
+    if (!window.confirm("Удалить расписание?")) return;
+
+    fetch(`http://localhost:8080/schedules/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: "Bearer " + user?.token,
+      },
+    }).then(fetchAll);
+  };
+
   const resetForm = () => {
+    setEditId(null);
     setTrainId("");
     setRouteId("");
     setArrivalTime("");
     setDepartureTime("");
-    setEditId(null);
   };
 
   return (
-    <div style={container}>
+    <div className={styles.container}>
       <h2>📅 Расписание</h2>
 
-      <div style={{ marginBottom: "15px" }}>
-        <label>Сортировка по отправлению: </label>
-        <select
-          value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value)}
-        >
-          <option value="asc">Сначала ранние</option>
-          <option value="desc">Сначала поздние</option>
-        </select>
-      </div>
-
-      {isAdmin && (
-        <form onSubmit={handleSubmit} style={form}>
-          <select value={trainId} onChange={(e) => setTrainId(e.target.value)}>
+      {canEdit && (
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <select
+            className={styles.select}
+            value={trainId}
+            onChange={(e) => setTrainId(e.target.value)}
+          >
             <option value="">Поезд</option>
             {trains.map((t) => (
               <option key={t.id} value={t.id}>
-                {t.number} ({t.type})
+                {t.number}
               </option>
             ))}
           </select>
 
-          <select value={routeId} onChange={(e) => setRouteId(e.target.value)}>
+          <select
+            className={styles.select}
+            value={routeId}
+            onChange={(e) => setRouteId(e.target.value)}
+          >
             <option value="">Маршрут</option>
             {routes.map((r) => (
               <option key={r.id} value={r.id}>
@@ -171,46 +123,61 @@ function Schedule() {
           </select>
 
           <input
+            className={styles.input}
             type="datetime-local"
             value={arrivalTime}
             onChange={(e) => setArrivalTime(e.target.value)}
           />
 
           <input
+            className={styles.input}
             type="datetime-local"
             value={departureTime}
             onChange={(e) => setDepartureTime(e.target.value)}
           />
 
-          <button type="submit" style={createBtn}>
+          <button className={styles.createBtn}>
             {editId ? "Сохранить" : "Создать"}
           </button>
         </form>
       )}
 
-      {/* LIST */}
-      <div style={grid}>
-        {sortedSchedules.map((s) => (
-          <div key={s.id} style={card}>
+      <div className={styles.grid}>
+        {schedules.map((s) => (
+          <div key={s.id} className={styles.card}>
             {isAdmin && <p><b>ID:</b> {s.id}</p>}
 
-            <p><b>Маршрут:</b> {getRouteName(s.routeId)}</p>
-            <p><b>Поезд:</b> {getTrainName(s.trainId)}</p>
+            <p>
+              <b>Маршрут:</b>{" "}
+              {routes.find((r) => r.id === s.routeId)?.name}
+            </p>
 
+            <p>
+              <b>Поезд:</b>{" "}
+              {trains.find((t) => t.id === s.trainId)?.number}
+            </p>
 
-            <p><b>Отправление:</b> {formatDate(s.departureTime)}</p>
-            <p><b>Прибытие:</b> {formatDate(s.arrivalTime)}</p>
+            <p><b>Отправление:</b> {s.departureTime}</p>
+            <p><b>Прибытие:</b> {s.arrivalTime}</p>
 
-            {isAdmin && (
-              <>
-                <button onClick={() => handleEdit(s)}>
+            {canEdit && (
+              <div className={styles.actions}>
+                <button
+                  className={styles.editBtn}
+                  onClick={() => handleEdit(s)}
+                >
                   Редактировать
                 </button>
 
-                <button onClick={() => handleDelete(s.id)} style={deleteBtn}>
-                  Удалить
-                </button>
-              </>
+                {isAdmin && (
+                  <button
+                    className={styles.deleteBtn}
+                    onClick={() => handleDelete(s.id)}
+                  >
+                    Удалить
+                  </button>
+                )}
+              </div>
             )}
           </div>
         ))}
@@ -218,46 +185,5 @@ function Schedule() {
     </div>
   );
 }
-
-// ===== STYLES =====
-const container = { marginBottom: "40px" };
-
-const form = {
-  display: "flex",
-  gap: "10px",
-  flexWrap: "wrap",
-  marginBottom: "20px",
-};
-
-const grid = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-  gap: "15px",
-};
-
-const card = {
-  border: "1px solid #ddd",
-  padding: "15px",
-  borderRadius: "10px",
-};
-
-const createBtn = {
-  background: "green",
-  color: "white",
-  padding: "8px",
-  borderRadius: "6px",
-  border: "none",
-  cursor: "pointer",
-};
-
-const deleteBtn = {
-  background: "red",
-  color: "white",
-  padding: "6px",
-  borderRadius: "6px",
-  marginTop: "10px",
-  border: "none",
-  cursor: "pointer",
-};
 
 export default Schedule;

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import styles from "../styles/auth.module.css";
 
 function Register() {
   const [form, setForm] = useState({
@@ -68,18 +69,18 @@ function Register() {
   };
 
   return (
-    <div style={styles.wrapper}>
-      <form onSubmit={handleSubmit} style={styles.card}>
-        <h2 style={styles.title}>Регистрация</h2>
+    <div className={styles.wrapper}>
+      <form onSubmit={handleSubmit} className={styles.card}>
+        <h2 className={styles.title}>Регистрация</h2>
 
-        {error && <div style={styles.error}>{error}</div>}
+        {error && <div className={styles.error}>{error}</div>}
 
         <input
           name="lastName"
           placeholder="Фамилия"
           value={form.lastName}
           onChange={handleChange}
-          style={styles.input}
+          className={styles.input}
         />
 
         <input
@@ -87,7 +88,7 @@ function Register() {
           placeholder="Имя"
           value={form.firstName}
           onChange={handleChange}
-          style={styles.input}
+          className={styles.input}
         />
 
         <input
@@ -95,7 +96,7 @@ function Register() {
           placeholder="Отчество"
           value={form.middleName}
           onChange={handleChange}
-          style={styles.input}
+          className={styles.input}
         />
 
         <input
@@ -103,7 +104,7 @@ function Register() {
           placeholder="Логин"
           value={form.username}
           onChange={handleChange}
-          style={styles.input}
+          className={styles.input}
         />
 
         <input
@@ -112,59 +113,15 @@ function Register() {
           placeholder="Пароль"
           value={form.password}
           onChange={handleChange}
-          style={styles.input}
+          className={styles.input}
         />
 
-        <button disabled={loading} style={styles.button}>
+        <button disabled={loading} className={styles.button}>
           {loading ? "Загрузка..." : "Зарегистрироваться"}
         </button>
       </form>
     </div>
   );
 }
-
-const styles = {
-  wrapper: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "80vh",
-    background: "#f5f7fa",
-  },
-  card: {
-    width: "400px",
-    padding: "30px",
-    borderRadius: "12px",
-    background: "#fff",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: "10px",
-  },
-  input: {
-    padding: "10px",
-    borderRadius: "6px",
-    border: "1px solid #ccc",
-    fontSize: "14px",
-  },
-  button: {
-    padding: "12px",
-    border: "none",
-    borderRadius: "6px",
-    background: "#2c3e50",
-    color: "#fff",
-    cursor: "pointer",
-    fontSize: "15px",
-  },
-  error: {
-    color: "red",
-    fontSize: "14px",
-    textAlign: "center",
-  },
-};
 
 export default Register;

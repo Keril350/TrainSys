@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import styles from "../styles/common.module.css";
 
 function Seats() {
   const { user } = useAuth();
@@ -22,23 +23,17 @@ function Seats() {
     Authorization: "Bearer " + user?.token,
   });
 
-  const fetchSeats = () => {
+  useEffect(() => {
     fetch("http://localhost:8080/seats")
       .then((res) => res.json())
-      .then((data) => setSeats(Array.isArray(data) ? data : []))
-      .catch(() => setSeats([]));
-  };
+      .then((data) => setSeats(Array.isArray(data) ? data : []));
 
-  const fetchTrains = () => {
     fetch("http://localhost:8080/trains")
       .then((res) => res.json())
-      .then((data) => {
-        const filtered = Array.isArray(data)
-          ? data.filter((t) => t.type !== "CARGO")
-          : [];
-        setTrains(filtered);
-      });
-  };
+      .then((data) =>
+        setTrains(data.filter((t) => t.type !== "CARGO"))
+      );
+  }, []);
 
   const fetchWagons = (trainId) => {
     fetch(`http://localhost:8080/wagons/train/${trainId}`)
@@ -46,18 +41,8 @@ function Seats() {
       .then(setWagons);
   };
 
-  useEffect(() => {
-    fetchSeats();
-    fetchTrains();
-  }, []);
-
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!wagonId) {
-      alert("Выбери вагон");
-      return;
-    }
 
     const method = editingId ? "PUT" : "POST";
     const url = editingId
@@ -71,21 +56,22 @@ function Seats() {
         wagonId: Number(wagonId),
         number,
       }),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        resetForm();
-        fetchSeats();
-      })
-      .catch(() => alert("Ошибка"));
+    }).then(() => {
+      resetForm();
+      refresh();
+    });
+  };
+
+  const refresh = () => {
+    fetch("http://localhost:8080/seats")
+      .then((res) => res.json())
+      .then((data) => setSeats(Array.isArray(data) ? data : []));
   };
 
   const handleEdit = (s) => {
     setEditingId(s.id);
     setTrainId(s.trainId);
-
-    fetchWagons(s.trainId); // важно!
-
+    fetchWagons(s.trainId);
     setWagonId(s.wagonId);
     setNumber(s.number);
   };
@@ -96,12 +82,7 @@ function Seats() {
     fetch(`http://localhost:8080/seats/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        fetchSeats();
-      })
-      .catch(() => alert("Ошибка удаления"));
+    }).then(refresh);
   };
 
   const resetForm = () => {
@@ -112,17 +93,17 @@ function Seats() {
   };
 
   return (
-    <div style={container}>
+    <div className={styles.page}>
       <h2>💺 Места</h2>
 
       {canEdit && (
-        <form onSubmit={handleSubmit} style={form}>
+        <form onSubmit={handleSubmit} className={styles.form}>
           <select
+            className={styles.select}
             value={trainId}
             onChange={(e) => {
-              const id = e.target.value;
-              setTrainId(id);
-              fetchWagons(id);
+              setTrainId(e.target.value);
+              fetchWagons(e.target.value);
             }}
           >
             <option value="">Поезд</option>
@@ -134,6 +115,7 @@ function Seats() {
           </select>
 
           <select
+            className={styles.select}
             value={wagonId}
             onChange={(e) => setWagonId(e.target.value)}
           >
@@ -146,31 +128,31 @@ function Seats() {
           </select>
 
           <input
+            className={styles.input}
             placeholder="Номер места"
             value={number}
             onChange={(e) => setNumber(e.target.value)}
           />
 
-          <button type="submit" style={createBtn}>
+          <button className={styles.createBtn}>
             {editingId ? "Сохранить" : "Создать"}
           </button>
         </form>
       )}
 
-      <div style={grid}>
+      <div className={styles.grid}>
         {seats.map((s) => (
-          <div key={s.id} style={card}>
+          <div key={s.id} className={styles.card}>
             {canEdit && <p><b>ID:</b> {s.id}</p>}
 
             <p><b>Train:</b> {s.trainNumber}</p>
             <p><b>Wagon:</b> №{s.wagonNumber}</p>
             <p><b>Seat:</b> {s.number}</p>
 
-            {/* 🔥 КНОПКИ */}
             {canEdit && (
-              <div style={actions}>
+              <div className={styles.actions}>
                 <button
-                  style={editBtn}
+                  className={styles.editBtn}
                   onClick={() => handleEdit(s)}
                 >
                   Редактировать
@@ -178,7 +160,7 @@ function Seats() {
 
                 {isAdmin && (
                   <button
-                    style={deleteBtn}
+                    className={styles.deleteBtn}
                     onClick={() => handleDelete(s.id)}
                   >
                     Удалить
@@ -192,61 +174,5 @@ function Seats() {
     </div>
   );
 }
-
-// стили
-const container = { marginBottom: "40px" };
-
-const form = {
-  display: "flex",
-  gap: "10px",
-  marginBottom: "20px",
-  flexWrap: "wrap",
-};
-
-const grid = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-  gap: "15px",
-};
-
-const card = {
-  border: "1px solid #ddd",
-  padding: "15px",
-  borderRadius: "10px",
-  background: "#fafafa",
-};
-
-const actions = {
-  display: "flex",
-  gap: "10px",
-  marginTop: "10px",
-};
-
-const createBtn = {
-  background: "green",
-  color: "white",
-  border: "none",
-  padding: "8px",
-  borderRadius: "6px",
-  cursor: "pointer",
-};
-
-const editBtn = {
-  backgroundColor: "orange",
-  color: "white",
-  border: "none",
-  padding: "5px 10px",
-  borderRadius: "6px",
-  cursor: "pointer",
-};
-
-const deleteBtn = {
-  backgroundColor: "red",
-  color: "white",
-  border: "none",
-  padding: "5px 10px",
-  borderRadius: "6px",
-  cursor: "pointer",
-};
 
 export default Seats;

@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import styles from "../styles/common.module.css";
 
 function Tickets() {
   const { user } = useAuth();
+
   const isAdmin = user?.role === "ADMIN";
+  const canEdit = user?.role === "ADMIN" || user?.role === "WORKER";
 
   const [tickets, setTickets] = useState([]);
   const [users, setUsers] = useState([]);
@@ -32,8 +35,7 @@ function Tickets() {
       headers: getAuthHeaders(),
     })
       .then((res) => res.json())
-      .then((data) => setTickets(Array.isArray(data) ? data : []))
-      .catch(() => setTickets([]));
+      .then((data) => setTickets(Array.isArray(data) ? data : []));
   };
 
   const fetchUsers = () => {
@@ -70,25 +72,17 @@ function Tickets() {
         scheduleId: Number(scheduleId),
         seatId: Number(seatId),
       }),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        resetForm();
-        fetchTickets();
-      })
-      .catch(() => alert("Ошибка"));
+    }).then(() => {
+      resetForm();
+      fetchTickets();
+    });
   };
 
   const handleDelete = (id) => {
     fetch(`http://localhost:8080/tickets/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        fetchTickets();
-      })
-      .catch(() => alert("Ошибка удаления"));
+    }).then(fetchTickets);
   };
 
   const handleEdit = (t) => {
@@ -108,71 +102,92 @@ function Tickets() {
   };
 
   return (
-    <div style={container}>
+    <div className={styles.container}>
       <h2>🎫 Билеты</h2>
 
-      <form onSubmit={handleSubmit} style={form}>
-        {isAdmin && (
-          <select value={userId} onChange={(e) => setUserId(e.target.value)}>
-            <option value="">Пользователь</option>
-            {users.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.username}
+      {canEdit && (
+        <form onSubmit={handleSubmit} className={styles.form}>
+          {isAdmin && (
+            <select
+              className={styles.select}
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+            >
+              <option value="">Пользователь</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.username}
+                </option>
+              ))}
+            </select>
+          )}
+
+          <select
+            className={styles.select}
+            value={scheduleId}
+            onChange={(e) => {
+              const val = e.target.value;
+              setScheduleId(val);
+              setSeatId("");
+              fetchSeats(val);
+            }}
+          >
+            <option value="">Расписание</option>
+            {schedules.map((s) => (
+              <option key={s.id} value={s.id}>
+                Поезд {s.trainNumber}
               </option>
             ))}
           </select>
-        )}
 
-        <select
-          value={scheduleId}
-          onChange={(e) => {
-            const val = e.target.value;
-            setScheduleId(val);
-            setSeatId("");
-            fetchSeats(val);
-          }}
-        >
-          <option value="">Расписание</option>
-          {schedules.map((s) => (
-            <option key={s.id} value={s.id}>
-              Поезд {s.trainNumber}
-            </option>
-          ))}
-        </select>
+          <select
+            className={styles.select}
+            value={seatId}
+            onChange={(e) => setSeatId(e.target.value)}
+          >
+            <option value="">Место</option>
+            {seats.map((s) => (
+              <option key={s.id} value={s.id}>
+                Вагон {s.wagonNumber} — место {s.number}
+              </option>
+            ))}
+          </select>
 
-        <select value={seatId} onChange={(e) => setSeatId(e.target.value)}>
-          <option value="">Место</option>
-          {seats.map((s) => (
-            <option key={s.id} value={s.id}>
-              Вагон {s.wagonNumber} — место {s.number}
-            </option>
-          ))}
-        </select>
+          <button className={styles.createBtn}>
+            {editId ? "Сохранить" : "Создать"}
+          </button>
+        </form>
+      )}
 
-        <button type="submit" style={createBtn}>
-          {editId ? "Сохранить" : "Создать"}
-        </button>
-      </form>
-
-      <div style={grid}>
+      <div className={styles.grid}>
         {tickets.map((t) => (
-          <div key={t.id} style={card}>
+          <div key={t.id} className={styles.card}>
             {isAdmin && <p><b>ID:</b> {t.id}</p>}
 
             <p><b>User:</b> {t.username}</p>
             <p><b>Train:</b> {t.trainNumber}</p>
             <p><b>Wagon:</b> {t.wagonNumber}</p>
             <p><b>Seat:</b> {t.seatNumber}</p>
-
             <p><b>Price:</b> {t.price}</p>
 
-            {isAdmin && (
-              <>
-                <button onClick={() => handleEdit(t)}>Редактировать</button>
-                <button onClick={() => handleDelete(t.id)} style={deleteBtn}>
-                  Удалить
+            {canEdit && (
+              <div className={styles.actions}>
+                <button
+                  className={styles.editBtn}
+                  onClick={() => handleEdit(t)}
+                >
+                  Редактировать
                 </button>
-              </>
+
+                {isAdmin && (
+                  <button
+                    className={styles.deleteBtn}
+                    onClick={() => handleDelete(t.id)}
+                  >
+                    Удалить
+                  </button>
+                )}
+              </div>
             )}
           </div>
         ))}
@@ -180,13 +195,5 @@ function Tickets() {
     </div>
   );
 }
-
-// стили
-const container = { marginBottom: "40px" };
-const form = { display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "20px" };
-const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "15px" };
-const card = { border: "1px solid #ddd", padding: "15px", borderRadius: "10px" };
-const createBtn = { background: "green", color: "white", padding: "8px", borderRadius: "6px", border: "none", cursor: "pointer" };
-const deleteBtn = { background: "red", color: "white", padding: "6px", borderRadius: "6px", marginTop: "10px", border: "none", cursor: "pointer" };
 
 export default Tickets;

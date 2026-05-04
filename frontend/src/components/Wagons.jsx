@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import styles from "../styles/common.module.css";
 
 function Wagons() {
   const { user } = useAuth();
 
-  const isAdmin = user?.role === "ADMIN" || user?.role === "WORKER";
-  const canSeeId = isAdmin;
+  const isAdmin = user?.role === "ADMIN";
+  const canEdit = user?.role === "ADMIN" || user?.role === "WORKER";
+  const canSeeId = canEdit;
 
   const [wagons, setWagons] = useState([]);
   const [trains, setTrains] = useState([]);
@@ -32,10 +34,9 @@ function Wagons() {
   const fetchTrains = () => {
     fetch("http://localhost:8080/trains")
       .then((res) => res.json())
-      .then((data) => {
-        const filtered = data.filter((t) => t.type !== "CARGO");
-        setTrains(filtered);
-      });
+      .then((data) =>
+        setTrains(data.filter((t) => t.type !== "CARGO"))
+      );
   };
 
   const fetchTypes = () => {
@@ -67,16 +68,15 @@ function Wagons() {
         price: Number(price),
         typeId: Number(typeId),
       }),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        resetForm();
-        fetchWagons();
-      })
-      .catch(() => alert("Ошибка"));
+    }).then(() => {
+      resetForm();
+      fetchWagons();
+    });
   };
 
   const handleDelete = (id) => {
+    if (!window.confirm("Удалить вагон?")) return;
+
     fetch(`http://localhost:8080/wagons/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
@@ -110,12 +110,16 @@ function Wagons() {
   };
 
   return (
-    <div style={container}>
+    <div className={styles.container}>
       <h2>🚃 Вагоны</h2>
 
-      {isAdmin && (
-        <form onSubmit={handleSubmit} style={form}>
-          <select value={trainId} onChange={(e) => setTrainId(e.target.value)}>
+      {canEdit && (
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <select
+            className={styles.select}
+            value={trainId}
+            onChange={(e) => setTrainId(e.target.value)}
+          >
             <option value="">Поезд</option>
             {trains.map((t) => (
               <option key={t.id} value={t.id}>
@@ -124,7 +128,11 @@ function Wagons() {
             ))}
           </select>
 
-          <select value={typeId} onChange={(e) => setTypeId(e.target.value)}>
+          <select
+            className={styles.select}
+            value={typeId}
+            onChange={(e) => setTypeId(e.target.value)}
+          >
             <option value="">Тип вагона</option>
             {types.map((t) => (
               <option key={t.id} value={t.id}>
@@ -134,39 +142,52 @@ function Wagons() {
           </select>
 
           <input
+            className={styles.input}
             placeholder="Номер вагона"
             value={number}
             onChange={(e) => setNumber(e.target.value)}
           />
 
           <input
+            className={styles.input}
             placeholder="Цена"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
           />
 
-          <button type="submit" style={createBtn}>
+          <button className={styles.createBtn}>
             {editingId ? "Сохранить" : "Создать"}
           </button>
         </form>
       )}
 
-      <div style={grid}>
+      <div className={styles.grid}>
         {wagons.map((w) => (
-          <div key={w.id} style={card}>
+          <div key={w.id} className={styles.card}>
             {canSeeId && <p><b>ID:</b> {w.id}</p>}
             <p><b>Train:</b> {getTrainName(w.trainId)}</p>
             <p><b>Wagon:</b> {w.number}</p>
             <p><b>Type:</b> {getTypeName(w.typeId)}</p>
             <p><b>Price:</b> {w.price}</p>
 
-            {isAdmin && (
-              <>
-                <button onClick={() => handleEdit(w)}>Редактировать</button>
-                <button onClick={() => handleDelete(w.id)} style={deleteBtn}>
-                  Удалить
+            {canEdit && (
+              <div className={styles.actions}>
+                <button
+                  className={styles.editBtn}
+                  onClick={() => handleEdit(w)}
+                >
+                  Редактировать
                 </button>
-              </>
+
+                {isAdmin && (
+                  <button
+                    className={styles.deleteBtn}
+                    onClick={() => handleDelete(w.id)}
+                  >
+                    Удалить
+                  </button>
+                )}
+              </div>
             )}
           </div>
         ))}
@@ -174,13 +195,5 @@ function Wagons() {
     </div>
   );
 }
-
-// стили
-const container = { marginBottom: "40px" };
-const form = { display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap" };
-const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "15px" };
-const card = { border: "1px solid #ddd", padding: "15px", borderRadius: "10px", background: "#fafafa" };
-const createBtn = { background: "green", color: "white", border: "none", padding: "8px", borderRadius: "6px", cursor: "pointer" };
-const deleteBtn = { background: "red", color: "white", border: "none", padding: "6px", borderRadius: "6px", cursor: "pointer" };
 
 export default Wagons;

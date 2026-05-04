@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import styles from "../styles/common.module.css";
 
 function Trains() {
   const [trains, setTrains] = useState([]);
@@ -26,15 +27,13 @@ function Trains() {
   const fetchTrains = () => {
     fetch("http://localhost:8080/trains")
       .then((res) => res.json())
-      .then(setTrains)
-      .catch(console.error);
+      .then(setTrains);
   };
 
   const fetchTypes = () => {
     fetch("http://localhost:8080/train-types")
       .then((res) => res.json())
-      .then(setTypes)
-      .catch(console.error);
+      .then(setTypes);
   };
 
   useEffect(() => {
@@ -90,22 +89,22 @@ function Trains() {
   };
 
   return (
-    <div>
+    <div className={styles.page}>
       <h2>🚆 Поезда</h2>
 
       {canManage && (
-        <form onSubmit={handleSubmit} style={formStyle}>
+        <form onSubmit={handleSubmit} className={styles.form}>
           <input
+            className={styles.input}
             value={number}
             onChange={(e) => setNumber(e.target.value)}
             placeholder="Номер"
-            style={inputStyle}
           />
 
           <select
+            className={styles.select}
             value={type}
             onChange={(e) => setType(e.target.value)}
-            style={inputStyle}
           >
             <option value="">Тип</option>
             {types.map((t) => (
@@ -115,19 +114,23 @@ function Trains() {
             ))}
           </select>
 
-          <button type="submit" style={createBtn}>
+          <button type="submit" className={styles.createBtn}>
             {editingId ? "Сохранить" : "Создать"}
           </button>
 
           {editingId && (
-            <button type="button" onClick={resetForm} style={cancelBtn}>
+            <button
+              type="button"
+              onClick={resetForm}
+              className={styles.cancelBtn}
+            >
               Отмена
             </button>
           )}
         </form>
       )}
 
-      <table style={tableStyle}>
+      <table className={styles.table}>
         <thead>
           <tr>
             {canSeeId && <th>ID</th>}
@@ -145,19 +148,24 @@ function Trains() {
               <td>{t.type}</td>
 
               {canManage && (
-                <td style={{ display: "flex", gap: "5px" }}>
-                  <button onClick={() => handleEdit(t)} style={editBtn}>
-                    Редактировать
-                  </button>
-
-                  {isAdmin && (
+                <td>
+                  <div className={styles.actions}>
                     <button
-                      onClick={() => handleDeleteTrain(t.id)}
-                      style={deleteBtn}
+                      className={styles.editBtn}
+                      onClick={() => handleEdit(t)}
                     >
-                      Удалить
+                      Редактировать
                     </button>
-                  )}
+
+                    {isAdmin && (
+                      <button
+                        className={styles.deleteBtn}
+                        onClick={() => handleDeleteTrain(t.id)}
+                      >
+                        Удалить
+                      </button>
+                    )}
+                  </div>
                 </td>
               )}
             </tr>
@@ -167,14 +175,5 @@ function Trains() {
     </div>
   );
 }
-
-// стили
-const formStyle = { display: "flex", gap: "10px", marginBottom: "20px" };
-const inputStyle = { padding: "8px", borderRadius: "6px", border: "1px solid #ccc" };
-const createBtn = { backgroundColor: "green", color: "white", border: "none", padding: "8px 15px", borderRadius: "6px", cursor: "pointer" };
-const cancelBtn = { backgroundColor: "gray", color: "white", border: "none", padding: "8px 15px", borderRadius: "6px", cursor: "pointer" };
-const editBtn = { backgroundColor: "orange", color: "white", border: "none", padding: "5px 10px", borderRadius: "6px", cursor: "pointer" };
-const deleteBtn = { backgroundColor: "red", color: "white", border: "none", padding: "5px 10px", borderRadius: "6px", cursor: "pointer" };
-const tableStyle = { width: "100%", borderCollapse: "collapse" };
 
 export default Trains;

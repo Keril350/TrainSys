@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import styles from "../styles/common.module.css";
 
 function Stations() {
   const { user } = useAuth();
+
   const isAdmin = user?.role === "ADMIN";
+  const isWorker = user?.role === "WORKER";
+
+  const canEdit = isAdmin || isWorker;
+  const canDelete = isAdmin;
 
   const [stations, setStations] = useState([]);
 
@@ -21,15 +27,13 @@ function Stations() {
   const fetchStations = () => {
     fetch("http://localhost:8080/stations")
       .then((res) => res.json())
-      .then(setStations)
-      .catch(console.error);
+      .then(setStations);
   };
 
   useEffect(() => {
     fetchStations();
   }, []);
 
-  // ===== CREATE / UPDATE =====
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -46,38 +50,24 @@ function Stations() {
         city,
         code,
       }),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        resetForm();
-        fetchStations();
-      })
-      .catch(() => {
-        alert("Ошибка (нужна роль ADMIN)");
-      });
+    }).then(() => {
+      resetForm();
+      fetchStations();
+    });
   };
 
-  // ===== DELETE =====
   const handleDeleteStation = (id) => {
     fetch(`http://localhost:8080/stations/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        fetchStations();
-      })
-      .catch(() => {
-        alert("Ошибка удаления (нужна роль ADMIN)");
-      });
+    }).then(fetchStations);
   };
 
-  // ===== EDIT =====
-  const handleEdit = (station) => {
-    setEditingId(station.id);
-    setStationName(station.name);
-    setCity(station.city);
-    setCode(station.code);
+  const handleEdit = (s) => {
+    setEditingId(s.id);
+    setStationName(s.name);
+    setCity(s.city);
+    setCode(s.code);
   };
 
   const resetForm = () => {
@@ -88,79 +78,59 @@ function Stations() {
   };
 
   return (
-    <div>
+    <div className={styles.container}>
       <h2>🏙 Станции</h2>
 
-      {/* ADMIN ONLY */}
-      {isAdmin && (
-        <form onSubmit={handleSubmit} style={formStyle}>
-          <input
-            placeholder="Название"
-            value={stationName}
-            onChange={(e) => setStationName(e.target.value)}
-            style={inputStyle}
-          />
+      {canEdit && (
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <input className={styles.input} value={stationName} onChange={(e) => setStationName(e.target.value)} placeholder="Название" />
+          <input className={styles.input} value={city} onChange={(e) => setCity(e.target.value)} placeholder="Город" />
+          <input className={styles.input} value={code} onChange={(e) => setCode(e.target.value)} placeholder="Код" />
 
-          <input
-            placeholder="Город"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            style={inputStyle}
-          />
-
-          <input
-            placeholder="Код"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            style={inputStyle}
-          />
-
-          <button type="submit" style={createBtn}>
+          <button className={styles.createBtn}>
             {editingId ? "Сохранить" : "Создать"}
           </button>
 
           {editingId && (
-            <button type="button" onClick={resetForm} style={cancelBtn}>
+            <button type="button" onClick={resetForm} className={styles.cancelBtn}>
               Отмена
             </button>
           )}
         </form>
       )}
 
-      <table style={tableStyle}>
+      <table className={styles.table}>
         <thead>
           <tr>
-            {/* ❗ ID только для админа */}
-            {isAdmin && <th>ID</th>}
+            {(isAdmin || isWorker) && <th>ID</th>}
             <th>Название</th>
             <th>Город</th>
             <th>Код</th>
-            {isAdmin && <th></th>}
+            {canEdit && <th></th>}
           </tr>
         </thead>
 
         <tbody>
           {stations.map((s) => (
             <tr key={s.id}>
-              {/* ❗ ID только для админа */}
-              {isAdmin && <td>{s.id}</td>}
-
+              {(isAdmin || isWorker) && <td>{s.id}</td>}
               <td>{s.name}</td>
               <td>{s.city}</td>
               <td>{s.code}</td>
 
-              {isAdmin && (
-                <td style={{ display: "flex", gap: "5px" }}>
-                  <button onClick={() => handleEdit(s)} style={editBtn}>
-                    Редактировать
-                  </button>
+              {canEdit && (
+                <td>
+                  <div className={styles.actions}>
+                    <button className={styles.editBtn} onClick={() => handleEdit(s)}>
+                      Редактировать
+                    </button>
 
-                  <button
-                    onClick={() => handleDeleteStation(s.id)}
-                    style={deleteBtn}
-                  >
-                    Удалить
-                  </button>
+                    {canDelete && (
+                      <button className={styles.deleteBtn} onClick={() => handleDeleteStation(s.id)}>
+                        Удалить
+                      </button>
+                    )}
+                  </div>
                 </td>
               )}
             </tr>
@@ -170,60 +140,5 @@ function Stations() {
     </div>
   );
 }
-
-// ===== СТИЛИ =====
-
-const formStyle = {
-  display: "flex",
-  gap: "10px",
-  marginBottom: "20px",
-};
-
-const inputStyle = {
-  padding: "8px",
-  borderRadius: "6px",
-  border: "1px solid #ccc",
-};
-
-const createBtn = {
-  backgroundColor: "green",
-  color: "white",
-  border: "none",
-  padding: "8px 15px",
-  borderRadius: "6px",
-  cursor: "pointer",
-};
-
-const cancelBtn = {
-  backgroundColor: "gray",
-  color: "white",
-  border: "none",
-  padding: "8px 15px",
-  borderRadius: "6px",
-  cursor: "pointer",
-};
-
-const editBtn = {
-  backgroundColor: "orange",
-  color: "white",
-  border: "none",
-  padding: "5px 10px",
-  borderRadius: "6px",
-  cursor: "pointer",
-};
-
-const deleteBtn = {
-  backgroundColor: "red",
-  color: "white",
-  border: "none",
-  padding: "5px 10px",
-  borderRadius: "6px",
-  cursor: "pointer",
-};
-
-const tableStyle = {
-  width: "100%",
-  borderCollapse: "collapse",
-};
 
 export default Stations;

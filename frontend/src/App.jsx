@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import { useState, useRef, useEffect } from "react";
+import styles from "./styles/common.module.css";
 
 import Trains from "./components/Trains";
 import Stations from "./components/Stations";
@@ -45,32 +46,27 @@ function App() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const navLinkStyle = ({ isActive }) => ({
-    color: isActive ? "#fff" : "#cbd5f5",
-    textDecoration: "none",
-    fontSize: "14px",
-    padding: "6px 10px",
-    borderRadius: "6px",
-    background: isActive ? "rgba(255,255,255,0.1)" : "transparent",
-  });
+  const navLinkClass = ({ isActive }) =>
+    isActive
+      ? `${styles.navLink} ${styles.navLinkActive}`
+      : styles.navLink;
 
   return (
     <BrowserRouter>
       {/* NAVBAR */}
-      <div style={navbar}>
-        <div style={navContainer}>
-          <div style={logo}>🚆 Train System</div>
+      <div className={styles.navbar}>
+        <div className={styles.navContainer}>
+          <div className={styles.logo}>🚆 Train System</div>
 
-          <div style={navLinks}>
-            <NavLink to="/trains" style={navLinkStyle}>
+          <div className={styles.navLinks}>
+            <NavLink to="/trains" className={navLinkClass}>
               Поезда
             </NavLink>
 
-            {/* СПРАВОЧНИКИ */}
             {canViewDictionaries && (
-              <div style={dropdown} ref={dataRef}>
+              <div className={styles.dropdown} ref={dataRef}>
                 <div
-                  style={dropdownTrigger}
+                  className={styles.dropdownTrigger}
                   onClick={() => {
                     setDataOpen(!dataOpen);
                     setUserOpen(false);
@@ -80,14 +76,26 @@ function App() {
                 </div>
 
                 {dataOpen && (
-                  <div style={dropdownMenu}>
-                    <NavLink to="/wagons" style={dropdownItem} onClick={closeAll}>
+                  <div className={styles.dropdownMenu}>
+                    <NavLink
+                      to="/wagons"
+                      className={styles.dropdownItem}
+                      onClick={closeAll}
+                    >
                       Вагоны
                     </NavLink>
-                    <NavLink to="/stations" style={dropdownItem} onClick={closeAll}>
+                    <NavLink
+                      to="/stations"
+                      className={styles.dropdownItem}
+                      onClick={closeAll}
+                    >
                       Станции
                     </NavLink>
-                    <NavLink to="/seats" style={dropdownItem} onClick={closeAll}>
+                    <NavLink
+                      to="/seats"
+                      className={styles.dropdownItem}
+                      onClick={closeAll}
+                    >
                       Места
                     </NavLink>
                   </div>
@@ -95,25 +103,25 @@ function App() {
               </div>
             )}
 
-            <NavLink to="/routes" style={navLinkStyle}>
+            <NavLink to="/routes" className={navLinkClass}>
               Маршруты
             </NavLink>
 
-            <NavLink to="/schedules" style={navLinkStyle}>
+            <NavLink to="/schedules" className={navLinkClass}>
               Расписание
             </NavLink>
 
-            <NavLink to="/tickets" style={navLinkStyle}>
+            <NavLink to="/tickets" className={navLinkClass}>
               Билеты
             </NavLink>
           </div>
 
           {/* USER */}
-          <div style={rightSection}>
+          <div className={styles.rightSection}>
             {user ? (
-              <div style={dropdown} ref={userRef}>
+              <div className={styles.dropdown} ref={userRef}>
                 <div
-                  style={dropdownTrigger}
+                  className={styles.dropdownTrigger}
                   onClick={() => {
                     setUserOpen(!userOpen);
                     setDataOpen(false);
@@ -123,13 +131,17 @@ function App() {
                 </div>
 
                 {userOpen && (
-                  <div style={dropdownMenu}>
-                    <div style={dropdownItem} onClick={closeAll}>
+                  <div className={styles.dropdownMenu}>
+                    <div
+                      className={styles.dropdownItem}
+                      onClick={closeAll}
+                    >
                       Профиль
                     </div>
 
                     <div
-                      style={{ ...dropdownItem, color: "red" }}
+                      className={styles.dropdownItem}
+                      style={{ color: "red" }}
                       onClick={() => {
                         logout();
                         closeAll();
@@ -142,10 +154,10 @@ function App() {
               </div>
             ) : (
               <>
-                <NavLink to="/login" style={navLinkStyle}>
+                <NavLink to="/login" className={navLinkClass}>
                   Вход
                 </NavLink>
-                <NavLink to="/register" style={navLinkStyle}>
+                <NavLink to="/register" className={navLinkClass}>
                   Регистрация
                 </NavLink>
               </>
@@ -155,73 +167,18 @@ function App() {
       </div>
 
       {/* КОНТЕНТ */}
-      <div style={container}>
+      <div className={styles.container}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          <Route
-            path="/trains"
-            element={
-              <ProtectedRoute>
-                <Trains />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/wagons"
-            element={
-              <ProtectedRoute roles={["ADMIN", "WORKER"]}>
-                <Wagons />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/stations"
-            element={
-              <ProtectedRoute roles={["ADMIN", "WORKER"]}>
-                <Stations />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/seats"
-            element={
-              <ProtectedRoute roles={["ADMIN", "WORKER"]}>
-                <Seats />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/routes"
-            element={
-              <ProtectedRoute>
-                <RoutesPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/schedules"
-            element={
-              <ProtectedRoute>
-                <Schedule />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/tickets"
-            element={
-              <ProtectedRoute>
-                <Tickets />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/trains" element={<ProtectedRoute><Trains /></ProtectedRoute>} />
+          <Route path="/wagons" element={<ProtectedRoute roles={["ADMIN", "WORKER"]}><Wagons /></ProtectedRoute>} />
+          <Route path="/stations" element={<ProtectedRoute roles={["ADMIN", "WORKER"]}><Stations /></ProtectedRoute>} />
+          <Route path="/seats" element={<ProtectedRoute roles={["ADMIN", "WORKER"]}><Seats /></ProtectedRoute>} />
+          <Route path="/routes" element={<ProtectedRoute><RoutesPage /></ProtectedRoute>} />
+          <Route path="/schedules" element={<ProtectedRoute><Schedule /></ProtectedRoute>} />
+          <Route path="/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
 
           <Route path="*" element={<Trains />} />
         </Routes>
@@ -231,79 +188,5 @@ function App() {
     </BrowserRouter>
   );
 }
-
-//
-// СТИЛИ
-//
-
-const navbar = {
-  width: "100%",
-  background: "#1e293b",
-  color: "white",
-  padding: "12px 0",
-};
-
-const navContainer = {
-  maxWidth: "1100px",
-  margin: "0 auto",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-};
-
-const logo = {
-  fontSize: "20px",
-  fontWeight: "bold",
-};
-
-const navLinks = {
-  display: "flex",
-  gap: "12px",
-  alignItems: "center",
-};
-
-const rightSection = {
-  display: "flex",
-  alignItems: "center",
-  gap: "10px",
-};
-
-const container = {
-  maxWidth: "1100px",
-  margin: "30px auto",
-  padding: "0 20px",
-};
-
-const dropdown = {
-  position: "relative",
-};
-
-const dropdownTrigger = {
-  cursor: "pointer",
-  fontSize: "14px",
-  padding: "6px 10px",
-  color: "#cbd5f5",
-};
-
-const dropdownMenu = {
-  position: "absolute",
-  top: "35px",
-  right: 0,
-  background: "white",
-  color: "#333",
-  borderRadius: "8px",
-  boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
-  minWidth: "150px",
-  display: "flex",
-  flexDirection: "column",
-  zIndex: 1000,
-};
-
-const dropdownItem = {
-  padding: "10px",
-  textDecoration: "none",
-  color: "#333",
-  cursor: "pointer",
-};
 
 export default App;
