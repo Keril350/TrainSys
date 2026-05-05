@@ -40,20 +40,29 @@ public class ScheduleService {
         Route route = routeRepository.findById(dto.getRouteId())
                 .orElseThrow(() -> new RuntimeException("Route not found"));
 
-        List<Schedule> conflicts = scheduleRepository.findConflictingSchedules(
+        List<Schedule> trainConflicts = scheduleRepository.findConflictingSchedules(
                 dto.getTrainId(),
                 dto.getDepartureTime(),
                 dto.getArrivalTime()
         );
 
-        if (!conflicts.isEmpty()) {
+        if (!trainConflicts.isEmpty()) {
             throw new RuntimeException("Train is busy at this time");
+        }
+
+        List<Schedule> routeConflicts = scheduleRepository.findRouteConflicts(
+                dto.getRouteId(),
+                dto.getDepartureTime(),
+                dto.getArrivalTime()
+        );
+
+        if (!routeConflicts.isEmpty()) {
+            throw new RuntimeException("Route is busy at this time");
         }
 
         Schedule schedule = new Schedule();
         schedule.setTrain(train);
         schedule.setRoute(route);
-
         schedule.setDepartureTime(dto.getDepartureTime());
         schedule.setArrivalTime(dto.getArrivalTime());
 
@@ -87,22 +96,34 @@ public class ScheduleService {
         Route route = routeRepository.findById(dto.getRouteId())
                 .orElseThrow(() -> new RuntimeException("Route not found"));
 
-        List<Schedule> conflicts = scheduleRepository.findConflictingSchedules(
+        List<Schedule> trainConflicts = scheduleRepository.findConflictingSchedules(
                 dto.getTrainId(),
                 dto.getDepartureTime(),
                 dto.getArrivalTime()
         );
 
-        boolean hasConflict = conflicts.stream()
+        boolean trainConflict = trainConflicts.stream()
                 .anyMatch(s -> !s.getId().equals(id));
 
-        if (hasConflict) {
+        if (trainConflict) {
             throw new RuntimeException("Train is busy at this time");
+        }
+
+        List<Schedule> routeConflicts = scheduleRepository.findRouteConflicts(
+                dto.getRouteId(),
+                dto.getDepartureTime(),
+                dto.getArrivalTime()
+        );
+
+        boolean routeConflict = routeConflicts.stream()
+                .anyMatch(s -> !s.getId().equals(id));
+
+        if (routeConflict) {
+            throw new RuntimeException("Route is busy at this time");
         }
 
         schedule.setTrain(train);
         schedule.setRoute(route);
-
         schedule.setDepartureTime(dto.getDepartureTime());
         schedule.setArrivalTime(dto.getArrivalTime());
 

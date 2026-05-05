@@ -21,4 +21,16 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
             @Param("newDeparture") LocalDateTime newDeparture,
             @Param("newArrival") LocalDateTime newArrival
     );
+
+    @Query("""
+    SELECT s FROM Schedule s
+    WHERE s.route.id = :routeId
+    AND s.departureTime < :newArrival
+    AND s.arrivalTime > :newDeparture
+""")
+    List<Schedule> findRouteConflicts(
+            @Param("routeId") Integer routeId,
+            @Param("newDeparture") LocalDateTime newDeparture,
+            @Param("newArrival") LocalDateTime newArrival
+    );
 }
