@@ -12,6 +12,7 @@ function Tickets() {
   const [tickets, setTickets] = useState([]);
   const [users, setUsers] = useState([]);
   const [schedules, setSchedules] = useState([]);
+  const [trains, setTrains] = useState([]);
   const [routes, setRoutes] = useState([]);
   const [seats, setSeats] = useState([]);
 
@@ -27,9 +28,26 @@ function Tickets() {
   });
 
   useEffect(() => {
-    fetchTickets();
-    fetchSchedules();
+    fetch("http://localhost:8080/trains")
+      .then((res) => res.json())
+      .then((trainData) => {
+        setTrains(trainData);
+
+        fetch("http://localhost:8080/schedules")
+          .then((res) => res.json())
+          .then((scheduleData) => {
+            const filtered = scheduleData.filter((s) => {
+              const train = trainData.find((t) => t.id === s.trainId);
+              return train?.type !== "CARGO";
+            });
+
+            setSchedules(filtered);
+          });
+      });
+
     fetchRoutes();
+    fetchTickets();
+
     if (isAdmin) fetchUsers();
   }, [user]);
 
@@ -50,7 +68,14 @@ function Tickets() {
   const fetchSchedules = () => {
     fetch("http://localhost:8080/schedules")
       .then((res) => res.json())
-      .then(setSchedules);
+      .then((data) => {
+        const filtered = data.filter((s) => {
+          const train = trains.find((t) => t.id === s.trainId);
+          return train?.type !== "CARGO";
+        });
+
+        setSchedules(filtered);
+      });
   };
 
   const fetchRoutes = () => {
@@ -141,6 +166,7 @@ function Tickets() {
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
             >
+
               <option value="">Пассажир</option>
               {users.map((u) => (
                 <option key={u.id} value={u.id}>
@@ -157,9 +183,15 @@ function Tickets() {
               const val = e.target.value;
               setScheduleId(val);
               setSeatId("");
-              fetchSeats(val);
+
+              if (val) {
+                fetchSeats(val);
+              } else {
+                setSeats([]);
+              }
             }}
           >
+
             <option value="">Выберите рейс</option>
             {schedules.map((s) => (
               <option key={s.id} value={s.id}>
@@ -177,7 +209,7 @@ function Tickets() {
             <option value="">Место</option>
             {seats.map((s) => (
               <option key={s.id} value={s.id}>
-                Вагон {s.wagonNumber} — место {s.number}
+                Вагон {s.wagonNumber} — место {s.number} | {s.price} ₽
               </option>
             ))}
           </select>
