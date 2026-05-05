@@ -3,13 +3,11 @@ import { createContext, useContext, useState } from "react";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  // 🔥 сразу берем из localStorage (без useEffect)
   const [user, setUser] = useState(() => {
     const stored = localStorage.getItem("user");
     return stored ? JSON.parse(stored) : null;
   });
 
-  // 🔥 login
   const login = (username, role, token) => {
     const userData = {
       username,
@@ -21,7 +19,6 @@ export function AuthProvider({ children }) {
     setUser(userData);
   };
 
-  // 🔥 logout
   const logout = () => {
     localStorage.removeItem("user");
     setUser(null);
@@ -34,7 +31,6 @@ export function AuthProvider({ children }) {
   );
 }
 
-// 🔥 удобный хук
 export function useAuth() {
   return useContext(AuthContext);
 }

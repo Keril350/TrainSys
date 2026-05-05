@@ -56,7 +56,7 @@ function App() {
       {/* NAVBAR */}
       <div className={styles.navbar}>
         <div className={styles.navContainer}>
-          <div className={styles.logo}>🚆 Train System</div>
+          <div className={styles.logo}>🚆 Железная дорога</div>
 
           <div className={styles.navLinks}>
             <NavLink to="/trains" className={navLinkClass}>
@@ -132,13 +132,6 @@ function App() {
 
                 {userOpen && (
                   <div className={styles.dropdownMenu}>
-                    <div
-                      className={styles.dropdownItem}
-                      onClick={closeAll}
-                    >
-                      Профиль
-                    </div>
-
                     <div
                       className={styles.dropdownItem}
                       style={{ color: "red" }}

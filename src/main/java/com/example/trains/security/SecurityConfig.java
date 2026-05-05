@@ -42,10 +42,8 @@ public class SecurityConfig {
                         .requestMatchers("/seats/**").hasAnyRole("WORKER", "ADMIN")
                         .requestMatchers("/schedules/**").hasAnyRole("WORKER", "ADMIN")
 
-                        //пользователи - только админ
+                        //только админ
                         .requestMatchers(HttpMethod.POST, "/users").hasRole("ADMIN")
-
-                        //удаление - только админ
                         .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/comments/**").hasRole("ADMIN")
 
