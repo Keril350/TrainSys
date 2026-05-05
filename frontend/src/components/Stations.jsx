@@ -79,7 +79,7 @@ function Stations() {
 
   return (
     <div className={styles.container}>
-      <h2>🏙 Станции</h2>
+      <h2>🚉 Станции</h2>
 
       {canEdit && (
         <form onSubmit={handleSubmit} className={styles.form}>
