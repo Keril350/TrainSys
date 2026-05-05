@@ -14,7 +14,10 @@ public class TicketDTO {
     private BigDecimal price;
 
     private Integer userId;
-    private String username;
+
+    private String firstName;
+    private String lastName;
+    private String middleName;
 
     private Integer scheduleId;
 

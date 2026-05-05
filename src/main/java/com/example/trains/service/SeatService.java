@@ -136,6 +136,8 @@ public class SeatService {
         dto.setTrainId(seat.getWagon().getTrain().getId());
         dto.setTrainNumber(seat.getWagon().getTrain().getNumber());
 
+        dto.setPrice(seat.getWagon().getPrice());
+
         return dto;
     }
 }

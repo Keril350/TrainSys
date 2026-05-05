@@ -6,11 +6,13 @@ function Tickets() {
   const { user } = useAuth();
 
   const isAdmin = user?.role === "ADMIN";
-  const canEdit = user?.role === "ADMIN" || user?.role === "WORKER";
+  const canEdit =
+    user?.role === "ADMIN" || user?.role === "WORKER" || user;
 
   const [tickets, setTickets] = useState([]);
   const [users, setUsers] = useState([]);
   const [schedules, setSchedules] = useState([]);
+  const [routes, setRoutes] = useState([]);
   const [seats, setSeats] = useState([]);
 
   const [userId, setUserId] = useState("");
@@ -27,6 +29,7 @@ function Tickets() {
   useEffect(() => {
     fetchTickets();
     fetchSchedules();
+    fetchRoutes();
     if (isAdmin) fetchUsers();
   }, [user]);
 
@@ -48,6 +51,12 @@ function Tickets() {
     fetch("http://localhost:8080/schedules")
       .then((res) => res.json())
       .then(setSchedules);
+  };
+
+  const fetchRoutes = () => {
+    fetch("http://localhost:8080/routes")
+      .then((res) => res.json())
+      .then(setRoutes);
   };
 
   const fetchSeats = (id) => {
@@ -101,6 +110,25 @@ function Tickets() {
     setSeats([]);
   };
 
+  const formatDate = (date) => {
+    if (!date) return "—";
+    return new Date(date).toLocaleString();
+  };
+
+  const getRouteName = (routeId) => {
+    return routes.find((r) => r.id === routeId)?.name || "—";
+  };
+
+  const getSchedule = (id) => {
+    return schedules.find((s) => s.id === id);
+  };
+
+  const getFullName = (t) => {
+    if (!t.lastName && !t.firstName) return t.username;
+
+    return `${t.lastName} ${t.firstName} ${t.middleName || ""}`.trim();
+  };
+
   return (
     <div className={styles.container}>
       <h2>🎫 Билеты</h2>
@@ -113,10 +141,10 @@ function Tickets() {
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
             >
-              <option value="">Пользователь</option>
+              <option value="">Пассажир</option>
               {users.map((u) => (
                 <option key={u.id} value={u.id}>
-                  {u.username}
+                  {u.lastName} {u.firstName}
                 </option>
               ))}
             </select>
@@ -132,10 +160,11 @@ function Tickets() {
               fetchSeats(val);
             }}
           >
-            <option value="">Расписание</option>
+            <option value="">Выберите рейс</option>
             {schedules.map((s) => (
               <option key={s.id} value={s.id}>
-                Поезд {s.trainNumber}
+                {getRouteName(s.routeId)} | Поезд {s.trainNumber} |{" "}
+                {formatDate(s.departureTime)}
               </option>
             ))}
           </select>
@@ -154,43 +183,59 @@ function Tickets() {
           </select>
 
           <button className={styles.createBtn}>
-            {editId ? "Сохранить" : "Создать"}
+            {editId ? "Сохранить" : "Купить билет"}
           </button>
         </form>
       )}
 
       <div className={styles.grid}>
-        {tickets.map((t) => (
-          <div key={t.id} className={styles.card}>
-            {isAdmin && <p><b>ID:</b> {t.id}</p>}
+        {tickets.map((t) => {
+          const schedule = getSchedule(t.scheduleId);
 
-            <p><b>User:</b> {t.username}</p>
-            <p><b>Train:</b> {t.trainNumber}</p>
-            <p><b>Wagon:</b> {t.wagonNumber}</p>
-            <p><b>Seat:</b> {t.seatNumber}</p>
-            <p><b>Price:</b> {t.price}</p>
+          return (
+            <div key={t.id} className={styles.card}>
+              {isAdmin && <p><b>ID:</b> {t.id}</p>}
 
-            {canEdit && (
-              <div className={styles.actions}>
-                <button
-                  className={styles.editBtn}
-                  onClick={() => handleEdit(t)}
-                >
-                  Редактировать
-                </button>
+              <p><b>Пассажир:</b> {getFullName(t)}</p>
 
-                {isAdmin && (
+              <p>
+                <b>Маршрут:</b>{" "}
+                {schedule ? getRouteName(schedule.routeId) : "—"}
+              </p>
+
+              <p><b>Поезд:</b> {t.trainNumber}</p>
+
+              <p>
+                <b>Отправление:</b>{" "}
+                {schedule ? formatDate(schedule.departureTime) : "—"}
+              </p>
+
+              <p><b>Вагон:</b> {t.wagonNumber}</p>
+              <p><b>Место:</b> {t.seatNumber}</p>
+              <p><b>Цена:</b> {t.price}</p>
+
+              {canEdit && (
+                <div className={styles.actions}>
                   <button
-                    className={styles.deleteBtn}
-                    onClick={() => handleDelete(t.id)}
+                    className={styles.editBtn}
+                    onClick={() => handleEdit(t)}
                   >
-                    Удалить
+                    Редактировать
                   </button>
-                )}
-              </div>
-            )}
-          </div>
-        ))}
+
+                  {isAdmin && (
+                    <button
+                      className={styles.deleteBtn}
+                      onClick={() => handleDelete(t.id)}
+                    >
+                      Удалить
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

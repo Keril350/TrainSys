@@ -161,7 +161,10 @@ public class TicketService {
         dto.setPrice(ticket.getPrice());
 
         dto.setUserId(ticket.getUser().getId());
-        dto.setUsername(ticket.getUser().getUsername());
+
+        dto.setFirstName(ticket.getUser().getFirstName());
+        dto.setLastName(ticket.getUser().getLastName());
+        dto.setMiddleName(ticket.getUser().getMiddleName());
 
         dto.setScheduleId(ticket.getSchedule().getId());
 

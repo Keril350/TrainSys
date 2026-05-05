@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 public class SeatDTO {
@@ -17,4 +19,6 @@ public class SeatDTO {
 
     private Integer trainId;
     private String trainNumber;
+
+    private BigDecimal price;
 }
