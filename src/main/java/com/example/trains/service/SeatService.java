@@ -29,10 +29,14 @@ public class SeatService {
     public SeatDTO createSeat(SeatDTO dto) {
 
         Wagon wagon = wagonRepository.findById(dto.getWagonId())
-                .orElseThrow(() -> new RuntimeException("Wagon not found"));
+                .orElseThrow(() -> new RuntimeException("Такого вагона нет"));
 
         if (wagon.getTrain().getType().getName().equalsIgnoreCase("Cargo")) {
-            throw new RuntimeException("Cargo train cannot have seats");
+            throw new RuntimeException("Грузовые поезда не могутиметь места");
+        }
+
+        if (seatRepository.existsByWagonIdAndNumber(dto.getWagonId(), dto.getNumber())) {
+            throw new RuntimeException("Место уже существует в этом вагоне");
         }
 
         Seat seat = new Seat();

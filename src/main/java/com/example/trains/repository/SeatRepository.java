@@ -8,4 +8,6 @@ import java.util.List;
 public interface SeatRepository extends JpaRepository<Seat, Integer> {
 
     List<Seat> findByWagonId(Integer wagonId);
+
+    boolean existsByWagonIdAndNumber(Integer wagonId, String number);
 }
