@@ -30,6 +30,10 @@ public class ScheduleService {
 
     public ScheduleDTO createSchedule(ScheduleDTO dto) {
 
+        if (dto.getDepartureTime().isAfter(dto.getArrivalTime())) {
+            throw new RuntimeException("Departure must be before arrival");
+        }
+
         Train train = trainRepository.findById(dto.getTrainId())
                 .orElseThrow(() -> new RuntimeException("Train not found"));
 
@@ -38,23 +42,22 @@ public class ScheduleService {
 
         List<Schedule> conflicts = scheduleRepository.findConflictingSchedules(
                 dto.getTrainId(),
-                dto.getArrivalTime(),
-                dto.getDepartureTime()
+                dto.getDepartureTime(),
+                dto.getArrivalTime()
         );
 
         if (!conflicts.isEmpty()) {
-            throw new RuntimeException("Trains is busy at this time");
+            throw new RuntimeException("Train is busy at this time");
         }
 
         Schedule schedule = new Schedule();
         schedule.setTrain(train);
         schedule.setRoute(route);
-        schedule.setArrivalTime(dto.getArrivalTime());
+
         schedule.setDepartureTime(dto.getDepartureTime());
+        schedule.setArrivalTime(dto.getArrivalTime());
 
-        Schedule saved = scheduleRepository.save(schedule);
-
-        return mapToDTO(saved);
+        return mapToDTO(scheduleRepository.save(schedule));
     }
 
     public List<ScheduleDTO> getAllSchedules() {
@@ -71,6 +74,10 @@ public class ScheduleService {
 
     public ScheduleDTO updateSchedule(Integer id, ScheduleDTO dto) {
 
+        if (dto.getDepartureTime().isAfter(dto.getArrivalTime())) {
+            throw new RuntimeException("Departure must be before arrival");
+        }
+
         Schedule schedule = scheduleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Schedule not found"));
 
@@ -82,25 +89,24 @@ public class ScheduleService {
 
         List<Schedule> conflicts = scheduleRepository.findConflictingSchedules(
                 dto.getTrainId(),
-                dto.getArrivalTime(),
-                dto.getDepartureTime()
+                dto.getDepartureTime(),
+                dto.getArrivalTime()
         );
 
-        boolean hasRealConflict = conflicts.stream()
+        boolean hasConflict = conflicts.stream()
                 .anyMatch(s -> !s.getId().equals(id));
 
-        if (hasRealConflict) {
+        if (hasConflict) {
             throw new RuntimeException("Train is busy at this time");
         }
 
         schedule.setTrain(train);
         schedule.setRoute(route);
-        schedule.setArrivalTime(dto.getArrivalTime());
+
         schedule.setDepartureTime(dto.getDepartureTime());
+        schedule.setArrivalTime(dto.getArrivalTime());
 
-        Schedule updated = scheduleRepository.save(schedule);
-
-        return mapToDTO(updated);
+        return mapToDTO(scheduleRepository.save(schedule));
     }
 
     public void deleteSchedule(Integer id) {
@@ -109,6 +115,7 @@ public class ScheduleService {
 
     private ScheduleDTO mapToDTO(Schedule schedule) {
         ScheduleDTO dto = new ScheduleDTO();
+
         dto.setId(schedule.getId());
 
         dto.setTrainId(schedule.getTrain().getId());
@@ -117,8 +124,9 @@ public class ScheduleService {
         dto.setRouteId(schedule.getRoute().getId());
         dto.setRouteName(schedule.getRoute().getName());
 
-        dto.setArrivalTime(schedule.getArrivalTime());
         dto.setDepartureTime(schedule.getDepartureTime());
+        dto.setArrivalTime(schedule.getArrivalTime());
+
         return dto;
     }
 }

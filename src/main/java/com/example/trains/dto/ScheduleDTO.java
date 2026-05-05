@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ValidScheduleTime
 public class ScheduleDTO {
 
     private Integer id;

@@ -19,6 +19,11 @@ function Schedule() {
 
   const [editId, setEditId] = useState(null);
 
+  const formatDate = (date) => {
+    if (!date) return "—";
+    return new Date(date).toLocaleString();
+  };
+
   const fetchAll = () => {
     fetch("http://localhost:8080/schedules")
       .then((r) => r.json())
@@ -125,15 +130,15 @@ function Schedule() {
           <input
             className={styles.input}
             type="datetime-local"
-            value={arrivalTime}
-            onChange={(e) => setArrivalTime(e.target.value)}
+            value={departureTime}
+            onChange={(e) => setDepartureTime(e.target.value)}
           />
 
           <input
             className={styles.input}
             type="datetime-local"
-            value={departureTime}
-            onChange={(e) => setDepartureTime(e.target.value)}
+            value={arrivalTime}
+            onChange={(e) => setArrivalTime(e.target.value)}
           />
 
           <button className={styles.createBtn}>
@@ -157,8 +162,8 @@ function Schedule() {
               {trains.find((t) => t.id === s.trainId)?.number}
             </p>
 
-            <p><b>Отправление:</b> {s.departureTime}</p>
-            <p><b>Прибытие:</b> {s.arrivalTime}</p>
+            <p><b>Отправление:</b> {formatDate(s.departureTime)}</p>
+            <p><b>Прибытие:</b> {formatDate(s.arrivalTime)}</p>
 
             {canEdit && (
               <div className={styles.actions}>

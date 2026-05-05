@@ -9,15 +9,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
+
     @Query("""
-    SELECT s FROM Schedule s
-    WHERE s.train.id = :trainId
-    AND s.arrivalTime < :newDeparture
-    AND s.departureTime > :newArrival
-""")
+        SELECT s FROM Schedule s
+        WHERE s.train.id = :trainId
+        AND s.departureTime < :newArrival
+        AND s.arrivalTime > :newDeparture
+    """)
     List<Schedule> findConflictingSchedules(
             @Param("trainId") Integer trainId,
-            @Param("newArrival") LocalDateTime newArrival,
-            @Param("newDeparture") LocalDateTime newDeparture
+            @Param("newDeparture") LocalDateTime newDeparture,
+            @Param("newArrival") LocalDateTime newArrival
     );
 }
