@@ -1,189 +1,239 @@
-.page {
-  margin-bottom: 40px;
+/* ===== MODERN FONT + BASE ===== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+:root {
+--max-width: 1100px;
+--gap: 16px;
+--radius: 8px;
+--muted: #6b7280;
+}
+
+
+body {
+background: radial-gradient(1200px 600px at 10% 10%, rgba(59,130,246,0.12), transparent 10%),
+radial-gradient(1000px 500px at 90% 90%, rgba(99,102,241,0.10), transparent 10%),
+linear-gradient(180deg, #eaf2ff 0%, #dbeafe 100%);
+background-attachment: fixed;
+color: #0f1724;
+}
+
+.container {
+max-width: var(--max-width);
+margin: 0 auto;
+padding: 32px;
+box-sizing: border-box;
+background: #fff;
+border-radius: 0;
+position: relative;
+z-index: 1;
+min-height: 100vh;
 }
 
 /* ===== FORM ===== */
 .form {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+display: flex;
+gap: 10px;
+margin-bottom: 20px;
+flex-wrap: wrap;
+align-items: center;
+justify-content: center;
 }
 
 .input,
 .select {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+padding: 8px 12px;
+border-radius: var(--radius);
+border: 1px solid #e5e7eb;
+background: #fff;
+min-width: 160px;
+box-shadow: 0 1px 2px rgba(16,24,40,0.03);
+font-size: 14px;
 }
 
 /* ===== GRID CARDS (wagons, seats) ===== */
 .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 15px;
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+gap: 15px;
+align-items: start;
+justify-items: stretch;
 }
 
 .card {
-  border: 1px solid #ddd;
-  padding: 15px;
-  border-radius: 10px;
-  background: #fafafa;
+border: 1px solid #e6e9ef;
+padding: 16px;
+border-radius: 10px;
+background: #ffffff;
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+box-shadow: 0 6px 18px rgba(16,24,40,0.03);
+}
 
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+.card .title {
+font-weight: 600;
+margin-bottom: 8px;
+color: #0f172a;
+text-align: left;
 }
 
 /* ===== TABLE (stations) ===== */
 .table {
-  width: 100%;
-  border-collapse: collapse;
+width: 100%;
+border-collapse: collapse;
+background: white;
+border-radius: 8px;
+overflow: hidden;
 }
 
 .table th,
 .table td {
-  border-bottom: 1px solid #ddd;
-  padding: 10px;
-  text-align: left;
+border-bottom: 1px solid #eef2f7;
+padding: 12px 14px;
+text-align: left;
+font-size: 14px;
+color: #111827;
 }
 
 /* ===== ACTIONS ===== */
 .actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
+display: flex;
+gap: 10px;
+margin-top: 10px;
+justify-content: center;
 }
 
 /* ===== BUTTONS ===== */
-.createBtn {
-  background: green;
-  color: white;
-  border: none;
-  padding: 8px;
-  border-radius: 6px;
-  cursor: pointer;
+button {
+font-family: inherit;
+font-size: 14px;
+line-height: 1;
+padding: 8px 12px;
+border-radius: var(--radius);
+cursor: pointer;
+border: none;
 }
 
-.createBtn:hover {
-  background: #0f9d58;
+.createBtn {
+background: #16a34a;
+color: white;
 }
+.createBtn:hover { background: #13803d; }
 
 .editBtn {
-  background: orange;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 6px;
-  cursor: pointer;
+background: #f97316;
+color: white;
 }
-
-.editBtn:hover {
-  background: #e69500;
-}
+.editBtn:hover { background: #ea580c; }
 
 .deleteBtn {
-  background: red;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 6px;
-  cursor: pointer;
+background: #ef4444;
+color: white;
 }
-
-.deleteBtn:hover {
-  background: #cc0000;
-}
+.deleteBtn:hover { background: #dc2626; }
 
 .cancelBtn {
-  background: gray;
-  color: white;
-  border: none;
-  padding: 8px;
-  border-radius: 6px;
-  cursor: pointer;
+background: #6b7280;
+color: white;
 }
+.cancelBtn:hover { background: #4b5563; }
 
 /* ===== NAVBAR ===== */
 .navbar {
-  width: 100%;
-  background: #1e293b;
-  color: white;
-  padding: 12px 0;
+width: 100%;
+background: #1e293b;
+color: white;
+padding: 10px 0;
+box-shadow: 0 2px 6px rgba(2,6,23,0.25);
+position: sticky;
+top: 0;
+z-index: 200;
 }
 
 .navContainer {
-  max-width: 1100px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+max-width: var(--max-width);
+margin: 0 auto;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0 20px;
+box-sizing: border-box;
 }
 
 .logo {
-  font-size: 20px;
-  font-weight: bold;
+font-size: 18px;
+font-weight: 700;
+letter-spacing: 0.2px;
 }
 
 .navLinks {
-  display: flex;
-  gap: 12px;
-  align-items: center;
+display: flex;
+gap: 12px;
+align-items: center;
 }
 
 .rightSection {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+display: flex;
+align-items: center;
+gap: 10px;
 }
 
 /* links */
 .navLink {
-  color: #cbd5f5;
-  text-decoration: none;
-  font-size: 14px;
-  padding: 6px 10px;
-  border-radius: 6px;
+color: #d1d5db;
+text-decoration: none;
+font-size: 14px;
+padding: 6px 10px;
+border-radius: 8px;
 }
 
 .navLinkActive {
-  color: white;
-  background: rgba(255,255,255,0.1);
+color: white;
+background: rgba(255,255,255,0.06);
 }
 
 /* dropdown */
 .dropdown {
-  position: relative;
+position: relative;
 }
 
 .dropdownTrigger {
-  cursor: pointer;
-  font-size: 14px;
-  padding: 6px 10px;
-  color: #cbd5f5;
+cursor: pointer;
+font-size: 14px;
+padding: 6px 10px;
+color: #d1d5db;
 }
 
 .dropdownMenu {
-  position: absolute;
-  top: 35px;
-  right: 0;
-  background: white;
-  color: #333;
-  border-radius: 8px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-  min-width: 150px;
-  display: flex;
-  flex-direction: column;
-  z-index: 1000;
+position: absolute;
+top: 36px;
+right: 0;
+background: white;
+color: #111827;
+border-radius: 8px;
+box-shadow: 0 8px 20px rgba(2,6,23,0.15);
+min-width: 160px;
+display: flex;
+flex-direction: column;
+z-index: 1000;
 }
 
 .dropdownItem {
-  padding: 10px;
-  text-decoration: none;
-  color: #333;
-  cursor: pointer;
+padding: 10px;
+text-decoration: none;
+color: #111827;
+cursor: pointer;
+}
+.dropdownItem:hover { background: #f8fafc; }
+
+/* ===== RESPONSIVE TWEAKS ===== */
+@media (max-width: 900px) {
+.navContainer, .container { padding: 12px; }
+.grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+.input, .select { min-width: 120px; }
 }
 
-.dropdownItem:hover {
-  background: #f3f4f6;
+@media (max-width: 480px) {
+.form { justify-content: stretch; }
+.navLinks { display: none; }
 }

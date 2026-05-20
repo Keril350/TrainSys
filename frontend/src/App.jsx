@@ -56,7 +56,7 @@ function App() {
       {/* NAVBAR */}
       <div className={styles.navbar}>
         <div className={styles.navContainer}>
-          <div className={styles.logo}>🚆 Железная дорога</div>
+          <div className={styles.logo}>Железная дорога</div>
 
           <div className={styles.navLinks}>
             <NavLink to="/trains" className={navLinkClass}>

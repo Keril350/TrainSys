@@ -1,0 +1,405 @@
+[33mcommit fb41f380b68dfce57112163a6fca607794dd6e10[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature[m[33m, [m[1;31morigin/feature[m[33m)[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Tue May 5 17:07:17 2026 +0300
+
+    new emoji
+
+[33mcommit 799a9f1f5af7f679b6e7200eea512d94f154aad4[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Tue May 5 16:57:06 2026 +0300
+
+    sched_timeFix
+
+[33mcommit 47e868bac4d9e5d778e808c30a0738733a5654f4[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Tue May 5 16:33:40 2026 +0300
+
+    sched_fix1
+
+[33mcommit d82fa19bed4d8790be9f1097d365e6fd3900a211[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Tue May 5 15:59:33 2026 +0300
+
+    seat_dups
+
+[33mcommit 8cb547f3cb13990ea9b0d041622265e743c55425[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Tue May 5 13:57:16 2026 +0300
+
+    minorfixes
+
+[33mcommit 3ef4b22be52680323d96a51370efa3b544448aac[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Tue May 5 10:49:33 2026 +0300
+
+    ticket-fix
+
+[33mcommit 1a11d46f8994aa2cb96d0d4d6253c8b74c347f15[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Tue May 5 10:12:52 2026 +0300
+
+    Better_tickets
+
+[33mcommit 285e3799ccf3c447d54fae6f743afbb25e605aad[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon May 4 21:18:02 2026 +0300
+
+    new_chat
+
+[33mcommit a155bb86ec10d84e2e479980016df6fd756e9698[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon May 4 20:56:30 2026 +0300
+
+    BetterUX_stylesDevided
+
+[33mcommit 9a70cc0d24380314fe0b52b100f8153a6feae35e[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon May 4 09:45:23 2026 +0300
+
+    BetterUI
+
+[33mcommit becbc966171143df6ced0c133279dcdeac334aa6[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Thu Apr 30 18:47:17 2026 +0300
+
+    data_filter
+
+[33mcommit 74fa88f9b90813506abf9f37e90ad1accae13d0f[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Tue Apr 28 13:44:01 2026 +0300
+
+    fix
+
+[33mcommit a0e8772d0c339cfc078cda0244b6305fdfb8f662[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Tue Apr 28 13:15:04 2026 +0300
+
+    better_UX
+
+[33mcommit 4b3abae5fee326146ad8d65f24e4495844a26220[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 27 18:00:00 2026 +0300
+
+    passenger_wagons_filter
+
+[33mcommit 8d8b2f745d99b09047179e7c69b765dd70845e07[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sun Apr 26 20:00:41 2026 +0300
+
+    prices_refactored
+
+[33mcommit c0f3cd3418711ded56e798c5bc3829b45fbc242e[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sat Apr 25 12:14:09 2026 +0300
+
+    wagons_added
+
+[33mcommit 6357e9687e6593f6e734f92c99e439b110f54e9c[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Fri Apr 24 18:11:20 2026 +0300
+
+    roles_refactor
+
+[33mcommit 0497837b6b8e5e0749003db4c57de214bed2d4fe[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Thu Apr 23 12:24:13 2026 +0300
+
+    fio_added
+
+[33mcommit 0f512242581f63a2174f04d26061b938626eff87[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Thu Apr 23 11:54:15 2026 +0300
+
+    frontmain
+
+[33mcommit 939146fbd52715e396b6e5bce05253228b065628[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Tue Apr 14 21:20:06 2026 +0300
+
+    comments_date_deletebtn
+
+[33mcommit 39c38ecb872deaf046db0c538ff446dd7f15c790[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 13 23:03:25 2026 +0300
+
+    comments_added
+
+[33mcommit 4be02c5a65d9e67bd223caef8b147e3bf4c6e446[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 13 16:17:45 2026 +0300
+
+    train_type_new
+
+[33mcommit 0b7770c805e4b1e9664f169ee21120c34995b78d[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 13 14:39:13 2026 +0300
+
+    tickets/user_id
+
+[33mcommit 983874a500ead9679a6a8488c5d75bedfa2955ef[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sat Apr 11 22:04:54 2026 +0300
+
+    admin_reg_fixed
+
+[33mcommit 6d29438ec862053985eda29d62d1d77941dee5ce[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sat Apr 11 21:02:15 2026 +0300
+
+    created_updated_at
+
+[33mcommit bce7aea5c47ff58b871e14187d4af68c58b3534f[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Fri Apr 10 16:21:26 2026 +0300
+
+    user_tickets_fixed
+
+[33mcommit 524487722524de60276e8a00a3c7179fd8562d6e[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Thu Apr 9 14:40:44 2026 +0300
+
+    AuthContext_added
+
+[33mcommit 29dbbec6dfe884002aa53fdfc9db5009bc4bf534[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Wed Apr 8 13:35:05 2026 +0300
+
+    train_buttons_roled
+
+[33mcommit 6f9251987e6172a157a44ca0812775fd2788d042[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Wed Apr 8 00:16:38 2026 +0300
+
+    logged_username, logout
+
+[33mcommit b389d0a074ae91c8e1e94d285718dbae14c3fb37[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Tue Apr 7 23:45:33 2026 +0300
+
+    front_auth_roles
+
+[33mcommit d5164510580ccb499847d4a0469a8c2b940dfd26[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Tue Apr 7 15:37:38 2026 +0300
+
+    registr
+
+[33mcommit 18afa7e29f9f6f5f3f83cff19ce927b3b677457c[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 6 22:34:58 2026 +0300
+
+    all_put_front
+
+[33mcommit d71411831f0521b87f9672d6576d227368495917[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 6 21:53:47 2026 +0300
+
+    route_put
+
+[33mcommit 47cf8d08e3fb1201fd0a1c0808d16c17714da14b[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 6 21:34:16 2026 +0300
+
+    ticket_put
+
+[33mcommit 0ed16b736f7a8ed81d5bf7f865bb3b469d888b10[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 6 21:06:31 2026 +0300
+
+    schedule_put
+
+[33mcommit fe617df6a285db900b7aac5044cde7b8f626ae57[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 6 20:56:42 2026 +0300
+
+    seat_put
+
+[33mcommit f7f4110a8cd27ed71edad1b2bf91962b7972ca33[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 6 20:38:26 2026 +0300
+
+    station_put
+
+[33mcommit c167012ce15016a43c96335665484edaff681bf8[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 6 20:33:38 2026 +0300
+
+    train_put
+
+[33mcommit 61d13f72f837e32ad4e0bab7cc1e357eb857049c[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 6 20:16:00 2026 +0300
+
+    dropdowns
+
+[33mcommit 4247628b059258274666e06bd6c9dbb1021576f1[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 6 13:35:07 2026 +0300
+
+    pages_devided
+
+[33mcommit d4654203793908044b29bfe3a938d8348b9fbdb8[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 6 13:12:41 2026 +0300
+
+    tickets_front
+
+[33mcommit a039d470d5b8cad95b9ee1fb1d0d7e6e4e7b8f1f[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 6 12:59:10 2026 +0300
+
+    seats_front
+
+[33mcommit ab4adc4783cd71c1ef8e30fb1b1b5af53c441ed5[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 6 12:35:01 2026 +0300
+
+    schedule_front
+
+[33mcommit 30a3559022c11eee0ec5de8613169b45a75bc428[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 6 00:20:13 2026 +0300
+
+    prefix2
+
+[33mcommit 64da7592534872bfbe552de2b6c1213700f027ca[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 6 00:18:21 2026 +0300
+
+    prefix
+
+[33mcommit 0f524d050685a3fc2eec5287112976c0231aa50b[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Mon Apr 6 00:13:30 2026 +0300
+
+    route_delete_front
+
+[33mcommit 5d661d864adfcb6675f3ffa2057d3f38ffdd5cf0[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sun Apr 5 23:04:35 2026 +0300
+
+    routes_front
+
+[33mcommit f423b80d1d84d4b6c5744e9267c9608a21a508a3[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sun Apr 5 22:30:56 2026 +0300
+
+    stations_added
+
+[33mcommit 6e9144cdab9ec39a5b25bc19bb996c201519cf69[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sun Apr 5 22:22:40 2026 +0300
+
+    train_delete_front
+
+[33mcommit 8cd8b97afc109fd33c6068936a770d110b7a74ec[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sun Apr 5 19:22:28 2026 +0300
+
+    prefix
+
+[33mcommit e9b35a6a975c6275e55fd0291a41bcde80b33feb[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sun Apr 5 18:56:41 2026 +0300
+
+    main_page_train_list
+
+[33mcommit 23f5e4bb2c8ea5a8ee5b9d542bbd71544b9ea0c6[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sun Apr 5 18:17:25 2026 +0300
+
+    trainbussynessfixed
+
+[33mcommit 7bd3879d2f429ffee3f0afe1166dc68b8ae98c10[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sun Apr 5 17:29:57 2026 +0300
+
+    trainbussyness
+
+[33mcommit 3ec0c5d9d4fc7b3fd2c3784344d35cc4dc7985f4[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sat Apr 4 20:56:50 2026 +0300
+
+    route-staton
+
+[33mcommit 0b5df2939591634342a38eb321fc4ff8f798193b[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sat Apr 4 10:39:15 2026 +0300
+
+    token_roles
+
+[33mcommit a0d232c853ac52a437b026844d9d189373af7bda[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sat Apr 4 10:27:01 2026 +0300
+
+    tokengetpost_norole
+
+[33mcommit aeebd6b209918cdd82be3ff029fd93aaa139ac64[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sat Apr 4 10:05:59 2026 +0300
+
+    authtoken
+
+[33mcommit 2c8c5478a3979d344cead1d0cd56e4ca6cf60001[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sat Apr 4 01:48:22 2026 +0300
+
+    taken/available
+
+[33mcommit 6037f7af4c22d841d677dda11696311f9d25537d[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sat Apr 4 01:28:26 2026 +0300
+
+    seatsadded
+
+[33mcommit 278f66b0ed6923ea0f700865cc3e7b232855962b[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Sat Apr 4 00:37:33 2026 +0300
+
+    ticketrework
+
+[33mcommit 4c6ab2f383fc75b88324d993bfd0be6e07d95584[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Fri Apr 3 23:55:21 2026 +0300
+
+    minorvldns
+
+[33mcommit cd27c16565f788b08d6524f4d620f02b98291afc[m
+Merge: 767064d 2ffb5ab
+Author: Keril350 <krepys007@gmail.com>
+Date:   Fri Apr 3 22:43:46 2026 +0300
+
+    errhndlwrks
+
+[33mcommit 2ffb5abbce317804e9b27111b882f92fe7d12bc4[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Fri Apr 3 22:33:40 2026 +0300
+
+    errhndlwrks
+
+[33mcommit 767064d82c0b4878c6af2b8b044628af38cdb6d3[m
+Merge: 87bd002 fac628b
+Author: Keril350 <krepys007@gmail.com>
+Date:   Fri Apr 3 22:20:12 2026 +0300
+
+    dtomerge
+    
+    dtofin
+
+[33mcommit fac628bd66625f228f62bc5f2542d02c34391b12[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Fri Apr 3 22:05:14 2026 +0300
+
+    dtofin
+
+[33mcommit 87bd002992758a14dea0ea38f215b78cfee9172c[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Wed Apr 1 13:20:25 2026 +0300
+
+    dockerDB
+
+[33mcommit 10e38aad3b24dc387d4d97b1ec68415dd5082638[m
+Author: Keril350 <krepys007@gmail.com>
+Date:   Wed Apr 1 10:42:21 2026 +0300
+
+    default
