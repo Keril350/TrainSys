@@ -13,6 +13,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Comments from "./components/Comments";
 import Wagons from "./components/Wagons";
+import Statistics from "./components/Statistics";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -37,13 +38,16 @@ function App() {
       if (userRef.current && !userRef.current.contains(e.target)) {
         setUserOpen(false);
       }
+
       if (dataRef.current && !dataRef.current.contains(e.target)) {
         setDataOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+
+    return () =>
+      document.removeEventListener("mousedown", handleClick);
   }, []);
 
   const navLinkClass = ({ isActive }) =>
@@ -84,6 +88,7 @@ function App() {
                     >
                       Вагоны
                     </NavLink>
+
                     <NavLink
                       to="/stations"
                       className={styles.dropdownItem}
@@ -91,6 +96,7 @@ function App() {
                     >
                       Станции
                     </NavLink>
+
                     <NavLink
                       to="/seats"
                       className={styles.dropdownItem}
@@ -114,6 +120,12 @@ function App() {
             <NavLink to="/tickets" className={navLinkClass}>
               Билеты
             </NavLink>
+
+            {canViewDictionaries && (
+              <NavLink to="/statistics" className={navLinkClass}>
+                Статистика
+              </NavLink>
+            )}
           </div>
 
           {/* USER */}
@@ -127,7 +139,7 @@ function App() {
                     setDataOpen(false);
                   }}
                 >
-                  👤 {user.username} ▾
+                  👤 {user.firstName || user.username} ▾
                 </div>
 
                 {userOpen && (
@@ -150,6 +162,7 @@ function App() {
                 <NavLink to="/login" className={navLinkClass}>
                   Вход
                 </NavLink>
+
                 <NavLink to="/register" className={navLinkClass}>
                   Регистрация
                 </NavLink>
@@ -162,15 +175,80 @@ function App() {
       <div className={styles.container}>
         <Routes>
           <Route path="/login" element={<Login />} />
+
           <Route path="/register" element={<Register />} />
 
-          <Route path="/trains" element={<ProtectedRoute><Trains /></ProtectedRoute>} />
-          <Route path="/wagons" element={<ProtectedRoute roles={["ADMIN", "WORKER"]}><Wagons /></ProtectedRoute>} />
-          <Route path="/stations" element={<ProtectedRoute roles={["ADMIN", "WORKER"]}><Stations /></ProtectedRoute>} />
-          <Route path="/seats" element={<ProtectedRoute roles={["ADMIN", "WORKER"]}><Seats /></ProtectedRoute>} />
-          <Route path="/routes" element={<ProtectedRoute><RoutesPage /></ProtectedRoute>} />
-          <Route path="/schedules" element={<ProtectedRoute><Schedule /></ProtectedRoute>} />
-          <Route path="/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
+          <Route
+            path="/trains"
+            element={
+              <ProtectedRoute>
+                <Trains />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/wagons"
+            element={
+              <ProtectedRoute roles={["ADMIN", "WORKER"]}>
+                <Wagons />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/stations"
+            element={
+              <ProtectedRoute roles={["ADMIN", "WORKER"]}>
+                <Stations />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/seats"
+            element={
+              <ProtectedRoute roles={["ADMIN", "WORKER"]}>
+                <Seats />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/routes"
+            element={
+              <ProtectedRoute>
+                <RoutesPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/schedules"
+            element={
+              <ProtectedRoute>
+                <Schedule />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/tickets"
+            element={
+              <ProtectedRoute>
+                <Tickets />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/statistics"
+            element={
+              <ProtectedRoute roles={["ADMIN", "WORKER"]}>
+                <Statistics />
+              </ProtectedRoute>
+            }
+          />
 
           <Route path="*" element={<Trains />} />
         </Routes>
