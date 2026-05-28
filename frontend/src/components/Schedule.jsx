@@ -19,6 +19,11 @@ function Schedule() {
 
   const [editId, setEditId] = useState(null);
 
+  // ===== FILTERS =====
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [showFutureOnly, setShowFutureOnly] = useState(false);
+  const [searchRoute, setSearchRoute] = useState("");
+
   const formatDate = (date) => {
     if (!date) return "—";
     return new Date(date).toLocaleString();
@@ -95,6 +100,32 @@ function Schedule() {
     setDepartureTime("");
   };
 
+  // ===== FILTER + SORT =====
+  const filteredSchedules = [...schedules]
+    .filter((s) => {
+      if (showFutureOnly) {
+        return new Date(s.departureTime) > new Date();
+      }
+
+      return true;
+    })
+    .filter((s) => {
+      const routeName =
+        routes.find((r) => r.id === s.routeId)?.name || "";
+
+      return routeName
+        .toLowerCase()
+        .includes(searchRoute.toLowerCase());
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.departureTime);
+      const dateB = new Date(b.departureTime);
+
+      return sortOrder === "asc"
+        ? dateA - dateB
+        : dateB - dateA;
+    });
+
   return (
     <div className={styles.container}>
       <h2>📅 Расписание</h2>
@@ -107,6 +138,7 @@ function Schedule() {
             onChange={(e) => setTrainId(e.target.value)}
           >
             <option value="">Поезд</option>
+
             {trains.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.number}
@@ -120,6 +152,7 @@ function Schedule() {
             onChange={(e) => setRouteId(e.target.value)}
           >
             <option value="">Маршрут</option>
+
             {routes.map((r) => (
               <option key={r.id} value={r.id}>
                 {r.name}
@@ -147,23 +180,83 @@ function Schedule() {
         </form>
       )}
 
+      {/* ===== FILTERS ===== */}
+      <div className={styles.form}>
+        <input
+          className={styles.input}
+          placeholder="Поиск по маршруту..."
+          value={searchRoute}
+          onChange={(e) => setSearchRoute(e.target.value)}
+        />
+
+        <select
+          className={styles.select}
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value)}
+        >
+          <option value="asc">
+            Сначала ближайшие
+          </option>
+
+          <option value="desc">
+            Сначала поздние
+          </option>
+        </select>
+
+        <label
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={showFutureOnly}
+            onChange={(e) =>
+              setShowFutureOnly(e.target.checked)
+            }
+          />
+
+          Скрывать прошедшие
+        </label>
+      </div>
+
+      {/* ===== SCHEDULES ===== */}
       <div className={styles.grid}>
-        {schedules.map((s) => (
+        {filteredSchedules.map((s) => (
           <div key={s.id} className={styles.card}>
-            {isAdmin && <p><b>ID:</b> {s.id}</p>}
+            {isAdmin && (
+              <p>
+                <b>ID:</b> {s.id}
+              </p>
+            )}
 
             <p>
               <b>Маршрут:</b>{" "}
-              {routes.find((r) => r.id === s.routeId)?.name}
+              {
+                routes.find((r) => r.id === s.routeId)
+                  ?.name
+              }
             </p>
 
             <p>
               <b>Поезд:</b>{" "}
-              {trains.find((t) => t.id === s.trainId)?.number}
+              {
+                trains.find((t) => t.id === s.trainId)
+                  ?.number
+              }
             </p>
 
-            <p><b>Отправление:</b> {formatDate(s.departureTime)}</p>
-            <p><b>Прибытие:</b> {formatDate(s.arrivalTime)}</p>
+            <p>
+              <b>Отправление:</b>{" "}
+              {formatDate(s.departureTime)}
+            </p>
+
+            <p>
+              <b>Прибытие:</b>{" "}
+              {formatDate(s.arrivalTime)}
+            </p>
 
             {canEdit && (
               <div className={styles.actions}>
