@@ -97,13 +97,13 @@ function Comments() {
 
                 <div>{c.content}</div>
 
-                {user?.role === "ADMIN" &&
+                {(user?.role === "ADMIN" || isMine) &&
                   hoveredId === c.id && (
                     <button
                       className={styles.deleteBtn}
                       onClick={() => handleDelete(c.id)}
                     >
-                      ❌
+                      ✕
                     </button>
                   )}
               </div>

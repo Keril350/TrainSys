@@ -46,10 +46,15 @@ public class SecurityConfig {
                         .requestMatchers("/seats/**").hasAnyRole("WORKER", "ADMIN")
                         .requestMatchers("/schedules/**").hasAnyRole("WORKER", "ADMIN")
 
-                        //только админ
+                        // только админ
                         .requestMatchers(HttpMethod.POST, "/users").hasRole("ADMIN")
+
+                        // комментарии
+                        .requestMatchers(HttpMethod.DELETE, "/comments/**")
+                        .hasAnyRole("USER", "WORKER", "ADMIN")
+
+                        // остальные DELETE только админ
                         .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/comments/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 )

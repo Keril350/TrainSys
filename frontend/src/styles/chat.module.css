@@ -84,14 +84,39 @@
 
 .deleteBtn {
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: 21px;
+  right: 6px;
+
+  width: 22px;
+  height: 22px;
+
   border: none;
-  background: red;
-  color: white;
   border-radius: 50%;
+
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   cursor: pointer;
-  font-size: 10px;
+
+  font-size: 11px;
+  font-weight: bold;
+
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.message:hover .deleteBtn {
+  opacity: 1;
+}
+
+.deleteBtn:hover {
+  background: #ef4444;
+  color: white;
+  transform: scale(1.08);
 }
 
 .chatButton {
