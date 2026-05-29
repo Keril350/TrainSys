@@ -35,5 +35,19 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
 
+  frontend:
+    profiles: ["frontend"]
+
+    build:
+      context: ./frontend
+
+    container_name: trains_frontend
+
+    ports:
+      - "5173:5173"
+
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:
