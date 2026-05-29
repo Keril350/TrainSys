@@ -1,4 +1,5 @@
 package com.example.trains.config;
+//http://localhost:8080/swagger-ui/index.html#/
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

@@ -1,6 +1,10 @@
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import { useState, useRef, useEffect } from "react";
+import { ToastContainer } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
+
 import styles from "./styles/common.module.css";
 
 import Trains from "./components/Trains";
@@ -254,6 +258,12 @@ function App() {
         </Routes>
 
         {user && <Comments />}
+
+        <ToastContainer
+          position="bottom-left"
+          autoClose={2500}
+          theme="dark"
+        />
       </div>
     </BrowserRouter>
   );

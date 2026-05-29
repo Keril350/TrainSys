@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import styles from "../styles/common.module.css";
+import { toast } from "react-toastify";
 
 function Tickets() {
   const { user } = useAuth();
@@ -90,33 +91,65 @@ function Tickets() {
       .then(setSeats);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const method = editId ? "PUT" : "POST";
-    const url = editId
-      ? `http://localhost:8080/tickets/${editId}`
-      : "http://localhost:8080/tickets";
+    try {
+      const method = editId ? "PUT" : "POST";
 
-    fetch(url, {
-      method,
-      headers: getAuthHeaders(),
-      body: JSON.stringify({
-        userId: isAdmin ? Number(userId) : null,
-        scheduleId: Number(scheduleId),
-        seatId: Number(seatId),
-      }),
-    }).then(() => {
+      const url = editId
+        ? `http://localhost:8080/tickets/${editId}`
+        : "http://localhost:8080/tickets";
+
+      const response = await fetch(url, {
+        method,
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          userId: isAdmin ? Number(userId) : null,
+          scheduleId: Number(scheduleId),
+          seatId: Number(seatId),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Ошибка при сохранении билета");
+      }
+
+      toast.success(
+        editId
+          ? "Билет обновлен"
+          : "Билет успешно куплен"
+      );
+
       resetForm();
       fetchTickets();
-    });
+
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
-  const handleDelete = (id) => {
-    fetch(`http://localhost:8080/tickets/${id}`, {
-      method: "DELETE",
-      headers: getAuthHeaders(),
-    }).then(fetchTickets);
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/tickets/${id}`,
+        {
+          method: "DELETE",
+          headers: getAuthHeaders(),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Ошибка удаления");
+      }
+
+      toast.success("Билет удален");
+
+      fetchTickets();
+
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   const handleEdit = (t) => {
