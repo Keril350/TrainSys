@@ -70,6 +70,19 @@ public class TicketService {
             throw new RuntimeException("Seat does not belong to this train");
         }
 
+        boolean seatTaken = ticketRepository
+                .findByScheduleId(dto.getScheduleId())
+                .stream()
+                .anyMatch(t ->
+                        t.getSeat().getId().equals(dto.getSeatId())
+                );
+
+        if (seatTaken) {
+            throw new RuntimeException(
+                    "Seat already taken for this schedule"
+            );
+        }
+
         Ticket ticket = new Ticket();
         ticket.setUser(user);
         ticket.setSchedule(schedule);
