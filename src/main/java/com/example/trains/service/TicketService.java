@@ -158,7 +158,7 @@ public class TicketService {
         ticket.setUser(user);
         ticket.setSchedule(schedule);
         ticket.setSeat(seat);
-        ticket.setPrice(dto.getPrice());
+        ticket.setPrice(seat.getWagon().getPrice());
 
         return mapToDTO(ticketRepository.save(ticket));
     }

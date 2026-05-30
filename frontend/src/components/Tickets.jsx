@@ -7,8 +7,11 @@ function Tickets() {
   const { user } = useAuth();
 
   const isAdmin = user?.role === "ADMIN";
-  const canEdit =
-    user?.role === "ADMIN" || user?.role === "WORKER" || user;
+
+  const canManageTickets =
+    user?.role === "ADMIN" || user?.role === "WORKER";
+
+  const canBuyTickets = !!user;
 
   const [tickets, setTickets] = useState([]);
   const [users, setUsers] = useState([]);
@@ -189,9 +192,9 @@ function Tickets() {
 
   return (
     <div className={styles.container}>
-      <h2>🎫 Билеты</h2>
+      <h2>🎫 Билеты </h2>
 
-      {canEdit && (
+      {canBuyTickets && (
         <form onSubmit={handleSubmit} className={styles.form}>
           {isAdmin && (
             <select
@@ -253,6 +256,21 @@ function Tickets() {
         </form>
       )}
 
+
+      {!isAdmin &&
+       !canManageTickets &&
+       tickets.length === 0 && (
+        <p
+          style={{
+            textAlign: "center",
+            marginTop: "20px",
+            fontSize: "18px",
+          }}
+        >
+          У вас пока нет приобретённых билетов
+        </p>
+      )}
+
       <div className={styles.grid}>
         {tickets.map((t) => {
           const schedule = getSchedule(t.scheduleId);
@@ -277,9 +295,9 @@ function Tickets() {
 
               <p><b>Вагон:</b> {t.wagonNumber}</p>
               <p><b>Место:</b> {t.seatNumber}</p>
-              <p><b>Цена:</b> {t.price}</p>
+              <p><b>Цена:</b> {t.price} BYN</p>
 
-              {canEdit && (
+              {canManageTickets && (
                 <div className={styles.actions}>
                   <button
                     className={styles.editBtn}

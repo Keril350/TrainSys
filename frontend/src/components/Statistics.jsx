@@ -47,7 +47,7 @@ function Statistics() {
 
         <div className={styles.card}>
           <h3>💰 Выручка</h3>
-          <h1>{stats.totalRevenue} ₽</h1>
+          <h1>{stats.totalRevenue} BYN</h1>
         </div>
 
         <div className={styles.card}>
